@@ -1,6 +1,6 @@
 name: on_chain_swap
 description: This package enables seamless interaction with the Chainflip network and supports Ethereum, Bitcoin, Solana and substrate, facilitating cross-chain swaps without dependencies.
-version: 0.2.0
+version: 0.3.0
 homepage: "https://github.com/mrtnetwork/onchain_swap"
 repository: "https://github.com/mrtnetwork/onchain_swap"
 Author: mrhaydari.t@gmail.com
@@ -16,11 +16,11 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  blockchain_utils: ^5.2.0
-  cosmos_sdk: ^2.9.0
-  on_chain: ^7.0.0
-  bitcoin_base: ^6.9.0
-  polkadot_dart: ^4.1.0
+  blockchain_utils: ^5.4.0
+  cosmos_sdk: ^3.0.0
+  on_chain: ^7.1.0
+  bitcoin_base: ^7.0.0
+  polkadot_dart: ^5.0.0
 
 dev_dependencies:
   test: ^1.25.8

@@ -279,27 +279,39 @@ class SwapConstants {
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400");
 
-  static const polkadotTestnet = SwapSubstrateNetwork(
-      name: "Polkadot",
-      identifier: "polkadot-testnet",
+  // static const polkadotTestnetChainFlip = SwapSubstrateNetwork(
+  //     name: "Polkadot",
+  //     identifier: "polkadot",
+  //     explorerAddressUrl: "https://polkadot.subscan.io/account/#address",
+  //     explorerTxUrl: "https://polkadot.subscan.io/extrinsic/#txid",
+  //     ss58Format: SS58Const.polkadot,
+  //     chainType: ChainType.testnet,
+  //     genesis:
+  //         "e566d149729892a803c3c4b1e652f09445926234d956a0f166be4d4dea91f536",
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
+
+  static const assetHubTestnet = SwapSubstrateNetwork(
+      name: "Assethub",
+      identifier: "assethub",
       explorerAddressUrl: "https://polkadot.subscan.io/account/#address",
       explorerTxUrl: "https://polkadot.subscan.io/extrinsic/#txid",
       ss58Format: SS58Const.polkadot,
       chainType: ChainType.testnet,
       genesis:
-          "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+          "4fb7a1b11ba4a38827cf211b3effc87971413e4a9fd79c6bcc2c633383496832",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
-
-  static const polkadotTestnetChainFlip = SwapSubstrateNetwork(
-      name: "Polkadot",
-      identifier: "polkadot",
-      explorerAddressUrl: "https://polkadot.subscan.io/account/#address",
-      explorerTxUrl: "https://polkadot.subscan.io/extrinsic/#txid",
+  static const assetHub = SwapSubstrateNetwork(
+      name: "Assethub",
+      identifier: "assethub",
+      explorerAddressUrl:
+          "https://polkadot.js.org/apps/?rpc=wss://assethub.perseverance.chainflip.io",
+      explorerTxUrl:
+          "https://polkadot.js.org/apps/?rpc=wss://assethub.perseverance.chainflip.io",
       ss58Format: SS58Const.polkadot,
-      chainType: ChainType.testnet,
       genesis:
-          "e566d149729892a803c3c4b1e652f09445926234d956a0f166be4d4dea91f536",
+          "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
 }

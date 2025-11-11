@@ -1,1 +1,1 @@
-{"version":2,"entries":[{"package":"on_chain_swap","rootUri":"../","packageUri":"lib/"}]}
+{"version":2,"entries":[{"package":"bitcoin_base","rootUri":"../../bitcoin_base/","packageUri":"lib/"},{"package":"blockchain_utils","rootUri":"../../blockchain_utils/","packageUri":"lib/"},{"package":"cosmos_sdk","rootUri":"../../cosmos_sdk/","packageUri":"lib/"},{"package":"on_chain","rootUri":"../../On_chain/","packageUri":"lib/"},{"package":"polkadot_dart","rootUri":"../../polkadot_dart/","packageUri":"lib/"},{"package":"on_chain_swap","rootUri":"../","packageUri":"lib/"}]}

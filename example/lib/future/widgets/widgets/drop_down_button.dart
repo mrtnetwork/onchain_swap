@@ -1,5 +1,5 @@
-import 'package:onchain_swap_example/app/types/types.dart';
 import 'package:flutter/material.dart';
+import 'package:onchain_swap_example/app/types/types.dart';
 
 class AppDropDownBottom<T> extends StatelessWidget {
   const AppDropDownBottom(

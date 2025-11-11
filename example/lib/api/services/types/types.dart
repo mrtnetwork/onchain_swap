@@ -1,4 +1,4 @@
-import 'package:blockchain_utils/cbor/types/types.dart';
+import 'package:blockchain_utils/cbor/cbor.dart';
 import 'package:onchain_swap_example/api/services/socket/core/socket_provider.dart';
 import 'package:onchain_swap_example/app/http/models/auth.dart';
 import 'package:onchain_swap_example/app/serialization/serialization.dart';
@@ -25,7 +25,11 @@ class ServiceInfo with CborSerializable {
   @override
   CborTagValue toCbor() {
     return CborTagValue(
-        CborListValue.fixedLength([url, protocol.id, authenticated?.toCbor()]),
+        CborListValue.definite(<CborObject>[
+          CborStringValue(url),
+          CborIntValue(protocol.id),
+          authenticated?.toCbor() ?? CborNullValue()
+        ]),
         CborConst.serviceInfo);
   }
 }

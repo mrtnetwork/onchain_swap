@@ -1,11 +1,11 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain_swap/src/swap/constants/constants.dart';
-import 'package:polkadot_dart/polkadot_dart.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
+import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
+import 'package:polkadot_dart/polkadot_dart.dart';
 
-enum SwapRouteSubstrateTransactionStrategy { native }
+enum SwapRouteSubstrateTransactionStrategy { native, assetHubAsset }
 
 class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
     SubstrateAddress,
@@ -27,29 +27,36 @@ class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
       stepsCallBack(TransactionOperationStep.client);
       final substrateClient = await checkRouteAndClient(client, operation);
       stepsCallBack(TransactionOperationStep.generateTx);
-      final transaction = await operation._buildTransactions(substrateClient);
+      final callData = await operation._buildTransactions(substrateClient);
+      final extersinc = substrateClient.api.metadata.extrinsicInfo();
+      if (extersinc.isEmpty) {
+        throw const DartOnChainSwapPluginException(
+            "Unsported metadata extersinc.");
+      }
+      final metadataWithProvider = substrateClient.metadataWitPorvider();
+      final transaction =
+          await SubstrateTransactionBuilder.buildTransactionStatic(
+              owner: operation.source,
+              calls: SubstrateTransactionSubmitableParams(calls: [
+                SubstrateEncodedCallParams(
+                    pallet: callData.pallet.name,
+                    method: callData.type.method,
+                    bytes: callData.encodeCall(
+                        extrinsic: metadataWithProvider.metadata))
+              ]),
+              provider: metadataWithProvider);
       stepsCallBack(TransactionOperationStep.signing);
       final signerInfo = await signer(operation.source);
       final signers = await signerInfo.signers();
       signers.firstWhere((e) => e == operation.source,
           orElse: () => throw const DartOnChainSwapPluginException(
               "None of the connected accounts match the source address of the transaction."));
-      final signature = await signerInfo.signTransaction(transaction);
-
-      final signatureBytes = BytesUtils.fromHexString(signature);
-      final multisignature =
-          SubstrateMultiSignature.deserialize(signatureBytes);
-      final ExtrinsicSignature extrinsicSignature = ExtrinsicSignature(
-          signature: multisignature,
-          address: operation.source.toMultiAddress(),
-          era: transaction.payload.era,
-          tip: transaction.payload.tip,
-          nonce: transaction.payload.nonce,
-          mode: transaction.mode ?? 0);
-      final extrinsic = Extrinsic(
-          signature: extrinsicSignature,
-          methodBytes: transaction.payload.method,
-          version: transaction.version);
+      final web3Tx = Web3TransactionSubstrate(transaction: transaction);
+      final signature = await signerInfo.signTransaction(web3Tx);
+      final extrinsic = await SubstrateTransactionBuilder.signTransactionStatic(
+          payload: web3Tx.transaction,
+          provider: metadataWithProvider,
+          encodedSignature: BytesUtils.fromHexString(signature));
       stepsCallBack(TransactionOperationStep.broadcast);
       final result =
           await substrateClient.submitExtrinsicAndWatch(extrinsic: extrinsic);
@@ -71,7 +78,7 @@ abstract class SwapRouteSubstrateTransactionOperation
       required super.network,
       required this.strategy,
       this.memo});
-  Future<Web3TransactionSubstrate> _buildTransactions(
+  Future<SubstrateLocalTransferCallPallet> _buildTransactions(
       BaseSwapSubstrateClient client);
 }
 
@@ -87,46 +94,81 @@ class SwapRouteSubstrateNativeTransactionOperation
       super.memo})
       : super(strategy: SwapRouteSubstrateTransactionStrategy.native);
 
-  List<int> _encode(MetadataApi metadata) {
-    final Map<String, dynamic> input = {
-      "transfer_allow_death": {
-        "dest": {"Id": destination.toBytes()},
-        "value": amount.amount
-      }
-    };
-    return metadata.encodeCall(
-        palletNameOrIndex: "balances", value: input, fromTemplate: false);
-  }
-
   @override
-  Future<Web3TransactionSubstrate> _buildTransactions(
+  Future<SubstrateLocalTransferCallPallet> _buildTransactions(
       BaseSwapSubstrateClient client) async {
     final balance = await client.getBalance(source);
     if (balance < amount.amount) {
       throw SwapConstants.insufficientTokenBalance;
     }
-    final block = await client.transactionBlockRequirment();
-    final runtime = client.api.runtimeVersion();
-    final nonce = await client.getAccountNonce(source);
+
+    return SubstrateNetworkControllerLocalAssetTransferBuilder
+        .createLocalBalancesPalletTransfer(
+            metadata: client.api.metadataWithExtrinsic(),
+            destination: destination,
+            amount: amount.amount,
+            method: BalancesCallPalletMethod.transferKeepAlive);
+    // // throw UnimplementedError();
+  }
+
+  @override
+  String get destinationAddress => destination.address;
+
+  @override
+  String get sourceAddress => source.address;
+
+  @override
+  final String? tokenAddress = null;
+}
+
+class SwapRouteSubstrateAssetHubAssetTransactionOperation
+    extends SwapRouteSubstrateTransactionOperation
+    implements SwapRouteTransactionTransferDetails<SwapSubstrateNetwork> {
+  final SubstrateAddress destination;
+  final BigInt assetId;
+  SwapRouteSubstrateAssetHubAssetTransactionOperation(
+      {required super.amount,
+      required super.source,
+      required this.destination,
+      required super.network,
+      required this.assetId,
+      super.memo})
+      : super(strategy: SwapRouteSubstrateTransactionStrategy.assetHubAsset);
+
+  Future<BigInt> getAssetBalance(BaseSwapSubstrateClient client) async {
+    final balancesEntries = await SubstrateNetworkControllerAssetQueryHelper
+        .getAssetsPalletAccountIdentifierBigInt(
+            provider: client.metadataWitPorvider(),
+            address: source,
+            assetIds: [assetId]);
+    final balanceEntry = balancesEntries.entries
+        .firstWhereNullable((e) => e.key == assetId)
+        ?.value;
+    if (balanceEntry == null) return BigInt.zero;
+    final balance = PolkadotAssetBalance.fromJson(balanceEntry);
+    return balance.balance;
+  }
+
+  @override
+  Future<SubstrateLocalTransferCallPallet> _buildTransactions(
+      BaseSwapSubstrateClient client) async {
+    final balance = await getAssetBalance(client);
+    if (balance < amount.amount) {
+      throw SwapConstants.insufficientTokenBalance;
+    }
     final extersinc = client.api.metadata.extrinsicInfo();
     if (extersinc.isEmpty) {
       throw const DartOnChainSwapPluginException(
           "Unsported metadata extersinc.");
     }
-    final ex = extersinc.first;
-    return Web3TransactionSubstrate(
-        address: source,
-        blockHash: block.blockHashBytes,
-        blockNumber: block.blockNumber,
-        era: block.era,
-        genesisHash: block.genesisBlock.serialize(),
-        method: _encode(client.api),
-        nonce: nonce,
-        specVersion: runtime.specVersion,
-        transactionVersion: runtime.transactionVersion,
-        signedExtensions:
-            ex.extrinsic.map((e) => e.name).whereType<String>().toList(),
-        version: ex.version);
+    final extWithMetadata = client.api.metadataWithExtrinsic();
+    return SubstrateNetworkControllerLocalAssetTransferBuilder
+        .createLocalAssetPalletTransfer(
+            metadata: extWithMetadata,
+            assetId: assetId,
+            target: destination,
+            amount: amount.amount,
+            method: AssetsCallPalletMethod.transferKeepAlive);
   }
 
   @override

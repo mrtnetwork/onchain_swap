@@ -8,6 +8,7 @@ import 'package:on_chain_swap/src/swap/services/swap_kit/swap_kit/types.dart'
 import 'package:on_chain_swap/src/swap/services/swap_kit/swap_kit/utils.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:on_chain_swap/src/swap/utils/utils.dart';
+
 import 'route.dart';
 
 class SwapKitSwapService extends SwapService<BaseSwapAsset, SwapKitProvider,
@@ -96,7 +97,6 @@ class SwapKitSwapService extends SwapService<BaseSwapAsset, SwapKitProvider,
         address: params.sourceAddress, network: network);
     final destinationAddress = SwapUtils.checkOrGetFakeAddress(
         address: params.destinationAddress, network: network);
-
     final quote = await provider.request(SwapKitRequestQuote(
         sellAsset: params.sourceAsset.providerIdentifier,
         buyAsset: params.destinationAsset.providerIdentifier,

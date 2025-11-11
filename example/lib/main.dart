@@ -1,24 +1,27 @@
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:on_chain_bridge/platform_interface.dart';
 import 'package:onchain_swap_example/app/constants/constants.dart';
 import 'package:onchain_swap_example/app/constants/state.dart';
+import 'package:onchain_swap_example/app/constants/storage_key.dart';
 import 'package:onchain_swap_example/app/logging/logging.dart';
 import 'package:onchain_swap_example/app/models/models/setting.dart';
 import 'package:onchain_swap_example/future/pages/swap/controller/controller.dart';
 import 'package:onchain_swap_example/future/router/router.dart';
 import 'package:onchain_swap_example/future/widgets/widgets/scroll_behavior.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:on_chain_bridge/platform_interface.dart';
 
 import 'future/state_managment/state_managment.dart';
 import 'future/theme/theme.dart';
 
 Future<HomeStateController> _readSetting() async {
-  final config = await PlatformInterface.instance.getConfig();
+  final config = await PlatformInterface.instance.init(APPConst.applicationId);
+  final query =
+      await PlatformInterface.instance.readDb(APPDatabaseConst.appSettingQuery);
   final settings =
-      await PlatformInterface.instance.readSecure('ST_app_setting');
-  final stateController =
-      HomeStateController(appSetting: APPSetting.fromHex(settings, config));
+      APPSetting.deserialize(config: config, cborBytes: query?.data);
+  final stateController = HomeStateController(appSetting: settings);
   await stateController.initSwap();
   return stateController;
 }

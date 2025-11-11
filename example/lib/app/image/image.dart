@@ -61,7 +61,8 @@ class APPImage extends BaseAPPImage {
   @override
   CborTagValue toCbor() {
     return CborTagValue(
-        CborListValue.fixedLength([type.value, CborStringValue(uri)]),
+        CborListValue.definite(
+            <CborObject>[CborIntValue(type.value), CborStringValue(uri)]),
         APPSerializationConst.imageTag);
   }
 
@@ -85,7 +86,8 @@ class APPImageMemory extends BaseAPPImage {
   @override
   CborTagValue toCbor() {
     return CborTagValue(
-        CborListValue.fixedLength([type.value, CborBytesValue(bytes)]),
+        CborListValue.definite(
+            <CborObject>[CborIntValue(type.value), CborBytesValue(bytes)]),
         APPSerializationConst.imageTag);
   }
 

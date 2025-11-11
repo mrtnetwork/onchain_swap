@@ -103,14 +103,15 @@ abstract class BaseSwapSubstrateClient
         SwapNetworkClient<PolkadotSwapAsset, BaseSubstrateAddress,
             SwapPolkadotAccountAssetBalance> {
   MetadataApi get api;
+  MetadataWithProvider metadataWitPorvider();
   Future<BigInt> getBalance(SubstrateAddress address);
   Future<SubstrateBlockHash> getFinalizBlock({int? atNumber});
   Future<SubstrateBlockHash> getGenesis();
   Future<SubstrateHeaderResponse> getBlockHeader({String? atBlockHash});
   Future<SubstrateTransactionBlockRequirment> transactionBlockRequirment();
-
-  Future<int> getAccountNonce(SubstrateAddress address);
+  Future<BigInt> getAccountNonce(SubstrateAddress address);
   Future<String> sendTransaction(Extrinsic extrinsic);
   Future<SubtrateTransactionSubmitionResult> submitExtrinsicAndWatch(
-      {required Extrinsic extrinsic, int maxRetryEachBlock = 5});
+      {required SubstrateSubmitableTransaction extrinsic,
+      int maxRetryEachBlock = 5});
 }

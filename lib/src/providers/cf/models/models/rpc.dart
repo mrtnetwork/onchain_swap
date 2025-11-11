@@ -1,8 +1,7 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:on_chain/utils/utils/map_utils.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/utils/extensions/extensions.dart';
-
-import 'package:on_chain/utils/utils/map_utils.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
 class LimitOrderSide {
@@ -304,34 +303,32 @@ class ChainAssetMap {
   final Map<CfAssets, BigInt?> polkadot;
   final Map<CfAssets, BigInt?> arbitrum;
   final Map<CfAssets, BigInt?> solana;
-
+  final Map<CfAssets, BigInt?> assetHub;
   ChainAssetMap({
     required this.bitcoin,
     required this.ethereum,
     required this.polkadot,
     required this.arbitrum,
     required this.solana,
+    required this.assetHub,
   });
 
   // Factory constructor to parse from JSON
   factory ChainAssetMap.fromJson(Map<String, dynamic> json) {
     return ChainAssetMap(
-      bitcoin: Map<CfAssets, BigInt?>.from((json['Bitcoin'] as Map).map(
-          (key, value) =>
-              MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-      ethereum: Map<CfAssets, BigInt?>.from((json['Ethereum'] as Map).map(
-          (key, value) =>
-              MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-      polkadot: Map<CfAssets, BigInt?>.from((json['Polkadot'] as Map).map(
-          (key, value) =>
-              MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-      arbitrum: Map<CfAssets, BigInt?>.from((json['Arbitrum'] as Map).map(
-          (key, value) =>
-              MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-      solana: Map<CfAssets, BigInt?>.from((json['Solana'] as Map).map(
-          (key, value) =>
-              MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-    );
+        bitcoin: Map<CfAssets, BigInt?>.from((json['Bitcoin'] as Map).map(
+            (key, value) =>
+                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        ethereum: Map<CfAssets, BigInt?>.from((json['Ethereum'] as Map).map(
+            (key, value) =>
+                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        polkadot: Map<CfAssets, BigInt?>.from((json['Polkadot'] as Map).map(
+            (key, value) =>
+                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        arbitrum: Map<CfAssets, BigInt?>.from(
+            (json['Arbitrum'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        solana: Map<CfAssets, BigInt?>.from((json['Solana'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        assetHub: Map<CfAssets, BigInt?>.from((json['Assethub'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))));
   }
 
   // Convert Dart object to JSON
@@ -1280,35 +1277,21 @@ class TRPCOpenDepositChannelResponse {
 class CfAssets {
   final String name;
   final String variant;
-  final int variantId;
 
-  const CfAssets._(
-      {required this.variant, required this.name, required this.variantId});
-  static const CfAssets flip =
-      CfAssets._(name: 'FLIP', variant: "Flip", variantId: 2);
-  static const CfAssets usdc =
-      CfAssets._(name: 'USDC', variant: "Usdc", variantId: 3);
-  static const CfAssets dot =
-      CfAssets._(name: 'DOT', variant: "Dot", variantId: 4);
-  static const CfAssets eth =
-      CfAssets._(name: 'ETH', variant: "Eth", variantId: 1);
-  static const CfAssets btc =
-      CfAssets._(name: 'BTC', variant: 'Btc', variantId: 5);
-  static const CfAssets usdt =
-      CfAssets._(name: 'USDT', variant: "Usdt", variantId: 8);
-  static const CfAssets sol =
-      CfAssets._(name: "SOL", variant: 'Sol', variantId: 9);
-
+  const CfAssets._({required this.variant, required this.name});
+  static const CfAssets flip = CfAssets._(name: 'FLIP', variant: "Flip");
+  static const CfAssets usdc = CfAssets._(name: 'USDC', variant: "Usdc");
+  static const CfAssets dot = CfAssets._(name: 'DOT', variant: "Dot");
+  static const CfAssets eth = CfAssets._(name: 'ETH', variant: "Eth");
+  static const CfAssets btc = CfAssets._(name: 'BTC', variant: 'Btc');
+  static const CfAssets usdt = CfAssets._(name: 'USDT', variant: "Usdt");
+  static const CfAssets sol = CfAssets._(name: "SOL", variant: 'Sol');
+  // static const CfAssets sol =
+  //     CfAssets._(name: "SOL", variant: 'Sol', variantId: 9);
   static List<CfAssets> get values => [flip, usdc, dot, eth, btc, usdt, sol];
 
   static CfAssets fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartOnChainSwapPluginException("asset not found.",
-            details: {"type": name}));
-  }
-
-  static CfAssets fromVariant(String? name) {
-    return values.firstWhere((e) => e.variant == name,
         orElse: () => throw DartOnChainSwapPluginException("asset not found.",
             details: {"type": name}));
   }
@@ -1354,6 +1337,14 @@ class CfChain {
     variantId: 2,
     blockTimeSeconds: 6,
   );
+  static const CfChain assetHub = CfChain._(
+    name: "Assethub",
+    variantName: "Assethub",
+    assets: [CfAssets.dot, CfAssets.usdt, CfAssets.usdc],
+    gasAsset: CfAssets.dot,
+    variantId: 2,
+    blockTimeSeconds: 6,
+  );
   static const CfChain arbitrum = CfChain._(
     name: "Arbitrum",
     variantName: "Arb",
@@ -1372,7 +1363,7 @@ class CfChain {
   );
 
   static List<CfChain> get values =>
-      [bitcoin, ethereum, polkadot, arbitrum, solana];
+      [bitcoin, ethereum, polkadot, arbitrum, solana, assetHub];
   static CfChain fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
         orElse: () => throw DartOnChainSwapPluginException("chain not found.",
@@ -1416,40 +1407,6 @@ class CfChain {
         }
         return variantName + asset.variant;
     }
-  }
-
-  int getAssetVariantId(CfAssets asset) {
-    validateChainAsset(asset);
-    switch (this) {
-      case CfChain.ethereum:
-      case CfChain.bitcoin:
-      case CfChain.polkadot:
-        return asset.variantId;
-      case CfChain.arbitrum:
-        switch (asset) {
-          case CfAssets.eth:
-            return 6;
-          case CfAssets.usdc:
-            return 7;
-          default:
-            break;
-        }
-        break;
-      case CfChain.solana:
-        switch (asset) {
-          case CfAssets.sol:
-            return asset.variantId;
-          case CfAssets.usdc:
-            return 10;
-          default:
-            break;
-        }
-        break;
-      default:
-        break;
-    }
-    throw DartOnChainSwapPluginException("Asset does not exist.",
-        details: {"chain": name, "asset": asset.name});
   }
 
   @override

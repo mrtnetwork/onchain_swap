@@ -1,10 +1,13 @@
 import 'package:blockchain_utils/cbor/cbor.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:onchain_swap_example/app/error/exception/app.dart';
-import 'package:on_chain/on_chain.dart';
 
 mixin CborSerializable {
   CborTagValue toCbor();
+  static CborListValue fromDynamic(List<dynamic> objects) {
+    return CborListValue.definite(
+        objects.map((e) => CborObject.fromDynamic(e)).toList());
+  }
 
   static CborTagValue toTagValue<T extends CborObject>(List<int> bytes,
       {List<int>? tags}) {
@@ -28,12 +31,11 @@ mixin CborSerializable {
     return validateCbor(cbor, tags);
   }
 
-  static T cborTagValue<T extends CborObject>({
-    List<int>? cborBytes,
-    CborObject? object,
-    String? hex,
-    List<int>? tags,
-  }) {
+  static CborListValue cborTagValue(
+      {List<int>? cborBytes,
+      CborObject? object,
+      String? hex,
+      List<int>? tags}) {
     assert(cborBytes != null || object != null || hex != null,
         "cbor bytes or cbor object must not be null");
     if (object == null) {
@@ -55,7 +57,7 @@ mixin CborSerializable {
     if (tags != null && !BytesUtils.bytesEqual(cbor.tags, tags)) {
       throw AppExceptionConst.invalidSerializationData;
     }
-    return cbor.value;
+    return cbor.value as T;
   }
 
   static T decode<T extends CborObject>(
@@ -82,17 +84,6 @@ mixin CborSerializable {
 typedef OnKeyValue<T> = T Function(CborObject);
 
 extension ExtractCborMap on CborMapValue {
-  Map<K, V> toMap<K, V>() {
-    try {
-      final Map<CborObject, CborObject> cborMap = value.cast();
-      final entrries = cborMap.entries
-          .map((e) => MapEntry<K, V>(e.key.getValue(), e.value.getValue()));
-      return Map<K, V>.fromEntries(entrries);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Map<K, V> generateMap<K, V>(OnKeyValue<K> onKey, OnKeyValue<V> onValue) {
     final Map<CborObject, CborObject> cborMap = value.cast();
     final entrries = cborMap.entries
@@ -110,38 +101,28 @@ extension ExtractCborList on CborListValue {
     return value[index] is T;
   }
 
-  T elementAt<T>(int index) {
-    if (index > value.length - 1) return null as T;
-    final cborValue = value[index];
-    final dynamic v;
-    if (T == CborMapValue) {
-      if (cborValue is CborMapValue) {
-        return cborValue as T;
-      }
-      return null as T;
-    }
-    if (cborValue is CborObject) {
-      v = cborValue.value;
-    } else {
-      v = cborValue;
-    }
-    if (v is! T) return null as T;
-    return v;
-  }
+  // T elementAt<T>(int index) {
+  //   if (index > value.length - 1) return null as T;
+  //   final cborValue = value[index];
+  //   final dynamic v;
+  //   if (T == CborMapValue) {
+  //     if (cborValue is CborMapValue) {
+  //       return cborValue as T;
+  //     }
+  //     return null as T;
+  //   }
+  //   if (cborValue is CborObject) {
+  //     v = cborValue.value;
+  //   } else {
+  //     v = cborValue;
+  //   }
+  //   if (v is! T) return null as T;
+  //   return v;
+  // }
 
   List<T> elementAsListOf<T extends CborObject>(int index) {
     try {
       return (value[index] as CborListValue).value.cast<T>();
-    } catch (e) {
-      throw AppExceptionConst.invalidSerializationData;
-    }
-  }
-
-  Map<K, V> elementAsMap<K extends CborObject, V extends CborObject>(
-      int index) {
-    try {
-      final CborMapValue cborValue = value[index];
-      return cborValue.value.cast<K, V>();
     } catch (e) {
       throw AppExceptionConst.invalidSerializationData;
     }
@@ -153,11 +134,11 @@ extension ExtractCborList on CborListValue {
       throw AppExceptionConst.invalidSerializationData;
     }
     try {
-      final CborObject? cborValue = value[index];
+      final CborObject cborValue = value[index];
       if (null is T && cborValue == const CborNullValue()) {
         return null as T;
       }
-      if (cborValue!.value is T) {
+      if (cborValue.value is T) {
         return cborValue.value as T;
       }
       return cborValue as T;
@@ -184,9 +165,9 @@ extension ExtractCborList on CborListValue {
     }
   }
 
-  List<T> cast<T>() {
-    return [for (int i = 0; i < value.length; i++) elementAt<T>(i)];
-  }
+  // List<T> cast<T>() {
+  //   return [for (int i = 0; i < value.length; i++) elementAt<T>(i)];
+  // }
 
   List<T> castValue<T>() {
     return [for (int i = 0; i < value.length; i++) elementAs<T>(i)];
@@ -195,34 +176,9 @@ extension ExtractCborList on CborListValue {
   CborTagValue? getCborTag(int index) {
     if (index > value.length - 1) return null;
     final cborValue = value[index];
-    if (cborValue is! CborObject) return null;
     if (cborValue is CborTagValue) return cborValue;
     if (cborValue.value is CborTagValue) return cborValue.value;
     return null;
-  }
-
-  int? getInt(int index) {
-    if (index > value.length - 1) return null;
-    final cborValue = value[index];
-    int? v;
-    if (cborValue is CborIntValue) {
-      v = cborValue.value;
-    } else if (cborValue is int) {
-      v = cborValue;
-    }
-    return v;
-  }
-
-  String? getString(int index) {
-    if (index > value.length - 1) return null;
-    final cborValue = value[index];
-    String? v;
-    if (cborValue is CborStringValue) {
-      v = cborValue.value;
-    } else if (cborValue is String) {
-      v = cborValue;
-    }
-    return v;
   }
 
   /// Gets the value at the specified [index] in the [CborListValue].
@@ -257,18 +213,18 @@ extension QuickCbor on CborTagValue {
   }
 }
 
-extension QuickCborTag on CborTagValue {
-  CborListValue get getList {
-    if (value is! CborListValue) {
-      throw AppExceptionConst.invalidSerializationData;
-    }
-    return value;
-  }
+// extension QuickCborTag on CborTagValue {
+//   CborListValue get getList {
+//     if (value is! CborListValue) {
+//       throw AppExceptionConst.invalidSerializationData;
+//     }
+//     return value;
+//   }
 
-  T valueAs<T extends CborObject>() {
-    if (value is! T) {
-      throw AppExceptionConst.invalidSerializationData;
-    }
-    return value;
-  }
-}
+//   T valueAs<T extends CborObject>() {
+//     if (value is! T) {
+//       throw AppExceptionConst.invalidSerializationData;
+//     }
+//     return value;
+//   }
+// }

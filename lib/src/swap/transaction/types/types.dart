@@ -1,13 +1,13 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cosmos_sdk/cosmos_sdk.dart';
+import 'package:on_chain/on_chain.dart'
+    show ETHAddress, ETHTransactionType, SolanaTransaction, SolAddress;
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/swap/transaction/client/core/client.dart'
     show SwapNetworkClient;
 import 'package:on_chain_swap/src/swap/transaction/signer/signer.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
-import 'package:cosmos_sdk/cosmos_sdk.dart';
-import 'package:on_chain/on_chain.dart'
-    show ETHAddress, ETHTransactionType, SolanaTransaction, SolAddress;
 import 'package:on_chain_swap/src/utils/extensions/json.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
@@ -95,110 +95,50 @@ class Web3TransactionBitcoin extends Web3Transaction {
 }
 
 class Web3TransactionSubstrate extends Web3Transaction {
-  final TransactionPayload payload;
-  final String address;
-  final String? assetId;
-  final String blockHash;
-  final String blockNumber;
-  final String era;
-  final String genesisHash;
-  final String? metadataHash;
-  final String method;
-  final int? mode;
-  final String nonce;
-  final String specVersion;
-  final String tip;
-  final String transactionVersion;
-  final List<String> signedExtensions;
-  final int version;
+  final SubstrateSubmitableTransactionPayload transaction;
   final bool? withSignedTransaction;
   Map<String, dynamic> toJson() {
     return {
-      "address": address,
-      "assetId": assetId,
-      "blockHash": blockHash,
-      "blockNumber": blockNumber,
-      "era": era,
-      "genesisHash": genesisHash,
-      "metadataHash": metadataHash,
-      "method": method,
-      "mode": mode,
-      "nonce": nonce,
-      "specVersion": specVersion,
-      "transactionVersion": transactionVersion,
-      "version": version,
-      "tip": tip,
-      "signedExtensions": signedExtensions
+      "address": transaction.owner.address,
+      "assetId": BytesUtils.tryToHexString(transaction.assetId, prefix: "0x"),
+      "blockHash": transaction.block.blockHash.toHex(prefix: "0x"),
+      "blockNumber": BytesUtils.toHexString(
+          LayoutConst.u32be().serialize(transaction.block.blockNumber),
+          prefix: '0x'),
+      "era": transaction.block.era.toHex(prefix: "0x"),
+      "genesisHash": StringUtils.add0x(transaction.genesisHash),
+      "metadataHash":
+          BytesUtils.tryToHexString(transaction.metadataHash, prefix: "0x"),
+      "method": BytesUtils.toHexString(transaction.methodBytes, prefix: "0x"),
+      "mode": 0,
+      "nonce": BytesUtils.toHexString(
+          LayoutConst.u32be().serialize(transaction.nonce.toInt()),
+          prefix: '0x'),
+      "specVersion": BytesUtils.toHexString(
+          LayoutConst.u32be().serialize(transaction.specVersion),
+          prefix: '0x'),
+      "transactionVersion": BytesUtils.toHexString(
+          LayoutConst.u32be().serialize(transaction.transactionVersion),
+          prefix: '0x'),
+      "version": transaction.builder.metadataFields.extrinsicInfo.version,
+      "tip": "0x00000000000000000000000000000000",
+      "signedExtensions": transaction
+          .builder.metadataFields.extrinsicInfo.extrinsic
+          .map((e) => e.name)
+          .cast<String>()
+          .toList()
     };
   }
 
   factory Web3TransactionSubstrate({
-    required SubstrateAddress address,
-    required final List<int> blockHash,
-    required final int blockNumber,
-    required final MortalEra era,
-    required final List<int> genesisHash,
-    required final List<int> method,
-    required final int nonce,
-    required final int specVersion,
-    required final int transactionVersion,
-    required final List<String> signedExtensions,
-    required final int version,
+    required SubstrateSubmitableTransactionPayload transaction,
   }) {
     return Web3TransactionSubstrate._(
-        address: address.address,
-        blockHash: BytesUtils.toHexString(blockHash, prefix: '0x'),
-        blockNumber: BytesUtils.toHexString(
-            LayoutConst.u32be().serialize(blockNumber),
-            prefix: '0x'),
-        era: era.toHex(prefix: '0x'),
-        genesisHash: BytesUtils.toHexString(genesisHash, prefix: '0x'),
-        mode: 0,
-        withSignedTransaction: false,
-        metadataHash: null,
-        method: BytesUtils.toHexString(method, prefix: '0x'),
-        nonce: BytesUtils.toHexString(LayoutConst.u32be().serialize(nonce),
-            prefix: '0x'),
-        specVersion: BytesUtils.toHexString(
-            LayoutConst.u32be().serialize(specVersion),
-            prefix: '0x'),
-        tip: "0x00000000000000000000000000000000",
-        transactionVersion: BytesUtils.toHexString(
-            LayoutConst.u32be().serialize(transactionVersion),
-            prefix: '0x'),
-        signedExtensions: signedExtensions,
-        version: version,
-        payload: TransactionPayload(
-            blockHash: SubstrateBlockHash(blockHash),
-            era: era,
-            genesisHash: SubstrateBlockHash(genesisHash),
-            method: method,
-            nonce: nonce,
-            tip: BigInt.zero,
-            mode: 0,
-            metadataHash: null,
-            specVersion: specVersion,
-            transactionVersion: transactionVersion));
+        withSignedTransaction: false, transaction: transaction);
   }
 
-  Web3TransactionSubstrate._({
-    required this.address,
-    required this.blockHash,
-    required this.blockNumber,
-    required this.era,
-    required this.genesisHash,
-    required this.payload,
-    this.metadataHash,
-    required this.method,
-    this.mode,
-    required this.nonce,
-    required this.specVersion,
-    required this.tip,
-    required this.transactionVersion,
-    required this.signedExtensions,
-    required this.version,
-    this.withSignedTransaction,
-  }) : assetId = null;
+  Web3TransactionSubstrate._(
+      {required this.transaction, this.withSignedTransaction});
 }
 
 class Web3TransactionCosmos extends Web3Transaction {
@@ -314,33 +254,6 @@ class CosmosSignResponse {
 }
 
 enum CosmosSigningScheme { amino, direct }
-
-/// Represents the result of a Substrate transaction submission.
-class SubtrateTransactionSubmitionResult {
-  /// The extrinsic associated with the transaction.
-  final String extrinsic;
-
-  /// The block in which the transaction was included.
-  final String block;
-
-  /// The block number of the transaction.
-  final int blockNumber;
-
-  /// A list of events related to the transaction.
-  final List<SubstrateEvent> events;
-
-  /// The hash of the transaction.
-  final String transactionHash;
-
-  /// Constructor for initializing all the fields.
-  const SubtrateTransactionSubmitionResult({
-    required this.events,
-    required this.block,
-    required this.extrinsic,
-    required this.blockNumber,
-    required this.transactionHash,
-  });
-}
 
 class SolanaTokenPDAInfo {
   final SolAddress address;

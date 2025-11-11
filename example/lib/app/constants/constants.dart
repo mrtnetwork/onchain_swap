@@ -9,7 +9,7 @@ class APPConst {
   static const Duration twoSecoundDuration = Duration(seconds: 2);
   static const Duration tenSecoundDuration = Duration(seconds: 10);
   static const String homepage = 'https://github.com/mrtnetwork/onchain_swap';
-
+  static const String applicationId = "com.mrtnetwork.on_chain_swap";
   static const double double80 = 80;
   static const double double40 = 40;
   static const double double20 = 20;

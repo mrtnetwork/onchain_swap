@@ -1,9 +1,8 @@
 import 'package:blockchain_utils/signer/const/constants.dart';
 import 'package:blockchain_utils/utils/numbers/rational/big_rational.dart';
-import 'package:on_chain_swap/src/swap/constants/constants.dart';
-import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
+import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
 enum SwapRouteCosmosTransactionStrategy { native }
@@ -85,7 +84,7 @@ class SwapRouteCosmosNativeTransactionOperation
     final feeToken = client.chainInfo.feeTokens[0];
     final balance = await client.getBalance(source.address);
     if (balance < amount.amount) {
-      throw SwapConstants.insufficientAccountBalance;
+      // throw SwapConstants.insufficientAccountBalance;
     }
     final chainId = await client.chainId();
     final txRequirement =

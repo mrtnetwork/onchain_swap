@@ -1,12 +1,12 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
+import 'package:on_chain/on_chain.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/backend.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/rpc.dart';
 import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:on_chain_swap/src/swap/utils/utils.dart' show SwapUtils;
-import 'package:on_chain/on_chain.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
 import 'utils.dart';
@@ -119,21 +119,37 @@ class CfSwapRoute extends SwapRoute<CfQuoteSwapParams,
             ]);
 
       case SwapChainType.polkadot:
-        final network = quote.sourceAsset.network.cast<SwapSubstrateNetwork>();
+        final asset = quote.sourceAsset.cast<PolkadotSwapAsset>();
+        BigInt? assetId;
+        if (asset.type == SwapAssetType.asset) {
+          assetId = asset.assetId;
+          if (assetId == null) {
+            throw const DartOnChainSwapPluginException(
+                "Missing polkadot asset id.");
+          }
+        }
+        final network = asset.network.cast<SwapSubstrateNetwork>();
         final SubstrateAddress source =
             SwapUtils.toNetworkAddress(network, params.sourceAddress);
         final SubstrateAddress destination =
             SwapUtils.toNetworkAddress(network, params.channel.depositAddress);
+        final SwapRouteSubstrateTransactionOperation operation =
+            switch (assetId) {
+          final BigInt id =>
+            SwapRouteSubstrateAssetHubAssetTransactionOperation(
+                amount: quote.amount,
+                source: source,
+                destination: destination,
+                network: network,
+                assetId: id),
+          _ => SwapRouteSubstrateNativeTransactionOperation(
+              amount: quote.amount,
+              source: source,
+              destination: destination,
+              network: network)
+        };
         return SwapRouteSubstrateTransactionBuilder(
-            route: this,
-            params: params,
-            operations: [
-              SwapRouteSubstrateNativeTransactionOperation(
-                  amount: quote.amount,
-                  source: source,
-                  destination: destination,
-                  network: network),
-            ]);
+            route: this, params: params, operations: [operation]);
 
       case SwapChainType.bitcoin:
         final network = quote.sourceAsset.network.cast<SwapBitcoinNetwork>();

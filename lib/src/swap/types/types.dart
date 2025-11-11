@@ -158,7 +158,8 @@ abstract class SwapNetwork with Equatable {
 
 enum SwapAssetType {
   native,
-  contract;
+  contract,
+  asset;
 
   bool get isContract => this == contract;
   bool get isNative => this == native;
@@ -300,18 +301,21 @@ class BitcoinSwapAsset extends BaseSwapAsset {
 }
 
 class PolkadotSwapAsset extends BaseSwapAsset {
+  final BigInt? assetId;
   @override
-  String get identifier => network.identifier;
-  const PolkadotSwapAsset(
+  String get identifier => assetId?.toString() ?? network.identifier;
+  PolkadotSwapAsset(
       {required super.symbol,
       required super.providerIdentifier,
       required super.decimal,
       required super.network,
       required super.provider,
+      this.assetId,
       super.coingeckoId,
       super.fullName,
       super.logoUrl})
-      : super(type: SwapAssetType.native);
+      : super(
+            type: assetId == null ? SwapAssetType.native : SwapAssetType.asset);
 }
 
 class SwapAmount with Equatable {

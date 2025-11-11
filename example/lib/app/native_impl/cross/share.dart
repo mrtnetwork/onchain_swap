@@ -1,6 +1,5 @@
-import 'package:onchain_swap_example/app/native_impl/core/core.dart';
-import 'package:on_chain_bridge/models/share/share.dart';
 import 'package:on_chain_bridge/platform_interface.dart';
+import 'package:onchain_swap_example/app/native_impl/core/core.dart';
 
 mixin ShareImpl {
   static Future<bool> shareFile(String path, String fileName,

@@ -1,8 +1,11 @@
 import 'dart:js_interop';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain_swap/on_chain_swap.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
+import 'package:on_chain/on_chain.dart';
+import 'package:on_chain_bridge/web/api/core/js.dart';
+import 'package:on_chain_swap/on_chain_swap.dart';
 import 'package:onchain_swap_example/app/error/exception.dart';
 import 'package:onchain_swap_example/app/utils/method.dart';
 import 'package:onchain_swap_example/app/utils/numbers/numbers.dart';
@@ -14,8 +17,6 @@ import 'package:onchain_swap_example/web3/cross/web/types/js/substrate.dart';
 import 'package:onchain_swap_example/web3/cross/web/types/types.dart';
 import 'package:onchain_swap_example/web3/cross/web/utils/utils.dart';
 import 'package:onchain_swap_example/web3/utils/utils.dart';
-import 'package:on_chain_bridge/web/api/core/js.dart';
-import 'package:on_chain/on_chain.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
 mixin JSWeb3WalletWalletStandard<NETWORK extends SwapNetwork, ADDRESS,
@@ -547,23 +548,27 @@ class JSWeb3WalletWalletStandardSubstrate extends JSWeb3Wallet<
   @override
   Future<String> signTransaction(Web3TransactionSubstrate transaction) async {
     try {
+      final toJson = transaction.toJson();
       final jsTx = JSSubstrateTransaction(
-          address: transaction.address,
-          assetId: transaction.assetId,
-          blockHash: transaction.blockHash,
-          blockNumber: transaction.blockNumber,
-          era: transaction.era,
-          genesisHash: transaction.genesisHash,
-          metadataHash: transaction.metadataHash,
-          method: transaction.method,
-          mode: transaction.mode,
-          nonce: transaction.nonce,
-          signedExtensions:
-              transaction.signedExtensions.map((e) => e.toJS).toList().toJS,
-          specVersion: transaction.specVersion,
-          tip: transaction.tip,
-          transactionVersion: transaction.transactionVersion,
-          version: transaction.version,
+          address: toJson.valueAs("address"),
+          assetId: toJson.valueAs("assetId"),
+          blockHash: toJson.valueAs("blockHash"),
+          blockNumber: toJson.valueAs("blockNumber"),
+          era: toJson.valueAs("era"),
+          genesisHash: toJson.valueAs("genesisHash"),
+          metadataHash: toJson.valueAs("metadataHash"),
+          method: toJson.valueAs("method"),
+          mode: toJson.valueAs("mode"),
+          nonce: toJson.valueAs("nonce"),
+          signedExtensions: toJson
+              .valueEnsureAsList<String>("signedExtensions")
+              .map((e) => e.toJS)
+              .toList()
+              .toJS,
+          specVersion: toJson.valueAs("specVersion"),
+          tip: toJson.valueAs("tip"),
+          transactionVersion: toJson.valueAs("transactionVersion"),
+          version: toJson.valueAs("version"),
           withSignedTransaction: transaction.withSignedTransaction);
       final signature =
           await signTransactionFeature.signTransaction(jsTx).toDart;

@@ -15,6 +15,8 @@ class CfSwapConstants {
     ethUsdt,
     ethUsdc,
     dot,
+    assetHubUsdc,
+    assetHubUsdt,
     bticoin,
     arbEth,
     arbUsdc,
@@ -66,16 +68,41 @@ class CfSwapConstants {
       coingeckoId: "usd-coin",
       contractAddress: ETHAddress("0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48"),
       fullName: "USDC");
-  static const PolkadotSwapAsset dot = PolkadotSwapAsset(
+  static final PolkadotSwapAsset dot = PolkadotSwapAsset(
       symbol: "Dot",
       providerIdentifier: "DOT",
       decimal: 10,
-      network: SwapConstants.polkadot,
+      network: SwapConstants.assetHub,
       provider: SwapConstants.chainflip,
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008",
       coingeckoId: "polkadot",
       fullName: "Polkadot");
+
+  static final PolkadotSwapAsset assetHubUsdt = PolkadotSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.assetHub,
+      provider: SwapConstants.chainflip,
+      assetId: BigInt.from(1984),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: "tether",
+      fullName: "Tether");
+
+  static final PolkadotSwapAsset assetHubUsdc = PolkadotSwapAsset(
+      symbol: "USDC",
+      providerIdentifier: "USDC",
+      decimal: 6,
+      network: SwapConstants.assetHub,
+      provider: SwapConstants.chainflip,
+      assetId: BigInt.from(1337),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+      coingeckoId: "usd-coin",
+      fullName: "USDC");
+
   static const BitcoinSwapAsset bticoin = BitcoinSwapAsset(
       symbol: "BTC",
       providerIdentifier: "BTC",
@@ -149,6 +176,8 @@ class CfTestnetSwapConstants {
     arbUsdc,
     sol,
     solUSDC,
+    assetHubUsdc,
+    assetHubUsdt
   ].immutable;
 
   static const ETHSwapAsset eth = ETHSwapAsset(
@@ -195,11 +224,11 @@ class CfTestnetSwapConstants {
       coingeckoId: "usd-coin",
       contractAddress: ETHAddress("0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"),
       fullName: "USDC");
-  static const PolkadotSwapAsset dot = PolkadotSwapAsset(
+  static final PolkadotSwapAsset dot = PolkadotSwapAsset(
       symbol: "Dot",
       providerIdentifier: "DOT",
       decimal: 10,
-      network: SwapConstants.polkadotTestnetChainFlip,
+      network: SwapConstants.assetHubTestnet,
       provider: SwapConstants.chainflip,
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008",
@@ -258,5 +287,29 @@ class CfTestnetSwapConstants {
       coingeckoId: null,
       contractAddress: SolAddress.uncheckCurve(
           "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"),
+      fullName: "USDC");
+
+  static final PolkadotSwapAsset assetHubUsdt = PolkadotSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.assetHubTestnet,
+      provider: SwapConstants.chainflip,
+      assetId: BigInt.from(1984),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: "tether",
+      fullName: "Tether");
+
+  static final PolkadotSwapAsset assetHubUsdc = PolkadotSwapAsset(
+      symbol: "USDC",
+      providerIdentifier: "USDC",
+      decimal: 6,
+      network: SwapConstants.assetHubTestnet,
+      provider: SwapConstants.chainflip,
+      assetId: BigInt.from(1337),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+      coingeckoId: "usd-coin",
       fullName: "USDC");
 }

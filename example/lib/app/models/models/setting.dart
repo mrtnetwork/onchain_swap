@@ -1,10 +1,10 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:on_chain_bridge/models/models.dart';
+import 'package:on_chain_swap/on_chain_swap.dart';
 import 'package:onchain_swap_example/app/constants/cbor_tags.dart';
 import 'package:onchain_swap_example/app/euqatable/equatable.dart';
 import 'package:onchain_swap_example/app/serialization/cbor/cbor.dart';
 import 'package:onchain_swap_example/marketcap/prices/currency.dart';
-import 'package:on_chain_bridge/models/models.dart';
-import 'package:on_chain_swap/on_chain_swap.dart';
 
 class APPSetting with CborSerializable, Equatable {
   APPSetting._(
@@ -43,12 +43,13 @@ class APPSetting with CborSerializable, Equatable {
         chainType: chainType ?? this.chainType);
   }
 
-  factory APPSetting.fromHex(String? cborHex, PlatformConfig config) {
+  factory APPSetting.deserialize(
+      {String? cborHex, List<int>? cborBytes, required PlatformConfig config}) {
     try {
-      final CborListValue cbor = CborSerializable.decodeCborTags(
-          BytesUtils.fromHexString(cborHex!),
-          null,
-          APPSerializationConst.appSettingTag);
+      final CborListValue cbor = CborSerializable.cborTagValue(
+          hex: cborHex,
+          cborBytes: cborBytes,
+          tags: APPSerializationConst.appSettingTag);
       final String? colorHex = cbor.elementAs(0);
       final String? brightnessName = cbor.elementAs(1);
       final Currency currency =
@@ -85,12 +86,12 @@ class APPSetting with CborSerializable, Equatable {
   @override
   CborTagValue toCbor() {
     return CborTagValue(
-        CborListValue.fixedLength([
+        CborSerializable.fromDynamic([
           appColor,
           appBrightness,
           currency.name,
           size?.toString(),
-          CborListValue.fixedLength(
+          CborListValue.definite(
               swapProviders.map((e) => CborStringValue(e.identifier)).toList()),
           chainType.name,
         ]),
