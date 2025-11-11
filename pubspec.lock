@@ -245,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: polkadot_dart
-      sha256: "2fa93ba6df0183c21996af3a8ba2cd2451f35b2e8dd2de59eead793dde7949ae"
+      sha256: "12c1affbe2c387ffac2d007a45a7a4132c6e6f6608ef520d3f3319b25b4acd76"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.1.0"
   pool:
     dependency: transitive
     description:
