@@ -3,7 +3,7 @@ import 'package:on_chain_swap/src/swap/types/types.dart';
 
 abstract class SwapService<
     ASSET extends BaseSwapAsset,
-    PROVIDER extends BaseProvider,
+    PROVIDER extends IProvider,
     ROUTE extends SwapRoute,
     QUOTE extends QuoteSwapParams<ASSET>> {
   final SwapServiceType service;

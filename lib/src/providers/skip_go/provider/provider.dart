@@ -3,52 +3,50 @@ import 'package:blockchain_utils/service/service.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/provider.dart';
 
-class SkipGoApiProvider implements BaseProvider<SkipGoApiRequestDetails> {
-  final SkipGoApiServiceProvider rpc;
+class SkipGoApiProvider<SERVICE extends IServiceProvider>
+    implements IProvider<SERVICE, SkipGoApiRequestDetails> {
+  @override
+  final SERVICE service;
 
-  SkipGoApiProvider(this.rpc);
+  SkipGoApiProvider(this.service);
 
   static SERVICERESPONSE _findError<SERVICERESPONSE>(
-      {required BaseServiceResponse<Map<String, dynamic>> response,
+      {required BaseServiceResponse response,
       required SkipGoApiRequestDetails params}) {
     if (response.type == ServiceResponseType.error) {
-      final Map<String, dynamic>? error =
-          StringUtils.tryToJson(response.cast<ServiceErrorResponse>().error);
+      final err = response.cast<BaseServiceErrorResponse>();
+      if (!err.validate) {
+        throw err.defaultError();
+      }
+      final Map<String, dynamic>? error = err.tryToJson();
       final String message = error?["message"] ??
-          ServiceConst.httpErrorMessages[response.statusCode] ??
-          ServiceConst.defaultError;
+          ServiceProviderUtils.getDefaultError(response.statusCode);
       throw RPCError(
           message: message,
-          details: {
-            "statusCode": response.statusCode,
-            "details": error?["details"]
-          },
+          statusCode: response.statusCode,
+          jsonRpcErrpr: error,
           errorCode: IntUtils.tryParse(error?["code"]));
     }
-    final Map<String, dynamic> r = response.getResult(params);
-
-    return ServiceProviderUtils.parseResponse(object: r, params: params);
+    return params.toEncodingResponse<SERVICERESPONSE>(response);
   }
 
   int _id = 0;
 
   @override
   Future<RESULT> request<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, SkipGoApiRequestDetails>
-          request,
+      IServiceRequest<RESULT, SERVICERESPONSE, SkipGoApiRequestDetails> request,
       {Duration? timeout}) async {
-    final r = await requestDynamic(request, timeout: timeout);
+    final r = await requestDynamic<RESULT, SERVICERESPONSE>(request,
+        timeout: timeout);
     return request.onResonse(r);
   }
 
   @override
   Future<SERVICERESPONSE> requestDynamic<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, SkipGoApiRequestDetails>
-          request,
+      IServiceRequest<RESULT, SERVICERESPONSE, SkipGoApiRequestDetails> request,
       {Duration? timeout}) async {
     final params = request.buildRequest(_id++);
-    final response =
-        await rpc.doRequest<Map<String, dynamic>>(params, timeout: timeout);
+    final response = await service.doRequest(params, timeout: timeout);
     return _findError(params: params, response: response);
   }
 }

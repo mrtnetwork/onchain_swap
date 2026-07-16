@@ -1,6 +1,6 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/rpc.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 class AffiliateBroker {
   final String account;
@@ -328,8 +328,7 @@ abstract class SwapState {
         break;
       default:
     }
-    throw DartOnChainSwapPluginException("Swap state not found.",
-        details: json);
+    throw const DartOnChainSwapPluginException("Swap state not found.");
   }
   Map<String, dynamic> toJson();
 }
@@ -941,7 +940,7 @@ class SwapStatusResponseCommonFields {
                 .toList() ??
             [],
         estimatedDefaultDurationSeconds:
-            json['estimatedDefaultDurationSeconds'],
+            json.valueAsNum("estimatedDefaultDurationSeconds"),
         srcChainRequiredBlockConfirmations:
             json['srcChainRequiredBlockConfirmations'],
         depositTransactionRef: json['depositTransactionRef'],
@@ -1336,9 +1335,9 @@ class QuoteEstimatedDurationsInfo {
       {required this.deposit, required this.swap, required this.egress});
   factory QuoteEstimatedDurationsInfo.fromJson(Map<String, dynamic> json) {
     return QuoteEstimatedDurationsInfo(
-        deposit: json.as("deposit"),
-        swap: json.as("swap"),
-        egress: json.as("egress"));
+        deposit: json.valueAsNum("deposit"),
+        swap: json.valueAsNum("swap"),
+        egress: json.valueAsNum("egress"));
   }
   Map<String, dynamic> toJson() {
     return {"deposit": deposit, "swap": swap, "egress": egress};
@@ -1380,29 +1379,33 @@ class QuoteDetails {
     this.dcaParams,
   });
   QuoteDetails.fromJson(Map<String, dynamic> json)
-      : intermediateAmount = json.as("intermediateAmount"),
-        egressAmount = json.as("egressAmount"),
+      : intermediateAmount = json.valueAs("intermediateAmount"),
+        egressAmount = json.valueAs("egressAmount"),
         includedFees = json
-            .asListOfMap("includedFees")!
+            .valueEnsureAsList<Map<String, dynamic>>("includedFees")
             .map(ChainFlipSwapFee.fromJson)
             .toList(),
-        poolInfo =
-            json.asListOfMap("poolInfo")!.map(PoolInfo.fromJson).toList(),
-        lowLiquidityWarning = json.as("lowLiquidityWarning"),
-        estimatedDurationSeconds = json.as("estimatedDurationSeconds"),
-        estimatedPrice = json.as("estimatedPrice"),
-        type = QuoteType.fromName(json.as("type")),
-        dcaParams = json.maybeAs<DCAParams, Map<String, dynamic>>(
-            key: "dcaParams", onValue: DCAParams.fromJson),
+        poolInfo = json
+            .valueEnsureAsList<Map<String, dynamic>>("poolInfo")
+            .map(PoolInfo.fromJson)
+            .toList(),
+        lowLiquidityWarning = json.valueAs("lowLiquidityWarning"),
+        estimatedDurationSeconds = json.valueAsNum("estimatedDurationSeconds"),
+        estimatedPrice = json.valueAs("estimatedPrice"),
+        type = QuoteType.fromName(json.valueAs("type")),
+        dcaParams = json.valueTo<DCAParams?, Map<String, dynamic>>(
+            key: "dcaParams", parse: DCAParams.fromJson),
         estimatedDurationsSeconds = QuoteEstimatedDurationsInfo.fromJson(
-          json.asMap("estimatedDurationsSeconds"),
+          json.valueEnsureAsMap<String, dynamic>("estimatedDurationsSeconds"),
         ),
         recommendedSlippageTolerancePercent =
-            json.as("recommendedSlippageTolerancePercent"),
-        srcAsset = UncheckedAssetAndChain.fromJson(json.asMap("srcAsset")),
-        destAsset = UncheckedAssetAndChain.fromJson(json.as("destAsset")),
-        depositAmount = json.as("depositAmount"),
-        isVaultSwap = json.as("isVaultSwap") ?? false;
+            json.valueAsNum("recommendedSlippageTolerancePercent"),
+        srcAsset = UncheckedAssetAndChain.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("srcAsset")),
+        destAsset = UncheckedAssetAndChain.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("destAsset")),
+        depositAmount = json.valueAs("depositAmount"),
+        isVaultSwap = json.valueAs<bool?>("isVaultSwap") ?? false;
 
   // Method to convert QuoteDetails object to JSON
   Map<String, dynamic> toJson() {
@@ -1450,8 +1453,8 @@ class QuoteBoostedDetails extends QuoteDetails {
       required super.depositAmount,
       required super.isVaultSwap});
   QuoteBoostedDetails.fromJson(super.json)
-      : maxBoostFeeBps = json.as("maxBoostFeeBps"),
-        estimatedBoostFeeBps = json.as("estimatedBoostFeeBps"),
+      : maxBoostFeeBps = json.valueAs("maxBoostFeeBps"),
+        estimatedBoostFeeBps = json.valueAs("estimatedBoostFeeBps"),
         super.fromJson();
   @override
   Map<String, dynamic> toJson() {
@@ -1512,8 +1515,8 @@ class QuoteQueryResponse extends QuoteDetails {
       required super.depositAmount,
       required super.isVaultSwap});
   QuoteQueryResponse.fromJson(super.json)
-      : boostQuote = json.maybeAs<QuoteBoostedDetails, Map<String, dynamic>>(
-            key: "boostQuote", onValue: QuoteBoostedDetails.fromJson),
+      : boostQuote = json.valueTo<QuoteBoostedDetails?, Map<String, dynamic>>(
+            key: "boostQuote", parse: QuoteBoostedDetails.fromJson),
         super.fromJson();
   @override
   Map<String, dynamic> toJson() {

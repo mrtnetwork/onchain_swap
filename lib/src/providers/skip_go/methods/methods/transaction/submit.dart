@@ -1,6 +1,6 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Submit a signed base64 encoded transaction to be broadcast to the specified network.
 /// On successful submission, the status of the transaction and any subsequent IBC or Axelar
@@ -23,6 +23,6 @@ class SkipGoApiRequestSubmit
 
   @override
   String onResonse(Map<String, dynamic> result) {
-    return result.as("tx_hash");
+    return result.valueAs("tx_hash");
   }
 }

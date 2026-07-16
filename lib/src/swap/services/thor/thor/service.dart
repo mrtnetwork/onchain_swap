@@ -1,4 +1,5 @@
 import 'package:blockchain_utils/helper/helper.dart';
+import 'package:blockchain_utils/service/models/params.dart';
 import 'package:on_chain_swap/src/swap/core/core.dart';
 import 'package:on_chain_swap/src/swap/services/thor/thor/utils.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
@@ -7,8 +8,11 @@ import 'package:cosmos_sdk/cosmos_sdk.dart';
 import 'constants.dart';
 import 'route.dart';
 
-class ThorSwapService extends SwapService<BaseSwapAsset, ThorNodeProvider,
-    ThorSwapRoute, ThorQuoteSwapParams> {
+class ThorSwapService extends SwapService<
+    BaseSwapAsset,
+    IProvider<IServiceProvider, ThorNodeRequestDetails>,
+    ThorSwapRoute,
+    ThorQuoteSwapParams> {
   ThorSwapService(
       {required super.provider, super.service = SwapServiceType.thor});
 

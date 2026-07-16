@@ -1,3 +1,5 @@
+import 'package:blockchain_utils/service/models/params.dart';
+import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/skip_go/provider.dart';
 import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/core/core.dart';
@@ -6,8 +8,11 @@ import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
 import 'route.dart';
 
-class SkipGoSwapService extends SwapService<SkipGoSwapAsset, SkipGoApiProvider,
-    SkipGoSwapRoute, SkipGoQuoteSwapParams> {
+class SkipGoSwapService extends SwapService<
+    SkipGoSwapAsset,
+    IProvider<IServiceProvider, SkipGoApiRequestDetails>,
+    SkipGoSwapRoute,
+    SkipGoQuoteSwapParams> {
   Map<String, SwapNetwork>? _supportedNetworks;
   List<SkipGoSwapAsset>? _assets;
   SkipGoSwapService(
@@ -86,7 +91,7 @@ class SkipGoSwapService extends SwapService<SkipGoSwapAsset, SkipGoApiProvider,
   @override
   Future<List<SkipGoSwapRoute>> createRoutes(
       SkipGoQuoteSwapParams params) async {
-    throw UnimplementedError();
+    throw const DartOnChainSwapPluginException("Unsupported api.");
     // final quote = await provider.request(SkipGoApiRequestRoute.givenIn(
     //     sourceAssetDenom: params.sourceAsset.asset.denom,
     //     sourceAssetChainId: params.sourceAsset.asset.chainId,
@@ -143,6 +148,6 @@ class SkipGoSwapService extends SwapService<SkipGoSwapAsset, SkipGoApiProvider,
 
   @override
   Map<SwapNetwork, Set<BaseSwapAsset>> getDestAssets(BaseSwapAsset asset) {
-    throw UnimplementedError();
+    throw const DartOnChainSwapPluginException("Unsupported api.");
   }
 }

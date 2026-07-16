@@ -29,9 +29,10 @@ class SwapRouteEthereumTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions({
-    required GETNETWORK<BaseSwapEthereumClient, SwapEthereumNetwork> client,
-    required GETSIGNER<Web3SignerEthereum, ETHAddress> signer,
-    required ONOPERATIONSTATUS stepsCallBack,
+    required CbGetRouteNetwork<BaseSwapEthereumClient, SwapEthereumNetwork>
+        client,
+    required CbGetSigner<Web3SignerEthereum, ETHAddress> signer,
+    required CbOnStatusChanged stepsCallBack,
   }) async {
     for (final operation in operations) {
       stepsCallBack(TransactionOperationStep.client);
@@ -105,7 +106,7 @@ class SwapRouteEthereumNativeTransactionOperation
         value: amount.amount,
         chainId: network.chainId,
         transactionType: _txType(network.chainId),
-        memo: memo);
+        data: StringUtils.tryEncode(memo));
     await transactionBuilder.autoFill(client.provider);
     return Web3TransactionEthereum(
         value: amount.amount,

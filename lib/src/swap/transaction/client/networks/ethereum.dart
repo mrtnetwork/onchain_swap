@@ -60,11 +60,11 @@ class SwapEthereumClient implements BaseSwapEthereumClient {
           "missing token contract address.");
     }
     final function = EthereumAbiCons.erc20BalaceFragment;
-    final result = await provider.request(EthereumRequestCall.fromMethod(
-        contractAddress: contract.toHex(),
+    final result = await provider.request(EthereumRequestFunctionCall(
+        contractAddress: contract.toSolidityHex(),
         function: function,
         params: [address]));
-    return (result as List)[0];
+    return result[0];
   }
 
   @override

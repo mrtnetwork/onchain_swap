@@ -1,4 +1,9 @@
+import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
+import 'package:on_chain_swap/src/swap/transaction/client/core/client.dart';
+import 'package:on_chain_swap/src/swap/transaction/core/transaction.dart';
+import 'package:on_chain_swap/src/swap/transaction/signer/signer.dart';
+import 'package:on_chain_swap/src/swap/transaction/types/types.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
 import 'chains.dart';
@@ -39,6 +44,19 @@ class SkipGoSwapRoute extends SwapRoute<SkipGoQuoteSwapParams,
   SwapRoute<QuoteSwapParams<BaseSwapAsset>,
           SwapRouteGeneralTransactionBuilderParam>
       updateTolerance(double tolerance) {
-    throw UnimplementedError();
+    throw const DartOnChainSwapPluginException("Unsupported api.");
+  }
+
+  @override
+  SwapRouteTransactionBuilder<
+          dynamic,
+          SwapNetwork,
+          SwapNetworkClient<BaseSwapAsset, dynamic,
+              SwapAccountAssetBalance<BaseSwapAsset, dynamic>>,
+          Web3Transaction,
+          Web3Signer<dynamic>,
+          SwapRouteTransactionOperation<SwapNetwork>>
+      txBuilder(SwapRouteGeneralTransactionBuilderParam params) {
+    throw const DartOnChainSwapPluginException("Unsupported api.");
   }
 }

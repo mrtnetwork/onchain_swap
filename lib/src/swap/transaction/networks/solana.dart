@@ -22,9 +22,9 @@ class SwapRouteSolanaTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions({
-    required GETNETWORK<BaseSwapSolanaClient, SwapSolanaNetwork> client,
-    required GETSIGNER<Web3SignerSolana, SolAddress> signer,
-    required ONOPERATIONSTATUS stepsCallBack,
+    required CbGetRouteNetwork<BaseSwapSolanaClient, SwapSolanaNetwork> client,
+    required CbGetSigner<Web3SignerSolana, SolAddress> signer,
+    required CbOnStatusChanged stepsCallBack,
   }) async {
     for (final operation in operations) {
       stepsCallBack(TransactionOperationStep.client);

@@ -95,6 +95,6 @@ class SwapKitSwapRoute extends SwapRoute<SwapKitQuoteSwapParams,
   SwapRoute<QuoteSwapParams<BaseSwapAsset>,
           SwapRouteGeneralTransactionBuilderParam>
       updateTolerance(double tolerance) {
-    throw UnimplementedError();
+    throw const DartOnChainSwapPluginException("Unsupported api.");
   }
 }

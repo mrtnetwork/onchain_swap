@@ -1,6 +1,8 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
+import 'package:cosmos_sdk/proto_messages/cosmos/auth/v1beta1/src/auth.dart';
+import 'package:cosmos_sdk/proto_messages/cosmos/tx/v1beta1/src/tx.dart';
 import 'package:on_chain/on_chain.dart'
     show ETHAddress, ETHTransactionType, SolanaTransaction, SolAddress;
 import 'package:on_chain_swap/src/exception/exception.dart';
@@ -8,14 +10,13 @@ import 'package:on_chain_swap/src/swap/transaction/client/core/client.dart'
     show SwapNetworkClient;
 import 'package:on_chain_swap/src/swap/transaction/signer/signer.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
-typedef GETNETWORK<CLIENT extends SwapNetworkClient,
+typedef CbGetRouteNetwork<CLIENT extends SwapNetworkClient,
         NETWORK extends SwapNetwork>
     = Future<CLIENT> Function(NETWORK network);
-typedef GETSIGNER<SIGNER extends Web3Signer, ADDRESS> = Future<SIGNER> Function(
-    ADDRESS signer);
+typedef CbGetSigner<SIGNER extends Web3Signer, ADDRESS> = Future<SIGNER>
+    Function(ADDRESS signer);
 
 abstract class Web3Transaction {
   const Web3Transaction();
@@ -56,11 +57,11 @@ class Web3TransactionEthereum extends Web3Transaction {
         value: BigintUtils.parse(json["value"] ?? '0'),
         to: ETHAddress(json["to"]),
         from: ETHAddress(json["from"]),
-        data: StringUtils.add0x(json.as<String>('data').toLowerCase()),
+        data: StringUtils.add0x(json.valueAs<String>('data').toLowerCase()),
         gasLimit: null,
         transactionType: null,
-        chainId: json.asBigInt('chainId'),
-        gasPrice: BigintUtils.tryParse(json.as("gasPrice")));
+        chainId: json.valueAsBigInt('chainId'),
+        gasPrice: BigintUtils.tryParse(json.valueAs("gasPrice")));
   }
 }
 

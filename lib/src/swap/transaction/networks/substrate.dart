@@ -19,10 +19,10 @@ class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions(
-      {required GETNETWORK<BaseSwapSubstrateClient, SwapSubstrateNetwork>
+      {required CbGetRouteNetwork<BaseSwapSubstrateClient, SwapSubstrateNetwork>
           client,
-      required GETSIGNER<Web3SignerSubstrate, SubstrateAddress> signer,
-      required ONOPERATIONSTATUS stepsCallBack}) async {
+      required CbGetSigner<Web3SignerSubstrate, SubstrateAddress> signer,
+      required CbOnStatusChanged stepsCallBack}) async {
     for (final operation in operations) {
       stepsCallBack(TransactionOperationStep.client);
       final substrateClient = await checkRouteAndClient(client, operation);
@@ -108,7 +108,6 @@ class SwapRouteSubstrateNativeTransactionOperation
             destination: destination,
             amount: amount.amount,
             method: BalancesCallPalletMethod.transferKeepAlive);
-    // // throw UnimplementedError();
   }
 
   @override

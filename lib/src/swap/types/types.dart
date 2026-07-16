@@ -75,9 +75,7 @@ abstract class SwapRoute<QUOTE extends QuoteSwapParams,
       : worstPercentage = SwapUtils.worstPercentageAmount(
             expected: expectedAmount, worst: worstCaseAmount);
 
-  SwapRouteTransactionBuilder txBuilder(PARAMS params) {
-    throw UnimplementedError();
-  }
+  SwapRouteTransactionBuilder txBuilder(PARAMS params);
 
   SwapRoute updateTolerance(double tolerance);
 }
@@ -126,6 +124,14 @@ abstract class SwapNetwork with Equatable {
 
   String? addressUrl(String address) {
     return explorerAddressUrl?.replaceFirst("#address", address);
+  }
+
+  bool isThorchainOrMaya() {
+    final List<String> thorchainIdentifiers = [
+      "thorchain-1",
+      "mayachain-mainnet-v1"
+    ];
+    return thorchainIdentifiers.contains(identifier);
   }
 
   Map<String, dynamic> toJson() {
@@ -401,7 +407,7 @@ class SwapBitcoinNetwork extends SwapNetwork {
 
   @override
   Map<String, dynamic> toJson() {
-    return {...super.toJson(), "chain": chain.value};
+    return {...super.toJson(), "chain": chain.name};
   }
 
   @override

@@ -1,7 +1,7 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Get all supported chains along with additional data useful for
 /// building applications + frontends that interface with them
@@ -34,7 +34,7 @@ class SkipGoApiRequestChains extends SkipGoApiGetRequest<
   @override
   List<SkipGoApiChainResponse> onResonse(Map<String, dynamic> result) {
     return result
-        .as<List>("chains")
+        .valueEnsureAsList<Map<String, dynamic>>("chains")
         .map((e) => SkipGoApiChainResponse.fromJson(e))
         .toList();
   }

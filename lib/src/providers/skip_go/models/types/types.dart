@@ -1,5 +1,5 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 abstract class SkipGoApiResponse {
   Map<String, dynamic> toJson();
@@ -83,25 +83,25 @@ class SkipGoApiChainResponse implements SkipGoApiResponse {
 
   factory SkipGoApiChainResponse.fromJson(Map<String, dynamic> json) {
     return SkipGoApiChainResponse(
-        chainName: json.as("chain_name"),
-        chainId: json.as("chain_id"),
-        pfmEnabled: json.as("pfm_enabled"),
+        chainName: json.valueAs("chain_name"),
+        chainId: json.valueAs("chain_id"),
+        pfmEnabled: json.valueAs("pfm_enabled"),
         cosmosModuleSupport: SkipGoApiCosmosModuleSupport.fromJson(
-            json.asMap("cosmos_module_support")),
-        supportMemo: json.as("supports_memo"),
-        logoUri: json.as("logo_uri"),
-        bech32Prefix: json.as("bech32_prefix"),
+            json.valueEnsureAsMap<String, dynamic>("cosmos_module_support")),
+        supportMemo: json.valueAs("supports_memo"),
+        logoUri: json.valueAs("logo_uri"),
+        bech32Prefix: json.valueAs("bech32_prefix"),
         feeAssets: json
-                .asListOfMap("fee_assets")
+                .valueAsList<List<Map<String, dynamic>>?>("fee_assets")
                 ?.map((e) => SkipGoApiFeeAsset.fomJson(e))
                 .toList() ??
             [],
-        chainType: SkipGoApiChainType.fromName(json.as("chain_type")),
-        ibcCapabilities:
-            SkipGoApiIbcCapabilities.fromJson(json.asMap("ibc_capabilities")),
-        isTestnet: json.as("is_testnet"),
-        prettyName: json.as("pretty_name"),
-        cosmosSdkVersion: json.as("cosmosSdkVersion"));
+        chainType: SkipGoApiChainType.fromName(json.valueAs("chain_type")),
+        ibcCapabilities: SkipGoApiIbcCapabilities.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("ibc_capabilities")),
+        isTestnet: json.valueAs("is_testnet"),
+        prettyName: json.valueAs("pretty_name"),
+        cosmosSdkVersion: json.valueAs("cosmosSdkVersion"));
   }
 
   @override
@@ -131,7 +131,7 @@ class SkipGoApiCosmosModuleSupport implements SkipGoApiResponse {
       {required this.authz, required this.feegrant});
   factory SkipGoApiCosmosModuleSupport.fromJson(Map<String, dynamic> json) {
     return SkipGoApiCosmosModuleSupport(
-        feegrant: json.as("feegrant"), authz: json.as("authz"));
+        feegrant: json.valueAs("feegrant"), authz: json.valueAs("authz"));
   }
 
   @override
@@ -148,9 +148,9 @@ class SkipGoApiModuleVersionInfo implements SkipGoApiResponse {
       {required this.path, required this.version, required this.sum});
   factory SkipGoApiModuleVersionInfo.fromJson(Map<String, dynamic> json) {
     return SkipGoApiModuleVersionInfo(
-        path: json.as("path"),
-        version: json.as("version"),
-        sum: json.as("sum"));
+        path: json.valueAs("path"),
+        version: json.valueAs("version"),
+        sum: json.valueAs("sum"));
   }
 
   @override
@@ -167,9 +167,9 @@ class SkipGoApiGasPriceInfo implements SkipGoApiResponse {
       {required this.low, required this.average, required this.high});
   factory SkipGoApiGasPriceInfo.fromJson(Map<String, dynamic> json) {
     return SkipGoApiGasPriceInfo(
-        low: json.as("low"),
-        average: json.as("average"),
-        high: json.as("high"));
+        low: json.valueAs("low"),
+        average: json.valueAs("average"),
+        high: json.valueAs("high"));
   }
 
   @override
@@ -197,10 +197,10 @@ class SkipGoApiIbcCapabilities implements SkipGoApiResponse {
       required this.cosmosAutopilot});
   factory SkipGoApiIbcCapabilities.fromJson(Map<String, dynamic> json) {
     return SkipGoApiIbcCapabilities(
-        cosmosPfm: json.as("cosmos_pfm"),
-        cosmosAutopilot: json.as("cosmos_autopilot"),
-        cosmosIbcHooks: json.as("cosmos_ibc_hooks"),
-        cosmosMemo: json.as("cosmos_memo"));
+        cosmosPfm: json.valueAs("cosmos_pfm"),
+        cosmosAutopilot: json.valueAs("cosmos_autopilot"),
+        cosmosIbcHooks: json.valueAs("cosmos_ibc_hooks"),
+        cosmosMemo: json.valueAs("cosmos_memo"));
   }
 
   @override
@@ -220,9 +220,9 @@ class SkipGoApiFeeAsset implements SkipGoApiResponse {
   const SkipGoApiFeeAsset({required this.denom, required this.gasPrice});
   factory SkipGoApiFeeAsset.fomJson(Map<String, dynamic> json) {
     return SkipGoApiFeeAsset(
-        denom: json.as("denom"),
-        gasPrice: json.maybeAs(
-            key: "gas_price", onValue: SkipGoApiGasPriceInfo.fromJson));
+        denom: json.valueAs("denom"),
+        gasPrice: json.valueTo<SkipGoApiGasPriceInfo?, Map<String, dynamic>>(
+            key: "gas_price", parse: SkipGoApiGasPriceInfo.fromJson));
   }
 
   @override
@@ -239,9 +239,9 @@ class SkipGoApiBridge implements SkipGoApiResponse {
       {required this.id, required this.name, required this.logoUri});
   factory SkipGoApiBridge.fromJson(Map<String, dynamic> json) {
     return SkipGoApiBridge(
-        id: SkipGoApiBridgeType.fromName(json.as("id")),
-        name: json.as("name"),
-        logoUri: json.as("logo_uri"));
+        id: SkipGoApiBridgeType.fromName(json.valueAs("id")),
+        name: json.valueAs("name"),
+        logoUri: json.valueAs("logo_uri"));
   }
 
   @override
@@ -303,7 +303,7 @@ class SkipGoApiError implements SkipGoApiResponse {
   final String message;
   const SkipGoApiError(this.message);
   factory SkipGoApiError.fromJson(Map<String, dynamic> json) {
-    return SkipGoApiError(json.as("message"));
+    return SkipGoApiError(json.valueAs("message"));
   }
 
   @override
@@ -328,12 +328,13 @@ class SkipGoApiBalanceDenom implements SkipGoApiResponse {
       required this.error});
   factory SkipGoApiBalanceDenom.fromJson(Map<String, dynamic> json) {
     return SkipGoApiBalanceDenom(
-        amount: json.as("amount"),
-        decimals: json.as("decimals"),
-        formattedAmount: json.as("formatted_amount"),
-        price: json.as("price"),
-        valueUsd: json.as("value_usd"),
-        error: json.maybeAs(key: "error", onValue: SkipGoApiError.fromJson));
+        amount: json.valueAs("amount"),
+        decimals: json.valueAs("decimals"),
+        formattedAmount: json.valueAs("formatted_amount"),
+        price: json.valueAs("price"),
+        valueUsd: json.valueAs("value_usd"),
+        error: json.valueTo<SkipGoApiError?, Map<String, dynamic>>(
+            key: "error", parse: SkipGoApiError.fromJson));
   }
 
   @override
@@ -354,7 +355,7 @@ class SkipGoApiBalanceDemons implements SkipGoApiResponse {
   const SkipGoApiBalanceDemons(this.denoms);
   factory SkipGoApiBalanceDemons.fromJson(Map<String, dynamic> json) {
     return SkipGoApiBalanceDemons(json
-        .asMap<Map<String, dynamic>>("denoms")
+        .valueEnsureAsMap<String, dynamic>("denoms")
         .map((k, v) => MapEntry<String, SkipGoApiBalanceDenom>(
             k, SkipGoApiBalanceDenom.fromJson(v))));
   }
@@ -373,7 +374,7 @@ class SkipGoApiBalanceChains implements SkipGoApiResponse {
   const SkipGoApiBalanceChains(this.chains);
   factory SkipGoApiBalanceChains.fromJson(Map<String, dynamic> json) {
     return SkipGoApiBalanceChains(json
-        .asMap<Map<String, dynamic>>("chains")
+        .valueEnsureAsMap<String, dynamic>("chains")
         .map((k, v) => MapEntry<String, SkipGoApiBalanceDemons>(
             k, SkipGoApiBalanceDemons.fromJson(v))));
   }
@@ -398,9 +399,9 @@ class SkipGoApiVenue implements SkipGoApiResponse {
       {required this.chainId, required this.name, this.logoUri});
   factory SkipGoApiVenue.fromJson(Map<String, dynamic> json) {
     return SkipGoApiVenue(
-        chainId: json.as("chain_id"),
-        name: json.as("name"),
-        logoUri: json.as("logo_uri"));
+        chainId: json.valueAs("chain_id"),
+        name: json.valueAs("name"),
+        logoUri: json.valueAs("logo_uri"));
   }
 
   @override
@@ -481,22 +482,22 @@ class SkipGoApiAsset implements SkipGoApiResponse {
       required this.trace});
   factory SkipGoApiAsset.fromJson(Map<String, dynamic> json) {
     return SkipGoApiAsset(
-        denom: json.as("denom"),
-        chainId: json.as("chain_id"),
-        originDenom: json.as("origin_denom"),
-        originChainId: json.as("origin_chain_id"),
-        trace: json.as("trace"),
-        symbol: json.as("symbol"),
-        name: json.as("name"),
-        logoUri: json.as("logo_uri"),
-        decimals: json.as("decimals"),
-        coingeckoId: json.as("coingecko_id"),
-        description: json.as("description"),
-        recommendedSymbol: json.as("recommended_symbol"),
-        isCw20: json.as("is_cw20"),
-        isEvm: json.as("is_evm"),
-        isSvm: json.as("is_svm"),
-        tokenContract: json.as("token_contract"));
+        denom: json.valueAs("denom"),
+        chainId: json.valueAs("chain_id"),
+        originDenom: json.valueAs("origin_denom"),
+        originChainId: json.valueAs("origin_chain_id"),
+        trace: json.valueAs("trace"),
+        symbol: json.valueAs("symbol"),
+        name: json.valueAs("name"),
+        logoUri: json.valueAs("logo_uri"),
+        decimals: json.valueAs("decimals"),
+        coingeckoId: json.valueAs("coingecko_id"),
+        description: json.valueAs("description"),
+        recommendedSymbol: json.valueAs("recommended_symbol"),
+        isCw20: json.valueAs("is_cw20"),
+        isEvm: json.valueAs("is_evm"),
+        isSvm: json.valueAs("is_svm"),
+        tokenContract: json.valueAs("token_contract"));
   }
 
   @override
@@ -531,8 +532,8 @@ class SkipGoApiAssets implements SkipGoApiResponse {
     for (final i in chainIds) {
       assets.addAll({
         i: json
-            .asMap<Map<String, dynamic>>(i)
-            .asListOfMap("assets")!
+            .valueEnsureAsMap<String, dynamic>(i)
+            .valueEnsureAsList<Map<String, dynamic>>("assets")
             .map((e) => SkipGoApiAsset.fromJson(e))
             .toList()
       });
@@ -606,13 +607,13 @@ class SkipGoApiRouteOperationTransfer extends SkipGoApiRouteOperation {
   /// Denom of the output asset of the transfer
   final String denomOut;
 
-  /// Amount of the fee asset to be paid as the transfer fee if applicable.
+  /// Amount of the fee asset to be paid valueAs the transfer fee if applicable.
   final String? feeAmount;
 
-  /// Amount of the fee asset to be paid as the transfer fee if applicable, converted to USD value
+  /// Amount of the fee asset to be paid valueAs the transfer fee if applicable, converted to USD value
   final String? usdFeeAmount;
 
-  /// Asset to be paid as the transfer fee if applicable.
+  /// Asset to be paid valueAs the transfer fee if applicable.
   final SkipGoApiAsset? feeAsset;
 
   /// Bridge Type
@@ -638,21 +639,21 @@ class SkipGoApiRouteOperationTransfer extends SkipGoApiRouteOperation {
       : super(SkipGoApiRouteOperationType.transfer);
   factory SkipGoApiRouteOperationTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteOperationTransfer(
-        fromChainId: json.as("from_chain_id"),
-        toChainId: json.as("to_chain_id"),
-        channel: json.as("channel"),
-        destDenom: json.as("dest_denom"),
-        pfmEnabled: json.as("pfm_enabled"),
-        port: json.as("port"),
-        supportMemo: json.as("supports_memo"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        feeAmount: json.as("fee_amount"),
-        usdFeeAmount: json.as("usd_fee_amount"),
-        feeAsset:
-            json.maybeAs(key: "fee_asset", onValue: SkipGoApiAsset.fromJson),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        smartRelay: json.as("smart_relay"));
+        fromChainId: json.valueAs("from_chain_id"),
+        toChainId: json.valueAs("to_chain_id"),
+        channel: json.valueAs("channel"),
+        destDenom: json.valueAs("dest_denom"),
+        pfmEnabled: json.valueAs("pfm_enabled"),
+        port: json.valueAs("port"),
+        supportMemo: json.valueAs("supports_memo"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        feeAmount: json.valueAs("fee_amount"),
+        usdFeeAmount: json.valueAs("usd_fee_amount"),
+        feeAsset: json.valueTo<SkipGoApiAsset?, Map<String, dynamic>>(
+            key: "fee_asset", parse: SkipGoApiAsset.fromJson),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        smartRelay: json.valueAs("smart_relay"));
   }
 
   @override
@@ -695,10 +696,10 @@ class SkipGoApiSwap implements SkipGoApiResponse {
       required this.interface});
   factory SkipGoApiSwap.fromJson(Map<String, dynamic> json) {
     return SkipGoApiSwap(
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        pool: json.as("pool"),
-        interface: json.as("interface"));
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        pool: json.valueAs("pool"),
+        interface: json.valueAs("interface"));
   }
 
   @override
@@ -759,13 +760,14 @@ class SkipGoApiRouteOperaionSwapExactAmountIn
   factory SkipGoApiRouteOperaionSwapExactAmountIn.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperaionSwapExactAmountIn(
-        swapAmountIn: json.as("swap_amount_in"),
+        swapAmountIn: json.valueAs("swap_amount_in"),
         swapOperations: json
-            .asListOfMap("swap_operations")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_operations")
             .map((e) => SkipGoApiSwap.fromJson(e))
             .toList(),
-        swapVenue: SkipGoApiVenue.fromJson(json.asMap("swap_venue")),
-        priceImpactPercent: json.as("price_impact_percent"));
+        swapVenue: SkipGoApiVenue.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("swap_venue")),
+        priceImpactPercent: json.valueAs("price_impact_percent"));
   }
 
   @override
@@ -803,13 +805,14 @@ class SkipGoApiRouteOperationSwapExactAmountOut
   factory SkipGoApiRouteOperationSwapExactAmountOut.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationSwapExactAmountOut(
-        swapAmountOut: json.as("swap_amount_out"),
+        swapAmountOut: json.valueAs("swap_amount_out"),
         swapOperations: json
-            .asListOfMap("swap_operations")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_operations")
             .map((e) => SkipGoApiSwap.fromJson(e))
             .toList(),
-        swapVenue: SkipGoApiVenue.fromJson(json.asMap("swap_venue")),
-        priceImpactPercent: json.as("price_impact_percent"));
+        swapVenue: SkipGoApiVenue.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("swap_venue")),
+        priceImpactPercent: json.valueAs("price_impact_percent"));
   }
 
   @override
@@ -840,10 +843,10 @@ class SkipGoApiSwapRoute implements SkipGoApiResponse {
       required this.swapOperations});
   factory SkipGoApiSwapRoute.fromJson(Map<String, dynamic> json) {
     return SkipGoApiSwapRoute(
-        swapAmountIn: json.as("swap_amount_in"),
-        denomIn: json.as("denom_in"),
+        swapAmountIn: json.valueAs("swap_amount_in"),
+        denomIn: json.valueAs("denom_in"),
         swapOperations: json
-            .asListOfMap("swap_operations")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_operations")
             .map((e) => SkipGoApiSwap.fromJson(e))
             .toList());
   }
@@ -874,10 +877,11 @@ class SkipGoApiRouteOperationSwapSmartSwapIn
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationSwapSmartSwapIn(
         swapRoutes: json
-            .asListOfMap("swap_routes")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_routes")
             .map((e) => SkipGoApiSwapRoute.fromJson(e))
             .toList(),
-        swapVenue: SkipGoApiVenue.fromJson(json.asMap("swap_venue")));
+        swapVenue: SkipGoApiVenue.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("swap_venue")));
   }
 
   @override
@@ -921,27 +925,26 @@ class SkipGoApiRouteOperationSwap extends SkipGoApiRouteOperation {
       : super(SkipGoApiRouteOperationType.swap);
   factory SkipGoApiRouteOperationSwap.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteOperationSwap(
-        swap: json
-            .oneKeyAs<SkipGoApiRouteOperationBaseSwap, Map<String, dynamic>>(
-                keys: SkipGoApiSwapType.values.map((e) => e.name).toList(),
-                onValue: (key, e) {
-                  final type = SkipGoApiSwapType.fromName(key);
-                  return switch (type) {
-                    SkipGoApiSwapType.swapIn =>
-                      SkipGoApiRouteOperaionSwapExactAmountIn.fromJson(e),
-                    SkipGoApiSwapType.swapOut =>
-                      SkipGoApiRouteOperationSwapExactAmountOut.fromJson(e),
-                    SkipGoApiSwapType.smartSwapIn =>
-                      SkipGoApiRouteOperationSwapSmartSwapIn.fromJson(e),
-                  };
-                }),
-        estimatedAffiliateFee: json.as("estimated_affiliate_fee"),
-        chainId: json.as("chain_id"),
-        fromChainId: json.as("from_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
+        swap: json.oneOf<SkipGoApiRouteOperationBaseSwap, Map<String, dynamic>>(
+            keys: SkipGoApiSwapType.values.map((e) => e.name).toList(),
+            parse: (key, e) {
+              final type = SkipGoApiSwapType.fromName(key);
+              return switch (type) {
+                SkipGoApiSwapType.swapIn =>
+                  SkipGoApiRouteOperaionSwapExactAmountIn.fromJson(e),
+                SkipGoApiSwapType.swapOut =>
+                  SkipGoApiRouteOperationSwapExactAmountOut.fromJson(e),
+                SkipGoApiSwapType.smartSwapIn =>
+                  SkipGoApiRouteOperationSwapSmartSwapIn.fromJson(e),
+              };
+            }),
+        estimatedAffiliateFee: json.valueAs("estimated_affiliate_fee"),
+        chainId: json.valueAs("chain_id"),
+        fromChainId: json.valueAs("from_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
         swapVenues: json
-            .asListOfMap("swap_venues")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_venues")
             .map((e) => SkipGoApiVenue.fromJson(e))
             .toList());
   }
@@ -964,7 +967,7 @@ class SkipGoApiRouteOperationAxelarTransfer extends SkipGoApiRouteOperation {
   /// Axelar-name of the asset to bridge
   final String asset;
 
-  /// Amount of the fee asset to be paid as the Axelar bridge fee. This is denominated in the fee asset.
+  /// Amount of the fee asset to be paid valueAs the Axelar bridge fee. This is denominated in the fee asset.
   final String feeAmount;
 
   /// Name for source chain of the bridge transaction used on Axelar
@@ -994,7 +997,7 @@ class SkipGoApiRouteOperationAxelarTransfer extends SkipGoApiRouteOperation {
   /// Denom of the output asset
   final String denomOut;
 
-  /// Amount of the fee asset to be paid as the Axelar bridge fee, converted to USD value
+  /// Amount of the fee asset to be paid valueAs the Axelar bridge fee, converted to USD value
   final String usdFeeAmount;
 
   /// A cross-chain transfer
@@ -1023,23 +1026,24 @@ class SkipGoApiRouteOperationAxelarTransfer extends SkipGoApiRouteOperation {
   factory SkipGoApiRouteOperationAxelarTransfer.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationAxelarTransfer(
-        asset: json.as("asset"),
-        feeAmount: json.as("fee_amount"),
-        feeAsset: SkipGoApiAsset.fromJson(json.as("fee_asset")),
-        fromChain: json.as("from_chain"),
-        fromChainId: json.as("from_chain_id"),
-        isTestnet: json.as("is_testnet"),
-        shouldUnwarp: json.as("should_unwrap"),
-        toChain: json.as("to_chain"),
-        toChainId: json.as("to_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        usdFeeAmount: json.as("usd_fee_amount"),
-        ibcTransferToAxelar: json.maybeAs(
-            key: "ibc_transfer_to_axelar",
-            onValue: SkipGoApiRouteOperationTransfer.fromJson),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        smartRelay: json.as("smart_relay"));
+        asset: json.valueAs("asset"),
+        feeAmount: json.valueAs("fee_amount"),
+        feeAsset: SkipGoApiAsset.fromJson(json.valueAs("fee_asset")),
+        fromChain: json.valueAs("from_chain"),
+        fromChainId: json.valueAs("from_chain_id"),
+        isTestnet: json.valueAs("is_testnet"),
+        shouldUnwarp: json.valueAs("should_unwrap"),
+        toChain: json.valueAs("to_chain"),
+        toChainId: json.valueAs("to_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        usdFeeAmount: json.valueAs("usd_fee_amount"),
+        ibcTransferToAxelar: json
+            .valueTo<SkipGoApiRouteOperationTransfer?, Map<String, dynamic>>(
+                key: "ibc_transfer_to_axelar",
+                parse: SkipGoApiRouteOperationTransfer.fromJson),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        smartRelay: json.valueAs("smart_relay"));
   }
 
   @override
@@ -1076,7 +1080,7 @@ class SkipGoApiRouteOperationBankSend extends SkipGoApiRouteOperation {
       : super(SkipGoApiRouteOperationType.bankSend);
   factory SkipGoApiRouteOperationBankSend.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteOperationBankSend(
-        chainId: json.as("chain_id"), denom: json.as("denom"));
+        chainId: json.valueAs("chain_id"), denom: json.valueAs("denom"));
   }
 
   @override
@@ -1110,11 +1114,11 @@ class SkipGoApiSmartRelayFeeQuote implements SkipGoApiResponse {
       required this.expiration});
   factory SkipGoApiSmartRelayFeeQuote.fromJson(Map<String, dynamic> json) {
     return SkipGoApiSmartRelayFeeQuote(
-        feeAmount: json.as("fee_amount"),
-        feeDenom: json.as("fee_denom"),
-        feePaymentAddress: json.as("fee_payment_address"),
-        relayerAddress: json.as("relayer_address"),
-        expiration: json.as("expiration"));
+        feeAmount: json.valueAs("fee_amount"),
+        feeDenom: json.valueAs("fee_denom"),
+        feePaymentAddress: json.valueAs("fee_payment_address"),
+        relayerAddress: json.valueAs("relayer_address"),
+        expiration: json.valueAs("expiration"));
   }
 
   @override
@@ -1165,16 +1169,17 @@ class SkipGoApiRouteOperationCCTPTransfer extends SkipGoApiRouteOperation {
   factory SkipGoApiRouteOperationCCTPTransfer.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationCCTPTransfer(
-        fromChainId: json.as("from_chain_id"),
-        toChainId: json.as("to_chain_id"),
-        burnToken: json.as("burn_token"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        smartRelay: json.as("smart_relay"),
-        smartRelayFeeQuote: json.maybeAs(
-            key: "smart_relay_fee_quote",
-            onValue: SkipGoApiSmartRelayFeeQuote.fromJson));
+        fromChainId: json.valueAs("from_chain_id"),
+        toChainId: json.valueAs("to_chain_id"),
+        burnToken: json.valueAs("burn_token"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        smartRelay: json.valueAs("smart_relay"),
+        smartRelayFeeQuote:
+            json.valueTo<SkipGoApiSmartRelayFeeQuote?, Map<String, dynamic>>(
+                key: "smart_relay_fee_quote",
+                parse: SkipGoApiSmartRelayFeeQuote.fromJson));
   }
 
   @override
@@ -1208,11 +1213,11 @@ class SkipGoApiRouteOperationHyperlaneTransfer extends SkipGoApiRouteOperation {
   /// Contract address of the hyperlane warp route contract that initiates the transfer
   final String hyperLaneContractAddress;
 
-  /// Amount of the fee asset to be paid as the Hyperlane bridge fee. This is denominated in the fee asset.
+  /// Amount of the fee asset to be paid valueAs the Hyperlane bridge fee. This is denominated in the fee asset.
   final String feeAmount;
   final SkipGoApiAsset feeAsset;
 
-  /// Amount of the fee asset to be paid as the Hyperlane bridge fee, converted to USD value
+  /// Amount of the fee asset to be paid valueAs the Hyperlane bridge fee, converted to USD value
   final String? usdFeeAmount;
   final SkipGoApiBridgeType bridgeId;
 
@@ -1234,16 +1239,16 @@ class SkipGoApiRouteOperationHyperlaneTransfer extends SkipGoApiRouteOperation {
   factory SkipGoApiRouteOperationHyperlaneTransfer.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationHyperlaneTransfer(
-        fromChainId: json.as("from_chain_id"),
-        toChainId: json.as("to_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        hyperLaneContractAddress: json.as("hyperlane_contract_address"),
-        feeAmount: json.as("fee_amount"),
-        feeAsset: SkipGoApiAsset.fromJson(json.as("fee_asset")),
-        usdFeeAmount: json.as("usd_fee_amount"),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        smartRelay: json.as("smart_relay"));
+        fromChainId: json.valueAs("from_chain_id"),
+        toChainId: json.valueAs("to_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        hyperLaneContractAddress: json.valueAs("hyperlane_contract_address"),
+        feeAmount: json.valueAs("fee_amount"),
+        feeAsset: SkipGoApiAsset.fromJson(json.valueAs("fee_asset")),
+        usdFeeAmount: json.valueAs("usd_fee_amount"),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        smartRelay: json.valueAs("smart_relay"));
   }
 
   @override
@@ -1301,15 +1306,15 @@ class SkipGoApiRouteOperationEVMSwap extends SkipGoApiRouteOperation {
       : super(SkipGoApiRouteOperationType.evmSwap);
   factory SkipGoApiRouteOperationEVMSwap.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteOperationEVMSwap(
-        inputToken: json.as("input_token"),
-        amountIn: json.as("amount_in"),
-        amoutOut: json.as("amount_out"),
-        swapCallData: json.as("swap_calldata"),
-        fromChainId: json.as("from_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
+        inputToken: json.valueAs("input_token"),
+        amountIn: json.valueAs("amount_in"),
+        amoutOut: json.valueAs("amount_out"),
+        swapCallData: json.valueAs("swap_calldata"),
+        fromChainId: json.valueAs("from_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
         swapVenues: json
-            .asListOfMap("swap_venues")!
+            .valueEnsureAsList<Map<String, dynamic>>("swap_venues")
             .map((e) => SkipGoApiVenue.fromJson(e))
             .toList());
   }
@@ -1360,13 +1365,13 @@ class SkipGoApiRouteOperationOpInit extends SkipGoApiRouteOperation {
       : super(SkipGoApiRouteOperationType.opInitTransfer);
   factory SkipGoApiRouteOperationOpInit.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteOperationOpInit(
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        opInitBridgeId: json.as("op_init_bridge_id"),
-        fromChainId: json.as("from_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        smartRelay: json.as("smart_relay"),
-        toChainId: json.as("to_chain_id"));
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        opInitBridgeId: json.valueAs("op_init_bridge_id"),
+        fromChainId: json.valueAs("from_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        smartRelay: json.valueAs("smart_relay"),
+        toChainId: json.valueAs("to_chain_id"));
   }
 
   @override
@@ -1404,14 +1409,14 @@ class SkipGoApiGoFastFee implements SkipGoApiResponse {
       required this.destinationChainFeeUsd});
   factory SkipGoApiGoFastFee.fromJson(Map<String, dynamic> json) {
     return SkipGoApiGoFastFee(
-        feeAsset: SkipGoApiAsset.fromJson(json.as("fee_asset")),
-        bpsFee: json.as("bps_fee"),
-        bpsFeeAmount: json.as("bps_fee_amount"),
-        bpsFeeUsd: json.as("bps_fee_usd"),
-        sourceChainFeeAmount: json.as("source_chain_fee_amount"),
-        destinationChainFeeAmount: json.as("destination_chain_fee_amount"),
-        destinationChainFeeUsd: json.as("destination_chain_fee_usd"),
-        sourceChainFeeUsd: json.as("source_chain_fee_usd"));
+        feeAsset: SkipGoApiAsset.fromJson(json.valueAs("fee_asset")),
+        bpsFee: json.valueAs("bps_fee"),
+        bpsFeeAmount: json.valueAs("bps_fee_amount"),
+        bpsFeeUsd: json.valueAs("bps_fee_usd"),
+        sourceChainFeeAmount: json.valueAs("source_chain_fee_amount"),
+        destinationChainFeeAmount: json.valueAs("destination_chain_fee_amount"),
+        destinationChainFeeUsd: json.valueAs("destination_chain_fee_usd"),
+        sourceChainFeeUsd: json.valueAs("source_chain_fee_usd"));
   }
 
   @override
@@ -1451,14 +1456,15 @@ class SkipGoApiRouteOperationGoFastTransfer extends SkipGoApiRouteOperation {
   factory SkipGoApiRouteOperationGoFastTransfer.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationGoFastTransfer(
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        fromChainId: json.as("from_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        toChainId: json.as("to_chain_id"),
-        destinationDomain: json.as("destination_domain"),
-        fee: SkipGoApiGoFastFee.fromJson(json.asMap("fee")),
-        sourceDomain: json.as("source_domain"));
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        fromChainId: json.valueAs("from_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        toChainId: json.valueAs("to_chain_id"),
+        destinationDomain: json.valueAs("destination_domain"),
+        fee: SkipGoApiGoFastFee.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("fee")),
+        sourceDomain: json.valueAs("source_domain"));
   }
 
   @override
@@ -1509,20 +1515,21 @@ class SkipGoApiRouteOperationStargateTransfer extends SkipGoApiRouteOperation {
   factory SkipGoApiRouteOperationStargateTransfer.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiRouteOperationStargateTransfer(
-        fromChainId: json.as("from_chain_id"),
-        denomIn: json.as("denom_in"),
-        denomOut: json.as("denom_out"),
-        toChainId: json.as("to_chain_id"),
-        destinationEndpointId: json.as("destination_endpoint_id"),
-        oftFeeAsset: SkipGoApiAsset.fromJson(json.asMap("oft_fee_asset")),
-        messagingFeeAmount: json.as("messaging_fee_amount"),
-        messagingFeeAmountUsd: json.as("messaging_fee_amount_usd"),
-        messagingFeeAsset:
-            SkipGoApiAsset.fromJson(json.asMap("messaging_fee_asset")),
-        oftFeeAmount: json.as("oft_fee_amount"),
-        oftFeeAmountUsd: json.as("oft_fee_amount_usd"),
-        poolAddress: json.as("pool_address"),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")));
+        fromChainId: json.valueAs("from_chain_id"),
+        denomIn: json.valueAs("denom_in"),
+        denomOut: json.valueAs("denom_out"),
+        toChainId: json.valueAs("to_chain_id"),
+        destinationEndpointId: json.valueAs("destination_endpoint_id"),
+        oftFeeAsset: SkipGoApiAsset.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("oft_fee_asset")),
+        messagingFeeAmount: json.valueAs("messaging_fee_amount"),
+        messagingFeeAmountUsd: json.valueAs("messaging_fee_amount_usd"),
+        messagingFeeAsset: SkipGoApiAsset.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("messaging_fee_asset")),
+        oftFeeAmount: json.valueAs("oft_fee_amount"),
+        oftFeeAmountUsd: json.valueAs("oft_fee_amount_usd"),
+        poolAddress: json.valueAs("pool_address"),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")));
   }
 
   @override
@@ -1563,9 +1570,9 @@ class SkipGoApiOperation extends SkipGoApiResponse {
       required this.amountOut});
   factory SkipGoApiOperation.fromJson(Map<String, dynamic> json) {
     return SkipGoApiOperation(
-        operation: json.oneKeyAs<SkipGoApiRouteOperation, Map<String, dynamic>>(
+        operation: json.oneOf<SkipGoApiRouteOperation, Map<String, dynamic>>(
           keys: SkipGoApiRouteOperationType.values.map((e) => e.key).toList(),
-          onValue: (key, e) {
+          parse: (key, e) {
             final type = SkipGoApiRouteOperationType.fromName(key);
             return switch (type) {
               SkipGoApiRouteOperationType.transfer =>
@@ -1591,9 +1598,9 @@ class SkipGoApiOperation extends SkipGoApiResponse {
             };
           },
         ),
-        txIndex: json.as("tx_index"),
-        amountIn: json.as("amount_in"),
-        amountOut: json.as("amount_out"));
+        txIndex: json.valueAs("tx_index"),
+        amountIn: json.valueAs("amount_in"),
+        amountOut: json.valueAs("amount_out"));
   }
 
   @override
@@ -1630,8 +1637,8 @@ class SkipGoApiRouteWarning extends SkipGoApiResponse {
   const SkipGoApiRouteWarning({required this.type, required this.message});
   factory SkipGoApiRouteWarning.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteWarning(
-        type: SkipGoApiRouteWarningType.fromName(json.as("type")),
-        message: json.as("message"));
+        type: SkipGoApiRouteWarningType.fromName(json.valueAs("type")),
+        message: json.valueAs("message"));
   }
 
   @override
@@ -1671,14 +1678,14 @@ class SkipGoApiRouteEstimatedFee extends SkipGoApiResponse {
       required this.operationIndex});
   factory SkipGoApiRouteEstimatedFee.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRouteEstimatedFee(
-        amount: json.as("amount"),
-        bridgeId: SkipGoApiBridgeType.fromName(json.as("bridge_id")),
-        chainId: json.as("chain_id"),
-        feeType: json.as("fee_type"),
-        operationIndex: json.as("operation_index"),
-        originAsset: SkipGoApiAsset.fromJson(json.as("origin_asset")),
-        txIndex: json.as("tx_index"),
-        usdAmount: json.as("usd_amount"));
+        amount: json.valueAs("amount"),
+        bridgeId: SkipGoApiBridgeType.fromName(json.valueAs("bridge_id")),
+        chainId: json.valueAs("chain_id"),
+        feeType: json.valueAs("fee_type"),
+        operationIndex: json.valueAs("operation_index"),
+        originAsset: SkipGoApiAsset.fromJson(json.valueAs("origin_asset")),
+        txIndex: json.valueAs("tx_index"),
+        usdAmount: json.valueAs("usd_amount"));
   }
 
   @override
@@ -1776,34 +1783,34 @@ class SkipGoApiRoute extends SkipGoApiResponse {
       required this.estimatedRouteDurationSeconds});
   factory SkipGoApiRoute.fromJson(Map<String, dynamic> json) {
     return SkipGoApiRoute(
-        amountIn: json.as("amount_in"),
-        amountOut: json.as("amount_out"),
-        chainIds: json.asListOfString("chain_ids")!,
-        requiredChainAddresses: json.as("required_chain_addresses"),
-        destAssetChainId: json.as("dest_asset_chain_id"),
-        destAssetDenom: json.as("dest_asset_denom"),
-        doesSwap: json.as("does_swap"),
-        estimatedAmountOut: json.as("estimated_amount_out"),
+        amountIn: json.valueAs("amount_in"),
+        amountOut: json.valueAs("amount_out"),
+        chainIds: json.valueEnsureAsList<String>("chain_ids"),
+        requiredChainAddresses: json.valueAs("required_chain_addresses"),
+        destAssetChainId: json.valueAs("dest_asset_chain_id"),
+        destAssetDenom: json.valueAs("dest_asset_denom"),
+        doesSwap: json.valueAs("does_swap"),
+        estimatedAmountOut: json.valueAs("estimated_amount_out"),
         operations: json
-            .asListOfMap("operations")!
+            .valueEnsureAsList<Map<String, dynamic>>("operations")
             .map((e) => SkipGoApiOperation.fromJson(e))
             .toList(),
-        sourceAssetChainId: json.as("source_asset_chain_id"),
-        sourceAssetDenom: json.as("source_asset_denom"),
-        swapVenue:
-            json.maybeAs(key: "swap_venue", onValue: SkipGoApiVenue.fromJson),
-        txsRequired: json.as("txs_required"),
-        usdAmountIn: json.as("usd_amount_in"),
-        usdAmountOut: json.as("usd_amount_out"),
-        swapPriceImpactPercent: json.as("swap_price_impact_percent"),
-        warning: json.maybeAs(
-            key: "warning", onValue: SkipGoApiRouteWarning.fromJson),
+        sourceAssetChainId: json.valueAs("source_asset_chain_id"),
+        sourceAssetDenom: json.valueAs("source_asset_denom"),
+        swapVenue: json.valueTo<SkipGoApiVenue?, Map<String, dynamic>>(
+            key: "swap_venue", parse: SkipGoApiVenue.fromJson),
+        txsRequired: json.valueAs("txs_required"),
+        usdAmountIn: json.valueAs("usd_amount_in"),
+        usdAmountOut: json.valueAs("usd_amount_out"),
+        swapPriceImpactPercent: json.valueAs("swap_price_impact_percent"),
+        warning: json.valueTo<SkipGoApiRouteWarning?, Map<String, dynamic>>(
+            key: "warning", parse: SkipGoApiRouteWarning.fromJson),
         estimatedFees: json
-            .asListOfMap("estimated_fees")!
+            .valueEnsureAsList<Map<String, dynamic>>("estimated_fees")
             .map((e) => SkipGoApiRouteEstimatedFee.fromJson(e))
             .toList(),
         estimatedRouteDurationSeconds:
-            json.as("estimated_route_duration_seconds"));
+            json.valueAs("estimated_route_duration_seconds"));
   }
   @override
   Map<String, dynamic> toJson() {
@@ -1871,9 +1878,9 @@ abstract class SkipGoApiMessage extends SkipGoApiResponse {
   final SkipGoApiMessageType messageType;
   const SkipGoApiMessage(this.messageType);
   factory SkipGoApiMessage.fromJson(Map<String, dynamic> json) {
-    return json.oneKeyAs<SkipGoApiMessage, Map<String, dynamic>>(
+    return json.oneOf<SkipGoApiMessage, Map<String, dynamic>>(
       keys: SkipGoApiMessageType.values.map((e) => e.key).toList(),
-      onValue: (key, e) {
+      parse: (key, e) {
         final type = SkipGoApiMessageType.fromName(key);
         return switch (type) {
           SkipGoApiMessageType.evmTx => SkipGoApiMessageEVMTx.fromJson(e),
@@ -1901,9 +1908,9 @@ class SkipGoApiERC20Approvals extends SkipGoApiResponse {
       required this.tokenContract});
   factory SkipGoApiERC20Approvals.fromJson(Map<String, dynamic> json) {
     return SkipGoApiERC20Approvals(
-        amount: json.as("amount"),
-        spender: json.as("spender"),
-        tokenContract: json.as("token_contract"));
+        amount: json.valueAs("amount"),
+        spender: json.valueAs("spender"),
+        tokenContract: json.valueAs("token_contract"));
   }
 
   @override
@@ -1945,15 +1952,15 @@ class SkipGoApiMessageEVMTx extends SkipGoApiMessage implements SkipGoApiTx {
       : super(SkipGoApiMessageType.evmTx);
   factory SkipGoApiMessageEVMTx.fromJson(Map<String, dynamic> json) {
     return SkipGoApiMessageEVMTx(
-        chainId: json.as("chain_id"),
-        data: json.as("data"),
+        chainId: json.valueAs("chain_id"),
+        data: json.valueAs("data"),
         requiredErc20Approvals: json
-            .asListOfMap("required_erc20_approvals")!
+            .valueEnsureAsList<Map<String, dynamic>>("required_erc20_approvals")
             .map((e) => SkipGoApiERC20Approvals.fromJson(e))
             .toList(),
-        signerAddress: json.as("signer_address"),
-        to: json.as("to"),
-        value: json.as("value"));
+        signerAddress: json.valueAs("signer_address"),
+        to: json.valueAs("to"),
+        value: json.valueAs("value"));
   }
 
   @override
@@ -1994,10 +2001,10 @@ class SkipGoApiMessageMultiChainMessage extends SkipGoApiMessage {
   factory SkipGoApiMessageMultiChainMessage.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiMessageMultiChainMessage(
-        chainId: json.as("chain_id"),
-        msg: json.as("msg"),
-        msgTypeUrl: json.as("msg_type_url"),
-        path: json.asListOfString("path")!);
+        chainId: json.valueAs("chain_id"),
+        msg: json.valueAs("msg"),
+        msgTypeUrl: json.valueAs("msg_type_url"),
+        path: json.valueEnsureAsList<String>("path"));
   }
 
   @override
@@ -2026,9 +2033,9 @@ class SkipGoApiMessageSVMTx extends SkipGoApiMessage implements SkipGoApiTx {
       : super(SkipGoApiMessageType.evmTx);
   factory SkipGoApiMessageSVMTx.fromJson(Map<String, dynamic> json) {
     return SkipGoApiMessageSVMTx(
-        chainId: json.as("chain_id"),
-        tx: json.as("tx"),
-        signerAddress: json.as("signer_address"));
+        chainId: json.valueAs("chain_id"),
+        tx: json.valueAs("tx"),
+        signerAddress: json.valueAs("signer_address"));
   }
 
   @override
@@ -2054,7 +2061,7 @@ class SkipGoApiCosmosTxMessage extends SkipGoApiResponse {
   const SkipGoApiCosmosTxMessage({required this.msg, required this.msgTypeUrl});
   factory SkipGoApiCosmosTxMessage.fromJson(Map<String, dynamic> json) {
     return SkipGoApiCosmosTxMessage(
-        msg: json.as("msg"), msgTypeUrl: json.as("msg_type_url"));
+        msg: json.valueAs("msg"), msgTypeUrl: json.valueAs("msg_type_url"));
   }
 
   @override
@@ -2070,9 +2077,9 @@ abstract class SkipGoApiTx implements SkipGoApiResponse {
   final SkipGoApiTxType txType;
   const SkipGoApiTx(this.txType);
   factory SkipGoApiTx.fromJson(Map<String, dynamic> json) {
-    return json.oneKeyAs<SkipGoApiTx, Map<String, dynamic>>(
+    return json.oneOf<SkipGoApiTx, Map<String, dynamic>>(
       keys: SkipGoApiTxType.values.map((e) => e.key).toList(),
-      onValue: (key, e) {
+      parse: (key, e) {
         final type = SkipGoApiTxType.fromName(key);
         return switch (type) {
           SkipGoApiTxType.evmTx => SkipGoApiMessageEVMTx.fromJson(e),
@@ -2105,13 +2112,13 @@ class SkipGoApiCosmosTx implements SkipGoApiTx {
       required this.msgs});
   factory SkipGoApiCosmosTx.fromJson(Map<String, dynamic> json) {
     return SkipGoApiCosmosTx(
-        chainId: json.as("chain_id"),
-        path: json.asListOfString("path")!,
+        chainId: json.valueAs("chain_id"),
+        path: json.valueEnsureAsList<String>("path"),
         msgs: json
-            .asListOfMap("msgs")!
+            .valueEnsureAsList<Map<String, dynamic>>("msgs")
             .map((e) => SkipGoApiCosmosTxMessage.fromJson(e))
             .toList(),
-        signerAddress: json.as("signer_address"));
+        signerAddress: json.valueAs("signer_address"));
   }
 
   @override
@@ -2216,8 +2223,8 @@ class SkipGoApiMsgWarning extends SkipGoApiResponse {
   const SkipGoApiMsgWarning({required this.type, required this.message});
   factory SkipGoApiMsgWarning.fromJson(Map<String, dynamic> json) {
     return SkipGoApiMsgWarning(
-        type: SkipGoApiMsgWarningType.fromName(json.as("type")),
-        message: json.as("message"));
+        type: SkipGoApiMsgWarningType.fromName(json.valueAs("type")),
+        message: json.valueAs("message"));
   }
   @override
   Map<String, dynamic> toJson() {
@@ -2242,19 +2249,19 @@ class SkipGoApiMsgs extends SkipGoApiResponse {
   factory SkipGoApiMsgs.fromJson(Map<String, dynamic> json) {
     return SkipGoApiMsgs(
         msgs: json
-            .asListOfMap("msgs")!
+            .valueEnsureAsList<Map<String, dynamic>>("msgs")
             .map((e) => SkipGoApiMessage.fromJson(e))
             .toList(),
         txs: json
-            .asListOfMap("txs")!
+            .valueEnsureAsList<Map<String, dynamic>>("txs")
             .map((e) => SkipGoApiTx.fromJson(e))
             .toList(),
         estimatedFees: json
-            .asListOfMap("estimated_fees")!
+            .valueEnsureAsList<Map<String, dynamic>>("estimated_fees")
             .map((e) => SkipGoApiRouteEstimatedFee.fromJson(e))
             .toList(),
-        warning: json.maybeAs(
-            key: "warning", onValue: SkipGoApiMsgWarning.fromJson));
+        warning: json.valueTo<SkipGoApiMsgWarning?, Map<String, dynamic>>(
+            key: "warning", parse: SkipGoApiMsgWarning.fromJson));
   }
 
   @override
@@ -2299,16 +2306,17 @@ class SkipGoApiMsgsDirect extends SkipGoApiResponse {
   factory SkipGoApiMsgsDirect.fromJson(Map<String, dynamic> json) {
     return SkipGoApiMsgsDirect(
         msgs: json
-            .asListOfMap("msgs")!
+            .valueEnsureAsList<Map<String, dynamic>>("msgs")
             .map((e) => SkipGoApiMessage.fromJson(e))
             .toList(),
         txs: json
-            .asListOfMap("msgs")!
+            .valueEnsureAsList<Map<String, dynamic>>("msgs")
             .map((e) => SkipGoApiTx.fromJson(e))
             .toList(),
-        route: SkipGoApiRoute.fromJson(json.asMap("route")),
-        warning: json.maybeAs(
-            key: "warning", onValue: SkipGoApiMsgWarning.fromJson));
+        route: SkipGoApiRoute.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("route")),
+        warning: json.valueTo<SkipGoApiMsgWarning?, Map<String, dynamic>>(
+            key: "warning", parse: SkipGoApiMsgWarning.fromJson));
   }
 
   @override
@@ -2343,8 +2351,10 @@ class SkipGoApiIbcOriginAsset implements SkipGoApiRequestParam {
   const SkipGoApiIbcOriginAsset({required this.asset, required this.error});
   factory SkipGoApiIbcOriginAsset.fromJson(Map<String, dynamic> json) {
     return SkipGoApiIbcOriginAsset(
-        asset: json.maybeAs(key: "asset", onValue: SkipGoApiAsset.fromJson),
-        error: json.maybeAs(key: "error", onValue: SkipGoApiError.fromJson));
+        asset: json.valueTo<SkipGoApiAsset?, Map<String, dynamic>>(
+            key: "asset", parse: SkipGoApiAsset.fromJson),
+        error: json.valueTo<SkipGoApiError?, Map<String, dynamic>>(
+            key: "error", parse: SkipGoApiError.fromJson));
   }
 
   @override
@@ -2369,11 +2379,11 @@ class SkipGoApiAssetBetweenChains implements SkipGoApiRequestParam {
       required this.bridges});
   factory SkipGoApiAssetBetweenChains.fromJson(Map<String, dynamic> json) {
     return SkipGoApiAssetBetweenChains(
-      assetOnDest: SkipGoApiAsset.fromJson(json.as("asset_on_source")),
-      assetOnSource: SkipGoApiAsset.fromJson(json.as("asset_on_dest")),
-      txsRequired: json.as("txs_required"),
+      assetOnDest: SkipGoApiAsset.fromJson(json.valueAs("asset_on_source")),
+      assetOnSource: SkipGoApiAsset.fromJson(json.valueAs("asset_on_dest")),
+      txsRequired: json.valueAs("txs_required"),
       bridges: json
-          .asListOfString("bridges")!
+          .valueEnsureAsList<String>("bridges")
           .map(SkipGoApiBridgeType.fromName)
           .toList(),
     );
@@ -2402,7 +2412,7 @@ enum SkipGoApiTransactionState {
 
   /// The route errored somewhere and the user has their tokens unlocked in one of their wallets.
   /// Their tokens are either on the source chain, an intermediate chain,
-  /// or the destination chain but as the wrong asset.
+  /// or the destination chain but valueAs the wrong asset.
   /// (Again, transfer_asset_release indicates where the tokens are)
   stateCompletedError("STATE_COMPLETED_ERROR"),
 
@@ -2434,7 +2444,8 @@ class SkipGoApiNextBlockingTransfer implements SkipGoApiResponse {
   final int transferSequenceIndex;
   const SkipGoApiNextBlockingTransfer(this.transferSequenceIndex);
   factory SkipGoApiNextBlockingTransfer.fromJson(Map<String, dynamic> json) {
-    return SkipGoApiNextBlockingTransfer(json.as("transfer_sequence_index"));
+    return SkipGoApiNextBlockingTransfer(
+        json.valueAs("transfer_sequence_index"));
   }
 
   @override
@@ -2460,10 +2471,10 @@ class SkipGoApiTransferAssetRelease implements SkipGoApiResponse {
       required this.amount});
   factory SkipGoApiTransferAssetRelease.fromJson(Map<String, dynamic> json) {
     return SkipGoApiTransferAssetRelease(
-        chainId: json.as("chain_id"),
-        denom: json.as("denom"),
-        released: json.as("released"),
-        amount: json.as("amount"));
+        chainId: json.valueAs("chain_id"),
+        denom: json.valueAs("denom"),
+        released: json.valueAs("released"),
+        amount: json.valueAs("amount"));
   }
 
   @override
@@ -2492,9 +2503,9 @@ class SkipGoApiChainTransaction implements SkipGoApiResponse {
       required this.explorerLink});
   factory SkipGoApiChainTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiChainTransaction(
-        chainId: json.as("chain_id"),
-        txHash: json.as("tx_hash"),
-        explorerLink: json.as("explorer_link"));
+        chainId: json.valueAs("chain_id"),
+        txHash: json.valueAs("tx_hash"),
+        explorerLink: json.valueAs("explorer_link"));
   }
 
   @override
@@ -2536,9 +2547,9 @@ class SkipGoApiPacketError implements SkipGoApiResponse {
       {required this.type, required this.message, required this.details});
   factory SkipGoApiPacketError.fromJson(Map<String, dynamic> json) {
     return SkipGoApiPacketError(
-        type: SkipGoApiPacketErrorType.fromName(json.as("type")),
-        message: json.as("message"),
-        details: json.as("details"));
+        type: SkipGoApiPacketErrorType.fromName(json.valueAs("type")),
+        message: json.valueAs("message"),
+        details: json.valueAs("details"));
   }
   @override
   Map<String, dynamic> toJson() {
@@ -2560,15 +2571,17 @@ class SkipGoApiPacket implements SkipGoApiResponse {
       required this.error});
   factory SkipGoApiPacket.fromJson(Map<String, dynamic> json) {
     return SkipGoApiPacket(
-      acknowledgeTx: json.maybeAs(
-          key: "acknowledge_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      receiveTx: json.maybeAs(
-          key: "receive_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      timeoutTx: json.maybeAs(
-          key: "timeout_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      error: json.maybeAs(key: "error", onValue: SkipGoApiPacketError.fromJson),
+      acknowledgeTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "acknowledge_tx", parse: SkipGoApiChainTransaction.fromJson),
+      receiveTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "receive_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
+      timeoutTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "timeout_tx", parse: SkipGoApiChainTransaction.fromJson),
+      error: json.valueTo<SkipGoApiPacketError?, Map<String, dynamic>>(
+          key: "error", parse: SkipGoApiPacketError.fromJson),
     );
   }
 
@@ -2619,9 +2632,9 @@ abstract class SkipGoApiBaseTransfer implements SkipGoApiResponse {
   final SkipGoApiTransferType transferType;
   const SkipGoApiBaseTransfer(this.transferType);
   factory SkipGoApiBaseTransfer.fromJson(Map<String, dynamic> json) {
-    return json.oneKeyAs<SkipGoApiBaseTransfer, Map<String, dynamic>>(
+    return json.oneOf<SkipGoApiBaseTransfer, Map<String, dynamic>>(
       keys: SkipGoApiTransferType.values.map((e) => e.key).toList(),
-      onValue: (key, e) {
+      parse: (key, e) {
         final type = SkipGoApiTransferType.fromName(key);
         return switch (type) {
           SkipGoApiTransferType.ibcTransfer => SkipGoApiIbcTransfer.fromJson(e),
@@ -2663,10 +2676,11 @@ class SkipGoApiIbcTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiIbcTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiIbcTransfer(
-        toChainId: json.as("to_chain_id"),
-        packetTxes: SkipGoApiPacket.fromJson(json.asMap("packet_txs")),
-        fromChainId: json.as("from_chain_id"),
-        state: SkipGoApiTransferState.fromName(json.as("state")));
+        toChainId: json.valueAs("to_chain_id"),
+        packetTxes: SkipGoApiPacket.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("packet_txs")),
+        fromChainId: json.valueAs("from_chain_id"),
+        state: SkipGoApiTransferState.fromName(json.valueAs("state")));
   }
 
   @override
@@ -2763,9 +2777,9 @@ class SkipGoApiAxelarContractCallWithTokenError implements SkipGoApiResponse {
   factory SkipGoApiAxelarContractCallWithTokenError.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiAxelarContractCallWithTokenError(
-        message: json.as("message"),
+        message: json.valueAs("message"),
         type: SkipGoApiAxelarContractCallWithTokenErrorType.fromName(
-            json.as("type")));
+            json.valueAs("type")));
   }
 
   @override
@@ -2798,19 +2812,20 @@ class SkipGoApiAxelarContractCallWithTokenTransaction
   factory SkipGoApiAxelarContractCallWithTokenTransaction.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiAxelarContractCallWithTokenTransaction(
-      approveTx: json.maybeAs(
-          key: "approve_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      gasPaidTx: json.maybeAs(
-          key: "gas_paid_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      confirmTx: json.maybeAs(
-          key: "confirm_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      executeTx: json.maybeAs(
-          key: "execute_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      error: json.maybeAs(
+      approveTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "approve_tx", parse: SkipGoApiChainTransaction.fromJson),
+      gasPaidTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "gas_paid_tx", parse: SkipGoApiChainTransaction.fromJson),
+      confirmTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "confirm_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
+      executeTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "execute_tx", parse: SkipGoApiChainTransaction.fromJson),
+      error: json.valueTo<SkipGoApiAxelarContractCallWithTokenError?,
+              Map<String, dynamic>>(
           key: "error",
-          onValue: SkipGoApiAxelarContractCallWithTokenError.fromJson),
+          parse: SkipGoApiAxelarContractCallWithTokenError.fromJson),
     );
   }
 
@@ -2858,8 +2873,8 @@ class SkipGoApiAxelarSendTokenError implements SkipGoApiResponse {
 
   factory SkipGoApiAxelarSendTokenError.fromJson(Map<String, dynamic> json) {
     return SkipGoApiAxelarSendTokenError(
-        message: json.as("message"),
-        type: SkipGoApiAxelarSendTokenErrorType.fromName(json.as("type")));
+        message: json.valueAs("message"),
+        type: SkipGoApiAxelarSendTokenErrorType.fromName(json.valueAs("type")));
   }
 
   @override
@@ -2883,14 +2898,14 @@ class SkipGoApiAxelarSendTokenTransaction
   factory SkipGoApiAxelarSendTokenTransaction.fromJson(
       Map<String, dynamic> json) {
     return SkipGoApiAxelarSendTokenTransaction(
-      confirmTx: json.maybeAs(
-          key: "confirm_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      executeTx: json.maybeAs(
-          key: "execute_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      error: json.maybeAs(
-          key: "error", onValue: SkipGoApiAxelarSendTokenError.fromJson),
+      confirmTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "confirm_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
+      executeTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "execute_tx", parse: SkipGoApiChainTransaction.fromJson),
+      error: json.valueTo<SkipGoApiAxelarSendTokenError?, Map<String, dynamic>>(
+          key: "error", parse: SkipGoApiAxelarSendTokenError.fromJson),
     );
   }
 
@@ -2933,20 +2948,20 @@ class SkipGoApiAxelarTransfer extends SkipGoApiBaseTransfer {
       : super(SkipGoApiTransferType.axelarTransfer);
 
   factory SkipGoApiAxelarTransfer.fromJson(Map<String, dynamic> json) {
-    final type = SkipGoApiAxelarTransactionType.fromName(json.as("type"));
+    final type = SkipGoApiAxelarTransactionType.fromName(json.valueAs("type"));
     return SkipGoApiAxelarTransfer(
-      toChainId: json.as("to_chain_id"),
+      toChainId: json.valueAs("to_chain_id"),
       type: type,
-      axelarScanLink: json.as("axelar_scan_link"),
+      axelarScanLink: json.valueAs("axelar_scan_link"),
       txs: switch (type) {
         SkipGoApiAxelarTransactionType.contractCallWithTokenTxs =>
           SkipGoApiAxelarContractCallWithTokenTransaction.fromJson(
-              json.as("txs")),
+              json.valueAs("txs")),
         SkipGoApiAxelarTransactionType.sendTokenTxs =>
-          SkipGoApiAxelarSendTokenTransaction.fromJson(json.as("txs")),
+          SkipGoApiAxelarSendTokenTransaction.fromJson(json.valueAs("txs")),
       },
-      fromChainId: json.as("from_chain_id"),
-      state: SkipGoApiAxelarTransferState.fromName(json.as("state")),
+      fromChainId: json.valueAs("from_chain_id"),
+      state: SkipGoApiAxelarTransferState.fromName(json.valueAs("state")),
     );
   }
 
@@ -2970,10 +2985,10 @@ class SkipGoApiCCTPTransaction extends SkipGoApiResponse {
       {required this.receiveTx, required this.sendTx});
   factory SkipGoApiCCTPTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiCCTPTransaction(
-      receiveTx: json.maybeAs(
-          key: "receive_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
+      receiveTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "receive_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
     );
   }
 
@@ -3034,10 +3049,10 @@ class SkipGoApiCCTPTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiCCTPTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiCCTPTransfer(
-      toChainId: json.as("to_chain_id"),
-      txs: SkipGoApiCCTPTransaction.fromJson(json.as("txs")),
-      fromChainId: json.as("from_chain_id"),
-      state: SkipGoApiCCTPTransferState.fromName(json.as("state")),
+      toChainId: json.valueAs("to_chain_id"),
+      txs: SkipGoApiCCTPTransaction.fromJson(json.valueAs("txs")),
+      fromChainId: json.valueAs("from_chain_id"),
+      state: SkipGoApiCCTPTransferState.fromName(json.valueAs("state")),
     );
   }
 
@@ -3059,10 +3074,10 @@ class SkipGoApiHyperlaneTransaction extends SkipGoApiResponse {
       {required this.receiveTx, required this.sendTx});
   factory SkipGoApiHyperlaneTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiHyperlaneTransaction(
-      receiveTx: json.maybeAs(
-          key: "receive_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
+      receiveTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "receive_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
     );
   }
 
@@ -3121,10 +3136,10 @@ class SkipGoApiHyperlaneTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiHyperlaneTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiHyperlaneTransfer(
-      toChainId: json.as("to_chain_id"),
-      txs: SkipGoApiHyperlaneTransaction.fromJson(json.as("txs")),
-      fromChainId: json.as("from_chain_id"),
-      state: SkipGoApiHyperlaneTransferState.fromName(json.as("state")),
+      toChainId: json.valueAs("to_chain_id"),
+      txs: SkipGoApiHyperlaneTransaction.fromJson(json.valueAs("txs")),
+      fromChainId: json.valueAs("from_chain_id"),
+      state: SkipGoApiHyperlaneTransferState.fromName(json.valueAs("state")),
     );
   }
 
@@ -3146,10 +3161,10 @@ class SkipGoApiOpInitTransaction extends SkipGoApiResponse {
       {required this.receiveTx, required this.sendTx});
   factory SkipGoApiOpInitTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiOpInitTransaction(
-      receiveTx: json.maybeAs(
-          key: "receive_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
+      receiveTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "receive_tx", parse: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
     );
   }
 
@@ -3204,10 +3219,10 @@ class SkipGoApiOpInitTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiOpInitTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiOpInitTransfer(
-      toChainId: json.as("to_chain_id"),
-      txs: SkipGoApiOpInitTransaction.fromJson(json.as("txs")),
-      fromChainId: json.as("from_chain_id"),
-      state: SkipGoApiOpInitTransferState.fromName(json.as("state")),
+      toChainId: json.valueAs("to_chain_id"),
+      txs: SkipGoApiOpInitTransaction.fromJson(json.valueAs("txs")),
+      fromChainId: json.valueAs("from_chain_id"),
+      state: SkipGoApiOpInitTransferState.fromName(json.valueAs("state")),
     );
   }
 
@@ -3234,16 +3249,22 @@ class SkipGoApiGoFastTransaction implements SkipGoApiResponse {
       required this.orderTimeoutTx});
   factory SkipGoApiGoFastTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiGoFastTransaction(
-      orderSubmitedTx: json.maybeAs(
-          key: "order_submitted_tx",
-          onValue: SkipGoApiChainTransaction.fromJson),
-      orderFilledTx: json.maybeAs(
-          key: "order_filled_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      orderRefundedTx: json.maybeAs(
-          key: "order_refunded_tx",
-          onValue: SkipGoApiChainTransaction.fromJson),
-      orderTimeoutTx: json.maybeAs(
-          key: "order_timeout_tx", onValue: SkipGoApiChainTransaction.fromJson),
+      orderSubmitedTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "order_submitted_tx",
+              parse: SkipGoApiChainTransaction.fromJson),
+      orderFilledTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "order_filled_tx",
+              parse: SkipGoApiChainTransaction.fromJson),
+      orderRefundedTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "order_refunded_tx",
+              parse: SkipGoApiChainTransaction.fromJson),
+      orderTimeoutTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "order_timeout_tx",
+              parse: SkipGoApiChainTransaction.fromJson),
     );
   }
 
@@ -3309,11 +3330,11 @@ class SkipGoApiGoFastTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiGoFastTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiGoFastTransfer(
-        toChainId: json.as("to_chain_id"),
-        txs: SkipGoApiGoFastTransaction.fromJson(json.as("txs")),
-        fromChainId: json.as("from_chain_id"),
-        state: SkipGoApiGoFastTransferState.fromName(json.as("state")),
-        errorMessage: json.as("error_message"));
+        toChainId: json.valueAs("to_chain_id"),
+        txs: SkipGoApiGoFastTransaction.fromJson(json.valueAs("txs")),
+        fromChainId: json.valueAs("from_chain_id"),
+        state: SkipGoApiGoFastTransferState.fromName(json.valueAs("state")),
+        errorMessage: json.valueAs("error_message"));
   }
 
   @override
@@ -3336,12 +3357,13 @@ class SkipGoApiStargateTransaction implements SkipGoApiResponse {
       {required this.sendTx, required this.receivedTx, required this.errorTx});
   factory SkipGoApiStargateTransaction.fromJson(Map<String, dynamic> json) {
     return SkipGoApiStargateTransaction(
-      sendTx: json.maybeAs(
-          key: "send_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      receivedTx: json.maybeAs(
-          key: "receive_tx", onValue: SkipGoApiChainTransaction.fromJson),
-      errorTx: json.maybeAs(
-          key: "error_tx", onValue: SkipGoApiChainTransaction.fromJson),
+      sendTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "send_tx", parse: SkipGoApiChainTransaction.fromJson),
+      receivedTx:
+          json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+              key: "receive_tx", parse: SkipGoApiChainTransaction.fromJson),
+      errorTx: json.valueTo<SkipGoApiChainTransaction?, Map<String, dynamic>>(
+          key: "error_tx", parse: SkipGoApiChainTransaction.fromJson),
     );
   }
 
@@ -3400,10 +3422,10 @@ class SkipGoApiStargateTransfer extends SkipGoApiBaseTransfer {
 
   factory SkipGoApiStargateTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiStargateTransfer(
-        toChainId: json.as("to_chain_id"),
-        txs: SkipGoApiStargateTransaction.fromJson(json.as("txs")),
-        fromChainId: json.as("from_chain_id"),
-        state: SkipGoApiStargateTransferState.fromName(json.as("state")));
+        toChainId: json.valueAs("to_chain_id"),
+        txs: SkipGoApiStargateTransaction.fromJson(json.valueAs("txs")),
+        fromChainId: json.valueAs("from_chain_id"),
+        state: SkipGoApiStargateTransferState.fromName(json.valueAs("state")));
   }
 
   @override
@@ -3467,9 +3489,9 @@ class SkipGoApiTransferError extends SkipGoApiResponse {
       {required this.type, required this.message, required this.details});
   factory SkipGoApiTransferError.fromJson(Map<String, dynamic> json) {
     return SkipGoApiTransferError(
-        type: SkipGoApiTransferErrorType.fromName(json.as("type")),
-        message: json.as("message"),
-        details: json.as("details"));
+        type: SkipGoApiTransferErrorType.fromName(json.valueAs("type")),
+        message: json.valueAs("message"),
+        details: json.valueAs("details"));
   }
 
   @override
@@ -3492,17 +3514,19 @@ class SkipGoApiTransfer extends SkipGoApiResponse {
       required this.transferSequence});
   factory SkipGoApiTransfer.fromJson(Map<String, dynamic> json) {
     return SkipGoApiTransfer(
-        error: json.maybeAs(
-            key: "error", onValue: SkipGoApiTransferError.fromJson),
-        nextBlockingTransfer: json.maybeAs(
-            key: "next_blocking_transfer",
-            onValue: SkipGoApiNextBlockingTransfer.fromJson),
-        state: SkipGoApiTransactionState.fromName(json.as("state")),
-        transferAssetRelease: json.maybeAs(
-            key: "transfer_asset_release",
-            onValue: SkipGoApiTransferAssetRelease.fromJson),
+        error: json.valueTo<SkipGoApiTransferError?, Map<String, dynamic>>(
+            key: "error", parse: SkipGoApiTransferError.fromJson),
+        nextBlockingTransfer:
+            json.valueTo<SkipGoApiNextBlockingTransfer?, Map<String, dynamic>>(
+                key: "next_blocking_transfer",
+                parse: SkipGoApiNextBlockingTransfer.fromJson),
+        state: SkipGoApiTransactionState.fromName(json.valueAs("state")),
+        transferAssetRelease:
+            json.valueTo<SkipGoApiTransferAssetRelease?, Map<String, dynamic>>(
+                key: "transfer_asset_release",
+                parse: SkipGoApiTransferAssetRelease.fromJson),
         transferSequence: json
-            .asListOfMap("transfer_sequence")!
+            .valueEnsureAsList<Map<String, dynamic>>("transfer_sequence")
             .map((e) => SkipGoApiBaseTransfer.fromJson(e))
             .toList());
   }

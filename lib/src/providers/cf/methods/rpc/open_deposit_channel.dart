@@ -1,6 +1,6 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/cf/core/core.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models.dart';
-import 'package:on_chain/utils/utils/map_utils.dart';
 
 class CfTRPCRequestOpenSwapDepositChannel extends CfTRPCRequest<
     TRPCOpenDepositChannelResponse, Map<String, dynamic>> {
@@ -52,8 +52,8 @@ class CfTRPCRequestOpenSwapDepositChannel extends CfTRPCRequest<
   @override
   TRPCOpenDepositChannelResponse onResonse(Map<String, dynamic> result) {
     return TRPCOpenDepositChannelResponse.fromJson(result
-        .asMap<Map<String, dynamic>>("result")
-        .asMap<Map<String, dynamic>>("data")
-        .asMap("json"));
+        .valueEnsureAsMap<String, dynamic>("result")
+        .valueEnsureAsMap<String, dynamic>("data")
+        .valueEnsureAsMap<String, dynamic>("json"));
   }
 }

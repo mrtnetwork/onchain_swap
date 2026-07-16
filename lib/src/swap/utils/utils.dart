@@ -25,7 +25,8 @@ class SwapUtils {
     dec = dec * decimals;
     if (validateDecimal) {
       if (decimal == 0 && dec.isDecimal) {
-        throw ArgumentError("price should not be decimal with decimal zero");
+        throw const DartOnChainSwapPluginException(
+            "price should not be decimal with decimal zero");
       }
     }
     return dec;
@@ -110,7 +111,7 @@ class SwapUtils {
         SwapChainType.bitcoin => BitcoinNetworkAddress.parse(
                 address: address,
                 network: network.cast<SwapBitcoinNetwork>().chain)
-            .toAddress(),
+            .address,
       };
       return networkAddress;
     } catch (e) {

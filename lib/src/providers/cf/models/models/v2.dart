@@ -1,3 +1,4 @@
+import 'package:blockchain_utils/exception/exceptions.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/backend.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/rpc.dart';
@@ -503,7 +504,10 @@ class Waiting extends SwapStatusResponseCommonFields
 
   @override
   T cast<T extends SwapStatusResponseV2>() {
-    throw UnimplementedError();
+    if (this is T) {
+      return this as T;
+    }
+    throw CastFailedException<T>();
   }
 }
 
@@ -559,7 +563,10 @@ class Receiving extends SwapStatusResponseCommonFields
 
   @override
   T cast<T extends SwapStatusResponseV2>() {
-    throw UnimplementedError();
+    if (this is T) {
+      return this as T;
+    }
+    throw CastFailedException<T>();
   }
 }
 

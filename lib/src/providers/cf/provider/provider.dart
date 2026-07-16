@@ -1,19 +1,23 @@
 import 'dart:async';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain_swap/src/providers/cf/core/core.dart';
-import 'package:on_chain_swap/src/providers/cf/service/service.dart';
 
-class CfProvider implements BaseProvider<CfRequestDetails> {
-  final CfServiceProvider rpc;
+class CfProvider<SERVICE extends IServiceProvider>
+    implements IProvider<SERVICE, CfRequestDetails> {
+  @override
+  final SERVICE service;
 
-  CfProvider(this.rpc);
+  CfProvider(this.service);
 
   static SERVICERESPONSE _findError<SERVICERESPONSE>(
       {required BaseServiceResponse response,
       required CfRequestDetails params}) {
     if (response.type == ServiceResponseType.error) {
-      final err = response.cast<ServiceErrorResponse>();
-      final Map<String, dynamic>? error = StringUtils.tryToJson(err.error);
+      final err = response.cast<BaseServiceErrorResponse>();
+      if (!err.validate) {
+        throw err.defaultError();
+      }
+      final Map<String, dynamic>? error = err.tryToJson();
       if (params.cfRequestType == CfRequestType.batchTrcp) {
         Map<String, dynamic>? errorData =
             StringUtils.tryToJson(error?["error"]);
@@ -26,38 +30,45 @@ class CfProvider implements BaseProvider<CfRequestDetails> {
             StringUtils.tryToJson(errorData?["data"]);
         throw RPCError(
             message: message ??
-                ServiceConst.httpErrorMessages[err.statusCode] ??
-                ServiceConst.defaultError,
+                ServiceProviderUtils.getDefaultError(response.statusCode),
             errorCode: code,
-            details: data,
+            jsonRpcErrpr: data,
             request: params.toJson());
       }
-      final String message = error?["message"] ??
-          ServiceConst.httpErrorMessages[response.statusCode] ??
-          ServiceConst.defaultError;
+      final message = error?["message"];
+
       throw RPCError(
-          message: message,
-          details: {
-            "statusCode": response.statusCode,
-            "details": error?["details"]
-          },
+          message: message is String
+              ? message
+              : ServiceProviderUtils.getDefaultError(response.statusCode),
+          statusCode: response.statusCode,
+          jsonRpcErrpr: error,
+          // details: {"details": error?["details"]},
           errorCode: IntUtils.tryParse(error?["code"]));
     }
-    final r = response.getResult(params);
-    if (params.type == RequestServiceType.get ||
+    final result = params.tryEncodingResponse<SERVICERESPONSE>(response);
+    if (result != null && params.requestMethod == RequestMethod.get ||
         params.cfRequestType == CfRequestType.batchTrcp) {
-      return ServiceProviderUtils.parseResponse(object: r, params: params);
+      return ServiceProviderUtils.toResponse<SERVICERESPONSE>(
+          object: result, params: params);
     }
-    final jsonRpcResponse = r as Map<String, dynamic>;
+    final jsonRpcResponse =
+        ServiceProviderUtils.toResponse<Map<String, dynamic>>(
+            object: result ??
+                params.tryEncodingResponse(response,
+                    encoding: ServiceReponseEncoding.map),
+            params: params);
+
     final Map<String, dynamic>? error =
         StringUtils.tryToJson(jsonRpcResponse["error"]);
     if (error != null) {
+      final message = error["message"];
       throw RPCError(
-          message: error["message"]?.toString() ?? ServiceConst.defaultError,
+          message: message is String ? message : ServiceConst.defaultError,
           errorCode: IntUtils.tryParse(error["code"]),
-          details: error);
+          jsonRpcErrpr: error);
     }
-    return ServiceProviderUtils.parseResponse(
+    return ServiceProviderUtils.toResponse<SERVICERESPONSE>(
         object: jsonRpcResponse["result"], params: params);
   }
 
@@ -65,25 +76,24 @@ class CfProvider implements BaseProvider<CfRequestDetails> {
 
   @override
   Future<RESULT> request<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, CfRequestDetails> request,
+      IServiceRequest<RESULT, SERVICERESPONSE, CfRequestDetails> request,
       {Duration? timeout}) async {
-    final r = await requestDynamic(request, timeout: timeout);
+    final r = await requestDynamic<RESULT, SERVICERESPONSE>(request,
+        timeout: timeout);
     return request.onResonse(r);
   }
 
   @override
   Future<SERVICERESPONSE> requestDynamic<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, CfRequestDetails> request,
+      IServiceRequest<RESULT, SERVICERESPONSE, CfRequestDetails> request,
       {Duration? timeout}) async {
     final params = request.buildRequest(_id++);
-    if (params.type == RequestServiceType.get ||
+    if (params.requestMethod == RequestMethod.get ||
         params.cfRequestType == CfRequestType.batchTrcp) {
-      final response =
-          await rpc.doRequest<SERVICERESPONSE>(params, timeout: timeout);
-      return _findError(params: params, response: response);
+      final response = await service.doRequest(params, timeout: timeout);
+      return _findError<SERVICERESPONSE>(params: params, response: response);
     }
-    final response =
-        await rpc.doRequest<Map<String, dynamic>>(params, timeout: timeout);
-    return _findError(params: params, response: response);
+    final response = await service.doRequest(params, timeout: timeout);
+    return _findError<SERVICERESPONSE>(params: params, response: response);
   }
 }

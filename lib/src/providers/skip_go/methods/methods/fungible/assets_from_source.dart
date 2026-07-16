@@ -1,7 +1,7 @@
+import 'package:blockchain_utils/utils/json/extension/json.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Get assets that can be reached from a source via transfers
 /// under different conditions (e.g. single vs multiple txs)
@@ -39,6 +39,7 @@ class SkipGoApiRequestAssetsFromSource
 
   @override
   SkipGoApiAssets onResonse(Map<String, dynamic> result) {
-    return SkipGoApiAssets.fromJson(result.asMap("dest_assets"));
+    return SkipGoApiAssets.fromJson(
+        result.valueEnsureAsMap<String, dynamic>("dest_assets"));
   }
 }

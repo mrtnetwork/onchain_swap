@@ -19,9 +19,10 @@ class SwapRouteBitcoinTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions({
-    required GETNETWORK<BaseSwapBitcoinClient, SwapBitcoinNetwork> client,
-    required GETSIGNER<Web3SignerBitcoin, BitcoinNetworkAddress> signer,
-    required ONOPERATIONSTATUS stepsCallBack,
+    required CbGetRouteNetwork<BaseSwapBitcoinClient, SwapBitcoinNetwork>
+        client,
+    required CbGetSigner<Web3SignerBitcoin, BitcoinNetworkAddress> signer,
+    required CbOnStatusChanged stepsCallBack,
   }) async {
     for (final operation in operations) {
       stepsCallBack(TransactionOperationStep.client);
@@ -38,7 +39,7 @@ class SwapRouteBitcoinTransactionBuilder extends SwapRouteTransactionBuilder<
           final psbtBuilder = PsbtBuilder.fromBase64(psbt);
           final finalTx = psbtBuilder.finalizeAll();
           stepsCallBack(TransactionOperationStep.broadcast);
-          final txId = await bitcoinClient.sendTransaction(finalTx.serialize());
+          final txId = await bitcoinClient.sendTransaction(finalTx);
           stepsCallBack(TransactionOperationStep.txHash, transactionHash: txId);
           break;
         case BitcoinSigningScheme.sendPayment:
@@ -91,12 +92,12 @@ class SwapRouteBitcoinNativeTransactionOperation
       BaseSwapBitcoinClient client, List<BitcoinSpenderAddress> sources) async {
     sources = sources.clone();
     final sourceAddress = sources.firstWhere(
-        (e) => e.address.toAddress() == source.toAddress(),
+        (e) => e.address.address == source.address,
         orElse: () => throw const DartOnChainSwapPluginException(
             "None of the connected accounts match the source address of the transaction."));
     sources.sort((a, b) {
-      if (a.address.toAddress() == source.address) return -1;
-      if (b.address.toAddress() == source.address) return 1;
+      if (a.address.address == source.address) return -1;
+      if (b.address.address == source.address) return 1;
       return 0;
     });
     final utxos = await client.getAccountsUtxos(sources);
@@ -144,7 +145,7 @@ class SwapRouteBitcoinNativeTransactionOperation
         psbt: psbt.toBase64(),
         outputs: [
           Web3TransactionBitcoinOutputs(
-              address: destination.toAddress(network.chain),
+              address: destination.address,
               script: destination.baseAddress.toScriptPubKey(),
               value: amount.amount),
           if (memo != null)

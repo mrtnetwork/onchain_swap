@@ -2,54 +2,50 @@ import 'package:blockchain_utils/exception/exceptions.dart';
 import 'package:blockchain_utils/service/service.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/swap_kit/core/core/core.dart';
-import 'package:on_chain_swap/src/providers/swap_kit/service/service.dart';
 
-class SwapKitProvider implements BaseProvider<SwapKitRequestDetails> {
-  final SwapKitServiceProvider rpc;
+class SwapKitProvider<SERVICE extends IServiceProvider>
+    implements IProvider<SERVICE, SwapKitRequestDetails> {
+  @override
+  final SERVICE service;
 
-  SwapKitProvider(this.rpc);
+  SwapKitProvider(this.service);
 
   static SERVICERESPONSE _findError<SERVICERESPONSE>(
-      {required BaseServiceResponse<SERVICERESPONSE> response,
+      {required BaseServiceResponse response,
       required SwapKitRequestDetails params}) {
     if (response.type == ServiceResponseType.error) {
-      final Map<String, dynamic>? error =
-          StringUtils.tryToJson(response.cast<ServiceErrorResponse>().error);
-      final String message = error?["message"] ??
-          ServiceConst.httpErrorMessages[response.statusCode] ??
-          ServiceConst.defaultError;
+      final err = response.cast<BaseServiceErrorResponse>();
+      if (!err.validate) throw err.defaultError();
+      final Map<String, dynamic>? error = err.tryToJson();
+      final message = error?["message"];
       throw RPCError(
-          message: message,
-          details: {
-            "statusCode": response.statusCode,
-            "details": error?["details"]
-          },
+          message: message is String
+              ? message
+              : ServiceProviderUtils.getDefaultError(response.statusCode),
+          statusCode: response.statusCode,
+          jsonRpcErrpr: error,
           errorCode: IntUtils.tryParse(error?["code"]));
     }
-    final SERVICERESPONSE r = response.getResult(params);
-
-    return ServiceProviderUtils.parseResponse(object: r, params: params);
+    return params.toEncodingResponse(response);
   }
 
   int _id = 0;
 
   @override
   Future<RESULT> request<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, SwapKitRequestDetails>
-          request,
+      IServiceRequest<RESULT, SERVICERESPONSE, SwapKitRequestDetails> request,
       {Duration? timeout}) async {
-    final r = await requestDynamic(request, timeout: timeout);
+    final r = await requestDynamic<RESULT, SERVICERESPONSE>(request,
+        timeout: timeout);
     return request.onResonse(r);
   }
 
   @override
   Future<SERVICERESPONSE> requestDynamic<RESULT, SERVICERESPONSE>(
-      BaseServiceRequest<RESULT, SERVICERESPONSE, SwapKitRequestDetails>
-          request,
+      IServiceRequest<RESULT, SERVICERESPONSE, SwapKitRequestDetails> request,
       {Duration? timeout}) async {
     final params = request.buildRequest(_id++);
-    final response =
-        await rpc.doRequest<SERVICERESPONSE>(params, timeout: timeout);
-    return _findError(params: params, response: response);
+    final response = await service.doRequest(params, timeout: timeout);
+    return _findError<SERVICERESPONSE>(params: params, response: response);
   }
 }

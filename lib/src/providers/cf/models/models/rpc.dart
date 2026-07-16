@@ -1,7 +1,5 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain/utils/utils/map_utils.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
-import 'package:on_chain_swap/src/utils/extensions/extensions.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
 class LimitOrderSide {
@@ -29,7 +27,7 @@ class LimitOrder {
       "base_asset": baseAsset.toJson(),
       "quote_asset": quoteAsset.toJson(),
       "side": side.name,
-      "sell_amount": sellAmount.toHexDecimal
+      "sell_amount": sellAmount.toHexaDecimal
     };
   }
 }
@@ -49,8 +47,8 @@ abstract class RPCFillOrKillParam {
   const RPCFillOrKillParam(
       {required this.refundAddress, required this.retryDurationBlocks});
   RPCFillOrKillParam.fromJson(Map<String, dynamic> json)
-      : refundAddress = json.as("refundAddress"),
-        retryDurationBlocks = json.as("retryDurationBlocks");
+      : refundAddress = json.valueAs("refundAddress"),
+        retryDurationBlocks = json.valueAs("retryDurationBlocks");
   Map<String, dynamic> toJson();
 }
 
@@ -61,7 +59,7 @@ class RPCFillOrKillX128Price extends RPCFillOrKillParam {
       required super.retryDurationBlocks,
       required this.minPriceX128});
   RPCFillOrKillX128Price.fromJson(super.json)
-      : minPriceX128 = json.as("minPriceX128"),
+      : minPriceX128 = json.valueAs("minPriceX128"),
         super.fromJson();
   @override
   Map<String, dynamic> toJson() {
@@ -74,13 +72,14 @@ class RPCFillOrKillX128Price extends RPCFillOrKillParam {
 }
 
 class RPCFillOrKillSlippageTolerancePercent extends RPCFillOrKillParam {
-  final num slippageTolerancePercent;
+  final double slippageTolerancePercent;
   const RPCFillOrKillSlippageTolerancePercent(
       {required super.refundAddress,
       required super.retryDurationBlocks,
       required this.slippageTolerancePercent});
   RPCFillOrKillSlippageTolerancePercent.fromJson(super.json)
-      : slippageTolerancePercent = json.as("slippageTolerancePercent"),
+      : slippageTolerancePercent =
+            json.valueAsDouble("slippageTolerancePercent"),
         super.fromJson();
   @override
   Map<String, dynamic> toJson() {
@@ -214,8 +213,8 @@ class BrokerRequestSwapDepositAddressResponse {
       'address': address,
       'issued_block': issuedBlock,
       'channel_id': channelId,
-      'source_chain_expiry_block': sourceChainExpiryBlock.toHexDecimal,
-      'channel_opening_fee': channelOpeningFee.toHexDecimal,
+      'source_chain_expiry_block': sourceChainExpiryBlock.toHexaDecimal,
+      'channel_opening_fee': channelOpeningFee.toHexaDecimal,
     };
   }
 
@@ -334,11 +333,11 @@ class ChainAssetMap {
   // Convert Dart object to JSON
   Map<String, dynamic> toJson() {
     return {
-      'Bitcoin': bitcoin.map((k, v) => MapEntry(k.name, v?.toHexDecimal)),
-      'Ethereum': ethereum.map((k, v) => MapEntry(k.name, v?.toHexDecimal)),
-      'Polkadot': polkadot.map((k, v) => MapEntry(k.name, v?.toHexDecimal)),
-      'Arbitrum': arbitrum.map((k, v) => MapEntry(k.name, v?.toHexDecimal)),
-      'Solana': solana.map((k, v) => MapEntry(k.name, v?.toHexDecimal)),
+      'Bitcoin': bitcoin.map((k, v) => MapEntry(k.name, v?.toHexaDecimal)),
+      'Ethereum': ethereum.map((k, v) => MapEntry(k.name, v?.toHexaDecimal)),
+      'Polkadot': polkadot.map((k, v) => MapEntry(k.name, v?.toHexaDecimal)),
+      'Arbitrum': arbitrum.map((k, v) => MapEntry(k.name, v?.toHexaDecimal)),
+      'Solana': solana.map((k, v) => MapEntry(k.name, v?.toHexaDecimal)),
     };
   }
 }
@@ -447,8 +446,8 @@ class FundingEnvironment {
   }
   Map<String, dynamic> toJson() {
     return {
-      "redemption_tax": redemptionTax.toHexDecimal,
-      "minimum_funding_amount": minimumFundingAmount.toHexDecimal
+      "redemption_tax": redemptionTax.toHexaDecimal,
+      "minimum_funding_amount": minimumFundingAmount.toHexaDecimal
     };
   }
 }
@@ -526,8 +525,8 @@ class FeeInput {
 
   Map<String, dynamic> toJson() {
     return {
-      'base': base.toHexDecimal,
-      'quote': quote.toHexDecimal,
+      'base': base.toHexaDecimal,
+      'quote': quote.toHexaDecimal,
     };
   }
 }
@@ -583,7 +582,7 @@ class IngressEgressEnvironment {
       "egress_dust_limits": egressDustLimits.toJson(),
       "egress_fees": egressFees.toJson(),
       "channel_opening_fees":
-          channelOpeningFees.map((k, v) => MapEntry(k.name, v.toHexDecimal)),
+          channelOpeningFees.map((k, v) => MapEntry(k.name, v.toHexaDecimal)),
       "witness_safety_margins":
           witnessSafetyMargins.map((k, v) => MapEntry(k.name, v))
     };
@@ -672,9 +671,9 @@ class SwapRateV2Response {
     return {
       'egress_fee': egressFee.toJson(),
       'ingress_fee': ingressFee.toJson(),
-      'intermediary': intermediary?.toHexDecimal,
+      'intermediary': intermediary?.toHexaDecimal,
       'network_fee': networkFee.toJson(),
-      'output': output.toHexDecimal,
+      'output': output.toHexaDecimal,
     };
   }
 }
@@ -724,7 +723,7 @@ class BoostPoolAmountResponse {
   Map<String, dynamic> toJson() {
     return {
       'account_id': accountId,
-      'amount': amount.toHexDecimal,
+      'amount': amount.toHexaDecimal,
     };
   }
 }
@@ -752,7 +751,7 @@ class PendingWithdrawalsResponse {
   Map<String, dynamic> toJson() {
     return {
       'account_id': accountId,
-      'pending_deposits': pendingDeposits.map((e) => e.toHexDecimal).toList(),
+      'pending_deposits': pendingDeposits.map((e) => e.toHexaDecimal).toList(),
     };
   }
 }
@@ -806,7 +805,7 @@ class PendingFeesResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'deposit_id': depositId.toHexDecimal,
+      'deposit_id': depositId.toHexaDecimal,
       'fees': fees.map((e) => e.toJson()).toList(),
     };
   }
@@ -929,7 +928,7 @@ class BoostPoolDepthResponse {
       'asset': asset,
       'chain': chain,
       "tier": tier,
-      'available_amount': availableAmounts.toHexDecimal,
+      'available_amount': availableAmounts.toHexaDecimal,
     };
   }
 }
@@ -1019,7 +1018,7 @@ class FeesEarnedResonse {
 
   // Convert Dart object to JSON
   Map<String, dynamic> toJson() {
-    return {'base': base.toHexDecimal, 'quote': quote.toHexDecimal};
+    return {'base': base.toHexaDecimal, 'quote': quote.toHexaDecimal};
   }
 }
 
@@ -1116,10 +1115,10 @@ class LimitOrderResponse {
     return {
       "id": id,
       "tick": tick,
-      "sell_amount": sellAmount.toHexDecimal,
-      "fees_earned": feesEarned.toHexDecimal,
+      "sell_amount": sellAmount.toHexaDecimal,
+      "fees_earned": feesEarned.toHexaDecimal,
       "lp": lp,
-      "original_sell_amount": originalSellAmount.toHexDecimal
+      "original_sell_amount": originalSellAmount.toHexaDecimal
     };
   }
 }
@@ -1153,9 +1152,9 @@ class PoolPriceV2Response {
   // Convert Dart object to JSON
   Map<String, dynamic> toJson() {
     return {
-      'sell': sell?.toHexDecimal,
-      'buy': buy?.toHexDecimal,
-      'range_order': rangeOrder.toHexDecimal,
+      'sell': sell?.toHexaDecimal,
+      'buy': buy?.toHexaDecimal,
+      'range_order': rangeOrder.toHexaDecimal,
       'base_asset': baseAsset.toJson(),
       'quote_asset': quoteAsset.toJson(),
     };
@@ -1234,9 +1233,9 @@ class RuntimeApiResponse {
 class TRPCOpenDepositChannelResponse {
   final String id;
   final String depositAddress;
-  final num brokerCommissionBps;
-  final num maxBoostFeeBps;
-  final num issuedBlock;
+  final double brokerCommissionBps;
+  final double maxBoostFeeBps;
+  final double issuedBlock;
   final String srcChainExpiryBlock;
   final BigInt estimatedExpiryTime;
   final String channelOpeningFee;
@@ -1251,14 +1250,14 @@ class TRPCOpenDepositChannelResponse {
       required this.channelOpeningFee});
   factory TRPCOpenDepositChannelResponse.fromJson(Map<String, dynamic> json) {
     return TRPCOpenDepositChannelResponse(
-        id: json.as("id"),
-        brokerCommissionBps: json.as("brokerCommissionBps"),
-        channelOpeningFee: json.as("channelOpeningFee"),
-        depositAddress: json.as("depositAddress"),
-        estimatedExpiryTime: json.asBigInt("estimatedExpiryTime"),
-        issuedBlock: json.as("issuedBlock"),
-        maxBoostFeeBps: json.as("maxBoostFeeBps"),
-        srcChainExpiryBlock: json.as("srcChainExpiryBlock"));
+        id: json.valueAs("id"),
+        brokerCommissionBps: json.valueAsDouble("brokerCommissionBps"),
+        channelOpeningFee: json.valueAs("channelOpeningFee"),
+        depositAddress: json.valueAs("depositAddress"),
+        estimatedExpiryTime: json.valueAsBigInt("estimatedExpiryTime"),
+        issuedBlock: json.valueAsDouble("issuedBlock"),
+        maxBoostFeeBps: json.valueAsDouble("maxBoostFeeBps"),
+        srcChainExpiryBlock: json.valueAs("srcChainExpiryBlock"));
   }
   Map<String, dynamic> toJson() {
     return {

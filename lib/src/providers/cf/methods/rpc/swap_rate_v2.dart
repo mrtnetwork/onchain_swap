@@ -1,5 +1,4 @@
 import 'package:blockchain_utils/helper/helper.dart';
-import 'package:on_chain_swap/src/utils/extensions/extensions.dart';
 import 'package:on_chain_swap/src/providers/cf/core/core.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models/rpc.dart';
 
@@ -20,7 +19,7 @@ class CfRPCRequestSwapRateV2
   List get params => [
         fromAsset.toJson(),
         toAsset.toJson(),
-        amount.toHexDecimal,
+        amount.toHexaDecimal,
         additionalOrders?.map((e) => {"LimitOrder": e.toJson()}).toList()
       ];
 

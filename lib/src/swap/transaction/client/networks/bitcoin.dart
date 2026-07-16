@@ -11,13 +11,13 @@ class _BitcoinClientConst {
 }
 
 class SwapBitcoinClient implements BaseSwapBitcoinClient {
-  final ElectrumProvider provider;
+  final BitcoinProvider provider;
   final SwapBitcoinNetwork network;
   String? _genesis;
   SwapBitcoinClient({required this.provider, required this.network});
 
   static Future<SwapBitcoinClient> check(
-      {required ElectrumProvider provider,
+      {required BitcoinProvider provider,
       required SwapBitcoinNetwork network}) async {
     final client = SwapBitcoinClient(provider: provider, network: network);
     if (!(await client.initSwapClient())) {
@@ -48,9 +48,15 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
   }
 
   @override
-  Future<String> sendTransaction(String transaction) async {
-    return await provider.request(
-        ElectrumRequestBroadCastTransaction(transactionRaw: transaction));
+  Future<String> sendTransaction(BtcTransaction transaction) async {
+    final bytes = transaction.serialize();
+    final result = await provider
+        .request(ElectrumRequestBroadCastTransaction(transactionRaw: bytes));
+    if (StringUtils.isHexBytes(result,
+        lengthInBytes: QuickCrypto.sha256DigestSize)) {
+      return result;
+    }
+    return transaction.txId();
   }
 
   @override
@@ -59,7 +65,7 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
     final utxos = await _getAccountsUtxo(addresses);
     return utxos.where((e) {
       final height = e.utxo.blockHeight;
-      return height != null && height > 0;
+      return height > 0;
     }).toList();
   }
 

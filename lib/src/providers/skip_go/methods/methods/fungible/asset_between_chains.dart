@@ -1,7 +1,7 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Given 2 chain IDs, returns a list of equivalent assets that can be transferred
 class SkipGoApiRequestAssetsBetweenChains extends SkipGoApiPostRequest<
@@ -49,7 +49,7 @@ class SkipGoApiRequestAssetsBetweenChains extends SkipGoApiPostRequest<
   @override
   List<SkipGoApiAssetBetweenChains> onResonse(Map<String, dynamic> result) {
     return result
-        .asListOfMap("assets_between_chains")!
+        .valueEnsureAsList<Map<String, dynamic>>("assets_between_chains")
         .map(SkipGoApiAssetBetweenChains.fromJson)
         .toList();
   }

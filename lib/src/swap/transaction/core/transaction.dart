@@ -12,7 +12,7 @@ enum TransactionOperationStep {
   complete
 }
 
-typedef ONOPERATIONSTATUS = void Function(TransactionOperationStep,
+typedef CbOnStatusChanged = void Function(TransactionOperationStep,
     {String? transactionHash});
 
 abstract class SwapRouteTransactionBuilder<
@@ -32,7 +32,8 @@ abstract class SwapRouteTransactionBuilder<
   final SwapRouteGeneralTransactionBuilderParam params;
 
   Future<CLIENT> checkRouteAndClient(
-      GETNETWORK<CLIENT, NETWORK> onGetClient, OPERATION operation) async {
+      CbGetRouteNetwork<CLIENT, NETWORK> onGetClient,
+      OPERATION operation) async {
     final client = await onGetClient(operation.network);
     final init = await client.initSwapClient();
     if (!init) {
@@ -53,9 +54,9 @@ abstract class SwapRouteTransactionBuilder<
   }
 
   Future<void> buildTransactions(
-      {required GETNETWORK<CLIENT, NETWORK> client,
-      required GETSIGNER<SIGNER, ADDRESS> signer,
-      required ONOPERATIONSTATUS stepsCallBack});
+      {required CbGetRouteNetwork<CLIENT, NETWORK> client,
+      required CbGetSigner<SIGNER, ADDRESS> signer,
+      required CbOnStatusChanged stepsCallBack});
 }
 
 abstract class SwapRouteTransactionOperation<NETWORK> {

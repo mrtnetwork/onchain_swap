@@ -1,7 +1,7 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Get all supported bridges
 class SkipGoApiRequestBridges
@@ -12,7 +12,7 @@ class SkipGoApiRequestBridges
   @override
   List<SkipGoApiBridge> onResonse(Map<String, dynamic> result) {
     return result
-        .as<List>("bridges")
+        .valueEnsureAsList<Map<String, dynamic>>("bridges")
         .map((e) => SkipGoApiBridge.fromJson(e))
         .toList();
   }

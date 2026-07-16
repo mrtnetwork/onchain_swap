@@ -11,8 +11,11 @@ import 'package:on_chain_swap/src/swap/utils/utils.dart';
 
 import 'route.dart';
 
-class SwapKitSwapService extends SwapService<BaseSwapAsset, SwapKitProvider,
-    SwapKitSwapRoute, SwapKitQuoteSwapParams> {
+class SwapKitSwapService extends SwapService<
+    BaseSwapAsset,
+    IProvider<IServiceProvider, SwapKitRequestDetails>,
+    SwapKitSwapRoute,
+    SwapKitQuoteSwapParams> {
   final List<SwapKitSwapServiceProvider> providers;
   SwapKitSwapService(
       {required super.provider,
@@ -58,7 +61,8 @@ class SwapKitSwapService extends SwapService<BaseSwapAsset, SwapKitProvider,
                 fullName: i.name);
             break;
           default:
-            throw UnimplementedError();
+            throw DartOnChainSwapPluginException("Unknown swap assets.",
+                details: {"network": network.name});
         }
       }
       supportedTokens.add(asset);

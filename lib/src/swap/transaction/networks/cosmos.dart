@@ -1,7 +1,15 @@
 import 'package:blockchain_utils/signer/const/constants.dart';
 import 'package:blockchain_utils/utils/numbers/rational/big_rational.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
+import 'package:cosmos_sdk/proto_messages/cosmos/bank/v1beta1/src/tx.dart'
+    as cosmos_tx;
+import 'package:cosmos_sdk/proto_messages/cosmos/base/v1beta1/src/coin.dart';
+import 'package:cosmos_sdk/proto_messages/cosmos/tx/signing/v1beta1/src/signing.dart';
+import 'package:cosmos_sdk/proto_messages/cosmos/tx/v1beta1/src/tx.dart';
+import 'package:cosmos_sdk/proto_messages/thorchain/types/src/msg_send.dart'
+    as thorchain_tx;
 import 'package:on_chain_swap/src/exception/exception.dart';
+import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
@@ -18,9 +26,9 @@ class SwapRouteCosmosTransactionBuilder extends SwapRouteTransactionBuilder<
       {required super.route, required super.params, required super.operations});
   @override
   Future<void> buildTransactions({
-    required GETNETWORK<BaseSwapCosmosClient, SwapCosmosNetwork> client,
-    required GETSIGNER<Web3SignerCosmos, CosmosBaseAddress> signer,
-    required ONOPERATIONSTATUS stepsCallBack,
+    required CbGetRouteNetwork<BaseSwapCosmosClient, SwapCosmosNetwork> client,
+    required CbGetSigner<Web3SignerCosmos, CosmosBaseAddress> signer,
+    required CbOnStatusChanged stepsCallBack,
   }) async {
     for (final operation in operations) {
       stepsCallBack(TransactionOperationStep.client);
@@ -82,36 +90,44 @@ class SwapRouteCosmosNativeTransactionOperation
             "None of the connected accounts match the source address of the transaction."));
     final denom = client.chainInfo.native.denom;
     final feeToken = client.chainInfo.feeTokens[0];
-    final balance = await client.getBalance(source.address);
+    final balance = await client.getBalance(source.address, denom);
     if (balance < amount.amount) {
-      // throw SwapConstants.insufficientAccountBalance;
+      throw SwapConstants.insufficientAccountBalance;
     }
     final chainId = await client.chainId();
     final txRequirement =
         await client.getSwapTransactionRequirment(source.address);
     final signerInfo = SignerInfo(
         publicKey: source.publicKey.toAny(),
-        modeInfo: const ModeInfo(ModeInfoSignle(SignMode.signModeDirect)),
+        modeInfo: const ModeInfo(
+            single: ModeInfoSingle(mode: SignMode.signModeDirect)),
         sequence: txRequirement.account.sequence);
     AuthInfo authInfo = AuthInfo(
         signerInfos: [signerInfo],
-        fee: Fee(
-            amount: [Coin(denom: feeToken.denom, amount: BigInt.from(10000))]));
-    final message = MsgSend(
-        fromAddress: source.address,
-        toAddress: destination,
-        amount: [Coin(denom: denom, amount: amount.amount)]);
-    final txbody = TXBody(messages: [message], memo: memo);
+        fee: Fee(amount: [Coin(denom: feeToken.denom, amount: "10000")]));
+    final isThorchainOrMaya = network.isThorchainOrMaya();
+    final message = switch (isThorchainOrMaya) {
+      false => cosmos_tx.MsgSend(
+          fromAddress: source.address.address,
+          toAddress: destination.address,
+          amount: [Coin(denom: denom, amount: "${amount.amount}")]),
+      true => thorchain_tx.MsgSend(
+          fromAddress: source.address.toBytes(),
+          toAddress: destination.toBytes(),
+          amount: [Coin(denom: denom, amount: "${amount.amount}")])
+    };
+    final txbody = TxBody(messages: [message.toAny()], memo: memo);
     final tx = Tx(body: txbody, authInfo: authInfo, signatures: [
       List<int>.filled(CryptoSignerConst.ecdsaSignatureLength, 0)
     ]);
     final simulate = await client.simulateTx(tx.toBuffer());
+    final gasUsed = simulate.gasInfo?.gasUsed ?? BigInt.zero;
     final fixedFee = txRequirement.fixedNativeGas;
     Fee fee;
     if (fixedFee != null) {
       fee = Fee(amount: [
-        Coin(denom: feeToken.denom, amount: fixedFee),
-      ], gasLimit: simulate.gasInfo.gasUsed);
+        Coin(denom: feeToken.denom, amount: "$fixedFee"),
+      ], gasLimit: gasUsed);
     } else {
       BigRational gasPrice = BigRational.parseDecimal("0.025");
 
@@ -121,14 +137,14 @@ class SwapRouteCosmosNativeTransactionOperation
         gasPrice =
             BigRational.parseDecimal(feeToken.averageGasPrice!.toString());
       }
-      final gp = (BigRational(simulate.gasInfo.gasUsed) *
-          BigRational.parseDecimal("1.4"));
+      final gp = (BigRational(gasUsed) * BigRational.parseDecimal("1.4"));
       final feeAmount = (gp * gasPrice).ceil();
-      fee = Fee(
-          gasLimit: gp.toBigInt(),
-          amount: [Coin(denom: feeToken.denom, amount: feeAmount.toBigInt())]);
+      fee = Fee(gasLimit: gp.toBigInt(), amount: [
+        Coin(denom: feeToken.denom, amount: "${feeAmount.toBigInt()}")
+      ]);
     }
-    authInfo = authInfo.copyWith(fee: fee);
+    authInfo = AuthInfo(
+        tip: authInfo.tip, signerInfos: authInfo.signerInfos, fee: fee);
     final signDoc = SignDoc(
         bodyBytes: txbody.toBuffer(),
         authInfoBytes: authInfo.toBuffer(),

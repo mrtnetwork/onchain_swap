@@ -2,8 +2,23 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/cf/constants/constants.dart';
 import 'package:on_chain_swap/src/providers/cf/utils/utils.dart';
+import 'package:on_chain_swap/src/providers/types/types.dart';
+import 'package:on_chain_swap/src/serialization/serialization.dart';
 
-enum CfRequestType { backend, rpc, batchTrcp }
+enum CfRequestType {
+  backend(0),
+  rpc(1),
+  batchTrcp(2);
+
+  final int value;
+  const CfRequestType(this.value);
+  static CfRequestType fromValue(int? value) {
+    return values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw ItemNotFoundException(name: 'CfRequestType'),
+    );
+  }
+}
 
 abstract class CfRequestParam<RESULT, RESPONSE>
     extends BaseServiceRequest<RESULT, RESPONSE, CfRequestDetails> {
@@ -26,15 +41,15 @@ abstract class CfBackendRequestParam<RESULT, RESPONSE>
   }
 
   @override
-  RequestServiceType get requestType => RequestServiceType.get;
+  RequestMethod get requestMethod => RequestMethod.get;
   @override
   CfRequestDetails buildRequest(int v) {
     final pathParams = ChainFlipProviderUtils.extractParams(method);
     if (pathParams.length != pathParameters.length) {
       throw DartOnChainSwapPluginException("Invalid Path Parameters.",
           details: {
-            "pathParams": pathParameters,
-            "ExceptedPathParametersLength": pathParams.length
+            "pathParams": pathParameters.join(","),
+            "ExceptedPathParametersLength": pathParams.length.toString()
           });
     }
     String params = method;
@@ -49,9 +64,11 @@ abstract class CfBackendRequestParam<RESULT, RESPONSE>
     }
     return CfRequestDetails(
       requestID: v,
-      pathParams: params,
-      type: requestType,
+      responseEncoding: ServiceReponseEncoding.fromType<RESPONSE>(),
+      path: params,
+      requestMethod: requestMethod,
       cfRequestType: cfRequestType,
+      method: method,
     );
   }
 }
@@ -66,17 +83,19 @@ abstract class CfRPCRequestParam<RESULT, RESPONSE>
   List<dynamic> get params => [];
   final Map<String, String>? headers = null;
   @override
-  RequestServiceType get requestType => RequestServiceType.post;
+  RequestMethod get requestMethod => RequestMethod.post;
   @override
   CfRequestDetails buildRequest(int requestID) {
     return CfRequestDetails(
       requestID: requestID,
       headers: headers ?? ServiceConst.defaultPostHeaders,
-      pathParams: method,
-      type: RequestServiceType.post,
-      bodyJson: ServiceProviderUtils.buildJsonRPCParams(
-          requestId: requestID, method: method, params: params),
+      path: method,
+      requestMethod: RequestMethod.post,
+      responseEncoding: ServiceReponseEncoding.map,
+      bodyString: StringUtils.fromJson(ServiceProviderUtils.buildJsonRPCParams(
+          requestId: requestID, method: method, params: params)),
       cfRequestType: cfRequestType,
+      method: method,
     );
   }
 }
@@ -92,7 +111,7 @@ abstract class CfTRPCRequest<RESULT, RESPONSE>
   Map<String, dynamic>? get queryParameters => null;
   final Map<String, String>? headers = null;
   @override
-  RequestServiceType get requestType => RequestServiceType.post;
+  RequestMethod get requestMethod => RequestMethod.post;
   @override
   CfRequestDetails buildRequest(int requestID) {
     String pathParameters = "/trpc/$method";
@@ -105,79 +124,131 @@ abstract class CfTRPCRequest<RESULT, RESPONSE>
     return CfRequestDetails(
         requestID: requestID,
         headers: headers ?? ServiceConst.defaultPostHeaders,
-        pathParams: pathParameters,
-        type: RequestServiceType.post,
-        bodyJson: params,
+        path: pathParameters,
+        requestMethod: RequestMethod.post,
+        bodyString: StringUtils.fromJson(params),
         cfRequestType: cfRequestType,
+        responseEncoding: ServiceReponseEncoding.fromType<RESPONSE>(),
+        method: method,
         errorStatusCodes: CfProviderConst.trpcErrorStatusCodes);
   }
 }
 
-class CfRequestDetails extends BaseServiceRequestParams {
+class CfRequestDetails extends OnChainSwapRequestDetails {
   final CfRequestType cfRequestType;
-  const CfRequestDetails(
-      {this.pathParams,
-      super.headers = const {},
-      super.type = RequestServiceType.get,
-      this.bodyJson,
-      required super.requestID,
-      required this.cfRequestType,
-      super.errorStatusCodes});
-
+  final String method;
+  const CfRequestDetails({
+    required super.requestID,
+    required this.method,
+    required super.requestMethod,
+    required this.cfRequestType,
+    super.path,
+    required super.responseEncoding,
+    super.errorStatusCodes,
+    super.headers = const {},
+    super.bodyBytes,
+    super.bodyString,
+  }) : super(api: OnChainSwapProviderApi.chainFlip);
+  factory CfRequestDetails.deserialize({
+    List<int>? bytes,
+    CborObject? obj,
+  }) {
+    final values = CborTagSerializable.decodeTaggedValue(
+      identifier: OnChainSwapSerializationIdentifier.provider,
+      cborBytes: bytes,
+      cborObject: obj,
+    );
+    return CfRequestDetails(
+        headers: values
+            .mapAt<CborStringValue, CborStringValue>(1)
+            .map((k, v) => MapEntry(k.value, v.value)),
+        errorStatusCodes: values
+            .listAt<CborIntValue>(2)
+            .map((e) => e.value)
+            .toList()
+            .emptyAsNull,
+        path: values.rawValueAt(3),
+        requestMethod: RequestMethod.fromValue(values.rawValueAt(4)),
+        responseEncoding:
+            ServiceReponseEncoding.fromValue(values.rawValueAt(5)),
+        bodyBytes: values.rawValueAt(6),
+        bodyString: values.rawValueAt(7),
+        requestID: values.rawValueAt(8),
+        method: values.rawValueAt(9),
+        cfRequestType: CfRequestType.fromValue(values.rawValueAt(10)));
+  }
   CfRequestDetails copyWith(
       {int? requestID,
-      String? pathParams,
-      RequestServiceType? type,
       Map<String, String>? headers,
-      Map<String, dynamic>? bodyJson,
-      CfRequestType? cfRequestType}) {
+      List<int>? bodyBytes,
+      String? bodyString,
+      ServiceReponseEncoding? responseEncoding,
+      String? method,
+      RequestMethod? requestMethod,
+      String? path,
+      CfRequestType? cfRequestType,
+      List<int>? errorStatusCodes}) {
     return CfRequestDetails(
-      requestID: requestID ?? this.requestID,
-      pathParams: pathParams ?? this.pathParams,
-      type: type ?? this.type,
-      headers: headers ?? this.headers,
-      bodyJson: bodyJson ?? this.bodyJson,
-      cfRequestType: cfRequestType ?? this.cfRequestType,
-    );
-  }
-
-  final Map<String, dynamic>? bodyJson;
-
-  /// URL path parameters
-  final String? pathParams;
-
-  @override
-  List<int>? body() {
-    if (bodyJson == null) return null;
-    return StringUtils.encode(StringUtils.fromJson(bodyJson!));
+        requestID: requestID ?? this.requestID,
+        headers: headers ?? this.headers,
+        responseEncoding: responseEncoding ?? this.responseEncoding,
+        bodyString: bodyString ?? this.bodyString,
+        bodyBytes: bodyBytes ?? this.bodyBytes,
+        method: method ?? this.method,
+        requestMethod: requestMethod ?? this.requestMethod,
+        path: path ?? this.path,
+        cfRequestType: cfRequestType ?? this.cfRequestType,
+        errorStatusCodes: errorStatusCodes ?? this.errorStatusCodes);
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    return {
-      "pathParameters": pathParams,
-      "body": bodyJson,
-      "type": type.name,
-      "cfRequestType": cfRequestType.name
-    };
-  }
-
-  @override
-  Uri toUri(String uri, {String? brokerUrl}) {
-    if (pathParams == "broker_requestSwapDepositAddress") {
+  Uri encodeUrl(String uri, {String? brokerUrl}) {
+    if (path == "broker_requestSwapDepositAddress") {
       if (brokerUrl == null) {
-        throw UnimplementedError(
-            "brokerUrl must be set for broker request. `broker_requestSwapDepositAddress`");
+        throw const DartOnChainSwapPluginException(
+            "broker_requestSwapDepositAddress required broker url.");
       }
       uri = brokerUrl;
-    }
-    if (cfRequestType == CfRequestType.rpc) {
-      return Uri.parse("$uri/");
     }
     String url = uri;
     if (url.endsWith("/")) {
       url = url.substring(0, url.length - 1);
     }
-    return Uri.parse("$url$pathParams");
+    if (cfRequestType == CfRequestType.rpc) {
+      return Uri.parse("$url/");
+    }
+
+    return Uri.parse("$url${path ?? ''}");
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'body': bodyString ?? BytesUtils.tryToHexString(bodyBytes),
+      "method": method,
+      "path": path,
+      "type": requestMethod.name,
+      "cfRequestType": requestMethod.name
+    };
+  }
+
+  @override
+  List<CborObject?> get serializationItems => [
+        api.value.toCbor(),
+        CborMapValue.definite(
+          headers
+              .map((k, v) => MapEntry(CborStringValue(k), CborStringValue(v))),
+        ),
+        CborTagSerializable.listFromDynamic(
+          errorStatusCodes?.map((e) => CborIntValue(e)).toList() ?? [],
+        ),
+        path?.toCbor(),
+        requestMethod.value.toCbor(),
+        responseEncoding.value.toCbor(),
+        bodyBytes?.toCborBytes(),
+        bodyString?.toCbor(),
+        requestID.toCbor(),
+        method.toCbor(),
+        cfRequestType.value.toCbor()
+      ];
 }

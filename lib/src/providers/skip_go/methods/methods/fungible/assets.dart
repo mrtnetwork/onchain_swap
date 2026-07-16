@@ -1,7 +1,7 @@
+import 'package:blockchain_utils/utils/json/extension/json.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Get supported assets. Optionally limit to
 /// assets on a given chain and/or native assets.
@@ -51,6 +51,7 @@ class SkipGoApiRequestAssets
       };
   @override
   SkipGoApiAssets onResonse(Map<String, dynamic> result) {
-    return SkipGoApiAssets.fromJson(result.asMap("chain_to_assets_map"));
+    return SkipGoApiAssets.fromJson(
+        result.valueEnsureAsMap<String, dynamic>("chain_to_assets_map"));
   }
 }

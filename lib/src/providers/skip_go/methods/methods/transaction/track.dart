@@ -1,6 +1,6 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/core.dart';
 import 'package:on_chain_swap/src/providers/skip_go/core/core/methods.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 /// Requests tracking of a transaction that has already landed on-chain but was
 /// not broadcast through the Skip Go API. The status of a tracked transaction
@@ -24,6 +24,6 @@ class SkipGoApiRequestTrack
 
   @override
   String onResonse(Map<String, dynamic> result) {
-    return result.as("tx_hash");
+    return result.valueAs("tx_hash");
   }
 }

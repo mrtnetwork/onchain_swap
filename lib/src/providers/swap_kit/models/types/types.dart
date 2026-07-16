@@ -1,6 +1,6 @@
 import 'package:blockchain_utils/helper/helper.dart';
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/utils/equatable.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 class SwapKitProviderInfo {
   final String name;
@@ -25,14 +25,14 @@ class SwapKitProviderInfo {
 
   factory SwapKitProviderInfo.fromJson(Map<String, dynamic> json) {
     return SwapKitProviderInfo(
-      name: json.as("name"),
-      provider: json.as("provider"),
-      keywords: json.asListOfString("keywords")!,
-      count: json.asInt("count"),
-      logoURI: json.as("logoURI"),
-      url: json.as("url"),
-      supportedActions: json.asListOfString("supportedActions")!,
-      supportedChainIds: json.asListOfString("supportedChainIds")!,
+      name: json.valueAs("name"),
+      provider: json.valueAs("provider"),
+      keywords: json.valueEnsureAsList<String>("keywords"),
+      count: json.valueAsInt("count"),
+      logoURI: json.valueAs("logoURI"),
+      url: json.valueAs("url"),
+      supportedActions: json.valueEnsureAsList<String>("supportedActions"),
+      supportedChainIds: json.valueEnsureAsList<String>("supportedChainIds"),
     );
   }
 
@@ -96,16 +96,16 @@ class SwapKitToken with Equatable {
 
   factory SwapKitToken.fromJson(Map<String, dynamic> json) {
     return SwapKitToken(
-        chain: json.as("chain"),
-        chainId: json.as("chainId"),
-        ticker: json.as("ticker"),
-        identifier: json.as("identifier"),
-        symbol: json.as("symbol"),
-        name: json.as("name"),
-        decimals: json.asInt("decimals"),
-        logoURI: json.as("logoURI"),
-        coingeckoId: json.as("coingeckoId"),
-        address: json.as("address"));
+        chain: json.valueAs("chain"),
+        chainId: json.valueAs("chainId"),
+        ticker: json.valueAs("ticker"),
+        identifier: json.valueAs("identifier"),
+        symbol: json.valueAs("symbol"),
+        name: json.valueAs("name"),
+        decimals: json.valueAsInt("decimals"),
+        logoURI: json.valueAs("logoURI"),
+        coingeckoId: json.valueAs("coingeckoId"),
+        address: json.valueAs("address"));
   }
 
   Map<String, dynamic> toJson() {
@@ -135,9 +135,9 @@ class SwapKitVersion {
       {required this.major, required this.minor, required this.patch});
   factory SwapKitVersion.fromJson(Map<String, dynamic> json) {
     return SwapKitVersion(
-        major: json.as("major"),
-        minor: json.as("minor"),
-        patch: json.as("patch"));
+        major: json.valueAs("major"),
+        minor: json.valueAs("minor"),
+        patch: json.valueAs("patch"));
   }
   Map<String, dynamic> toJson() {
     return {'major': major, 'patch': patch, 'minor': minor};
@@ -172,13 +172,17 @@ class SwapKitProviderToken {
 
   factory SwapKitProviderToken.fromJson(Map<String, dynamic> json) {
     return SwapKitProviderToken(
-      provider: json.as("provider"),
-      name: json.as("name"),
-      timestamp: json.as("timestamp"),
-      version: json.maybeAs(key: "version", onValue: SwapKitVersion.fromJson),
-      keywords: json.asListOfString("keywords", throwOnNull: false),
-      count: json.asInt("count"),
-      tokens: json.asListOfMap("tokens")!.map(SwapKitToken.fromJson).toList(),
+      provider: json.valueAs("provider"),
+      name: json.valueAs("name"),
+      timestamp: json.valueAs("timestamp"),
+      version: json.valueTo<SwapKitVersion?, Map<String, dynamic>>(
+          key: "version", parse: SwapKitVersion.fromJson),
+      keywords: json.valueAsList<List<String>?>("keywords"),
+      count: json.valueAsInt("count"),
+      tokens: json
+          .valueEnsureAsList<Map<String, dynamic>>("tokens")
+          .map(SwapKitToken.fromJson)
+          .toList(),
     );
   }
 
@@ -209,11 +213,11 @@ class SwapKitRouteFee {
       required this.protocol});
   factory SwapKitRouteFee.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteFee(
-        type: json.as("type"),
-        amount: json.as("amount"),
-        asset: json.as("asset"),
-        chain: json.as("chain"),
-        protocol: json.as("protocol"));
+        type: json.valueAs("type"),
+        amount: json.valueAs("amount"),
+        asset: json.valueAs("asset"),
+        chain: json.valueAs("chain"),
+        protocol: json.valueAs("protocol"));
   }
 
   Map<String, dynamic> toJson() {
@@ -239,8 +243,11 @@ class SwapKitRouteResponse {
       : routes = routes.immutable;
   factory SwapKitRouteResponse.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteResponse(
-        routes: json.asListOfMap("routes")!.map(SwapKitRoute.fromJson).toList(),
-        quoteId: json.as("quoteId"));
+        routes: json
+            .valueEnsureAsList<Map<String, dynamic>>("routes")
+            .map(SwapKitRoute.fromJson)
+            .toList(),
+        quoteId: json.valueAs("quoteId"));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -329,29 +336,35 @@ class SwapKitRoute {
         legs = logs.map((e) => e.immutable).toImutableList;
   factory SwapKitRoute.fromJson(Map<String, dynamic> json) {
     return SwapKitRoute(
-        providers: json.asListOfString("providers")!,
-        sellAsset: json.as("sellAsset"),
-        sellAmount: json.as("sellAmount"),
-        buyAsset: json.as("buyAsset"),
-        expectedBuyAmount: json.as("expectedBuyAmount"),
-        expectedBuyAmountMaxSlippage: json.as("expectedBuyAmountMaxSlippage"),
-        sourceAddress: json.as("sourceAddress"),
-        destinationAddress: json.as("destinationAddress"),
-        targetAddress: json.as("targetAddress"),
-        inboundAddress: json.as("inboundAddress"),
-        expiration: json.as("expiration"),
-        memo: json.as("memo"),
-        totalSlippageBps: json.as("totalSlippageBps"),
+        providers: json.valueEnsureAsList<String>("providers"),
+        sellAsset: json.valueAs("sellAsset"),
+        sellAmount: json.valueAs("sellAmount"),
+        buyAsset: json.valueAs("buyAsset"),
+        expectedBuyAmount: json.valueAs("expectedBuyAmount"),
+        expectedBuyAmountMaxSlippage:
+            json.valueAs("expectedBuyAmountMaxSlippage"),
+        sourceAddress: json.valueAs("sourceAddress"),
+        destinationAddress: json.valueAs("destinationAddress"),
+        targetAddress: json.valueAs("targetAddress"),
+        inboundAddress: json.valueAs("inboundAddress"),
+        expiration: json.valueAs("expiration"),
+        memo: json.valueAs("memo"),
+        totalSlippageBps: json.valueAsNum("totalSlippageBps"),
         warnings: json
-            .asListOfMap("warnings")!
+            .valueEnsureAsList<Map<String, dynamic>>("warnings")
             .map(SwapKitRouteWarning.fromJson)
             .toList(),
-        meta: SwapKitRouteMeta.fromJson(json.asMap("meta")),
-        fees: json.asListOfMap("fees")!.map(SwapKitRouteFee.fromJson).toList(),
-        tx: json.as("tx"),
-        estimateTime: json.maybeAs(
-            key: "estimatedTime", onValue: SwapKitRouteEstimateTime.fromJson),
-        logs: json.asListOfMap("legs")!);
+        meta: SwapKitRouteMeta.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("meta")),
+        fees: json
+            .valueEnsureAsList<Map<String, dynamic>>("fees")
+            .map(SwapKitRouteFee.fromJson)
+            .toList(),
+        tx: json.valueAs("tx"),
+        estimateTime:
+            json.valueTo<SwapKitRouteEstimateTime?, Map<String, dynamic>>(
+                key: "estimatedTime", parse: SwapKitRouteEstimateTime.fromJson),
+        logs: json.valueEnsureAsList<Map<String, dynamic>>("legs"));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -386,9 +399,9 @@ class SwapKitRouteAsset {
       {required this.asset, required this.price, required this.image});
   factory SwapKitRouteAsset.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteAsset(
-      asset: json.as("asset"),
-      price: json.as("price"),
-      image: json.as("image"),
+      asset: json.valueAs("asset"),
+      price: json.valueAsNum("price"),
+      image: json.valueAs("image"),
     );
   }
   Map<String, dynamic> toJson() {
@@ -402,8 +415,8 @@ class SwapKitRouteChainFlipAsset {
   const SwapKitRouteChainFlipAsset({required this.asset, required this.chain});
   factory SwapKitRouteChainFlipAsset.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteChainFlipAsset(
-      asset: json.as("asset"),
-      chain: json.as("chain"),
+      asset: json.valueAs("asset"),
+      chain: json.valueAs("chain"),
     );
   }
   Map<String, dynamic> toJson() {
@@ -419,8 +432,8 @@ class SwapKitRouteChainFlipAffiliateFee {
   factory SwapKitRouteChainFlipAffiliateFee.fromJson(
       Map<String, dynamic> json) {
     return SwapKitRouteChainFlipAffiliateFee(
-      brokerAddress: json.as("brokerAddress"),
-      feeBps: json.asInt("feeBps"),
+      brokerAddress: json.valueAs("brokerAddress"),
+      feeBps: json.valueAsInt("feeBps"),
     );
   }
   Map<String, dynamic> toJson() {
@@ -440,9 +453,9 @@ class SwapKitRouteChainFlipRefundParameters {
   factory SwapKitRouteChainFlipRefundParameters.fromJson(
       Map<String, dynamic> json) {
     return SwapKitRouteChainFlipRefundParameters(
-        minPrice: json.as("minPrice"),
-        retryDuration: json.asInt("retryDuration"),
-        refundAddress: json.as("refundAddress"));
+        minPrice: json.valueAs("minPrice"),
+        retryDuration: json.valueAsInt("retryDuration"),
+        refundAddress: json.valueAs("refundAddress"));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -470,15 +483,17 @@ class SwapKitRouteMetaChainFlip {
       : response = response.immutable;
   factory SwapKitRouteMetaChainFlip.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteMetaChainFlip(
-        sellAsset: SwapKitRouteChainFlipAsset.fromJson(json.asMap("sellAsset")),
-        buyAsset: SwapKitRouteChainFlipAsset.fromJson(json.asMap("buyAsset")),
-        destinationAddress: json.as("destinationAddress"),
+        sellAsset: SwapKitRouteChainFlipAsset.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("sellAsset")),
+        buyAsset: SwapKitRouteChainFlipAsset.fromJson(
+            json.valueEnsureAsMap<String, dynamic>("buyAsset")),
+        destinationAddress: json.valueAs("destinationAddress"),
         affiliateFees: json
-            .asListOfMap("affiliateFees")!
+            .valueEnsureAsList<Map<String, dynamic>>("affiliateFees")
             .map(SwapKitRouteChainFlipAffiliateFee.fromJson)
             .toList(),
         refundParameters: SwapKitRouteChainFlipRefundParameters.fromJson(
-            json.asMap("refundParameters")),
+            json.valueEnsureAsMap<String, dynamic>("refundParameters")),
         response: json);
   }
   Map<String, dynamic> toJson() {
@@ -533,21 +548,22 @@ class SwapKitRouteMeta {
       this.chainflip});
   factory SwapKitRouteMeta.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteMeta(
-        priceImpact: json.as("priceImpact"),
+        priceImpact: json.valueAsNum("priceImpact"),
         assets: json
-            .asListOfMap("assets")!
+            .valueEnsureAsList<Map<String, dynamic>>("assets")
             .map(SwapKitRouteAsset.fromJson)
             .toList(),
-        approvalAddress: json.as("approvalAddress"),
+        approvalAddress: json.valueAs("approvalAddress"),
         tags: json
-            .asListOfString("tags")!
+            .valueEnsureAsList<String>("tags")
             .map(SwapKitRouteMetaTag.fromName)
             .toList(),
-        affiliate: json.as("affiliate"),
-        affiliateFee: json.as("affiliateFee"),
-        txType: json.as("txType"),
-        chainflip: json.maybeAs(
-            key: "chainflip", onValue: SwapKitRouteMetaChainFlip.fromJson));
+        affiliate: json.valueAs("affiliate"),
+        affiliateFee: json.valueAs("affiliateFee"),
+        txType: json.valueAs("txType"),
+        chainflip:
+            json.valueTo<SwapKitRouteMetaChainFlip?, Map<String, dynamic>>(
+                key: "chainflip", parse: SwapKitRouteMetaChainFlip.fromJson));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -581,10 +597,10 @@ class SwapKitRouteEstimateTime {
       required this.total});
   factory SwapKitRouteEstimateTime.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteEstimateTime(
-        inbound: json.as("inbound"),
-        swap: json.as("swap"),
-        outbound: json.as("outbound"),
-        total: json.as("total"));
+        inbound: json.valueAsNum("inbound"),
+        swap: json.valueAsNum("swap"),
+        outbound: json.valueAsNum("outbound"),
+        total: json.valueAsNum("total"));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -604,9 +620,9 @@ class SwapKitRouteWarning {
       {required this.code, required this.display, required this.tooltip});
   factory SwapKitRouteWarning.fromJson(Map<String, dynamic> json) {
     return SwapKitRouteWarning(
-        code: json.as("code"),
-        display: json.as("display"),
-        tooltip: json.as("tooltip"));
+        code: json.valueAs("code"),
+        display: json.valueAs("display"),
+        tooltip: json.valueAs("tooltip"));
   }
   Map<String, dynamic> toJson() {
     return {"code": code, "display": display, "tooltip": tooltip};
@@ -772,9 +788,9 @@ class SwapKitChainFlipDepositChannel {
       required this.explorerUrl});
   factory SwapKitChainFlipDepositChannel.fromJson(Map<String, dynamic> json) {
     return SwapKitChainFlipDepositChannel(
-        depositAddress: json.as("depositAddress"),
-        channelId: json.as("channelId"),
-        explorerUrl: json.as("explorerUrl"));
+        depositAddress: json.valueAs("depositAddress"),
+        channelId: json.valueAs("channelId"),
+        explorerUrl: json.valueAs("explorerUrl"));
   }
   Map<String, dynamic> toJson() {
     return {

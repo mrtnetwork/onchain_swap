@@ -1,6 +1,6 @@
+import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/swap_kit/core/core.dart';
 import 'package:on_chain_swap/src/providers/swap_kit/models/types.dart';
-import 'package:on_chain_swap/src/utils/extensions/json.dart';
 
 class SwapKitRequestScreen
     extends SwapKitPostRequest<bool, Map<String, dynamic>> {
@@ -11,7 +11,7 @@ class SwapKitRequestScreen
 
   @override
   bool onResonse(Map<String, dynamic> result) {
-    return result.as("confirm");
+    return result.valueAs("confirm");
   }
 
   @override

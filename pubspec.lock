@@ -37,18 +37,18 @@ packages:
     dependency: "direct main"
     description:
       name: bitcoin_base
-      sha256: "88be48282b67f61918c12586df3f23d9ff40b032c5cfe755dd802f2866a0a768"
+      sha256: "6a419a007727295ca612a1ad0d3034795512615591f6e06a2d10d441c6dbbb95"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.0"
+    version: "7.3.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       name: blockchain_utils
-      sha256: "9129a7b13e50c692387b69f24ca82c06360a75094dd0d286e21430c5b1492707"
+      sha256: "81ed3cdea69e0a1be27f17aaa137186afa893025a1fde210be32348764082e4e"
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.0"
+    version: "7.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -85,10 +85,10 @@ packages:
     dependency: "direct main"
     description:
       name: cosmos_sdk
-      sha256: "1de255e799e7881448f14ebc8ab02813d8e0b5f66ac7c092a1cfbefad6a820cb"
+      sha256: e45d49006cc4df2397070e48de8d51a7bc2116ef0be521f9962d638eb77339e8
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.0"
   coverage:
     dependency: transitive
     description:
@@ -221,10 +221,10 @@ packages:
     dependency: "direct main"
     description:
       name: on_chain
-      sha256: de5af717113210c9a39ba94de2d4f043687d92bae210b862eba7b06430b3da55
+      sha256: "06d2328d107cdbe2028e8210f556fda43b1e936b7524c51e0123d7bd0a5d75bf"
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.0"
+    version: "8.1.0"
   package_config:
     dependency: transitive
     description:
@@ -245,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: polkadot_dart
-      sha256: "12c1affbe2c387ffac2d007a45a7a4132c6e6f6608ef520d3f3319b25b4acd76"
+      sha256: dca9eca7b8bb25468e7411f9419eec91aa67e73f2549092c7956251698a07095
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "5.3.0"
   pool:
     dependency: transitive
     description:
