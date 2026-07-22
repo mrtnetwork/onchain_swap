@@ -17,8 +17,7 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
   SwapBitcoinClient({required this.provider, required this.network});
 
   static Future<SwapBitcoinClient> check(
-      {required BitcoinProvider provider,
-      required SwapBitcoinNetwork network}) async {
+      {required BitcoinProvider provider, required SwapBitcoinNetwork network}) async {
     final client = SwapBitcoinClient(provider: provider, network: network);
     if (!(await client.initSwapClient())) {
       throw const DartOnChainSwapPluginException(
@@ -34,16 +33,15 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
       if (!network.chainType.isMainnet) {
         return _BitcoinClientConst.testnetFeeRate;
       }
-      throw const DartOnChainSwapPluginException(
-          "Failed to fetch network fee rate.");
+      throw const DartOnChainSwapPluginException("Failed to fetch network fee rate.");
     }
     return BigRational(fee) / BigRational.from(1024);
   }
 
   @override
   Future<BigInt> getBalance(BitcoinBaseAddress address) async {
-    final utxos = await provider.request(
-        ElectrumRequestScriptHashListUnspent(scriptHash: address.pubKeyHash()));
+    final utxos = await provider
+        .request(ElectrumRequestScriptHashListUnspent(scriptHash: address.pubKeyHash()));
     return utxos.fold<BigInt>(BigInt.zero, (a, b) => a + b.value);
   }
 
@@ -52,16 +50,14 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
     final bytes = transaction.serialize();
     final result = await provider
         .request(ElectrumRequestBroadCastTransaction(transactionRaw: bytes));
-    if (StringUtils.isHexBytes(result,
-        lengthInBytes: QuickCrypto.sha256DigestSize)) {
+    if (StringUtils.isHexBytes(result, lengthInBytes: QuickCrypto.sha256DigestSize)) {
       return result;
     }
     return transaction.txId();
   }
 
   @override
-  Future<List<PsbtUtxo>> getAccountsUtxos(
-      List<BitcoinSpenderAddress> addresses) async {
+  Future<List<PsbtUtxo>> getAccountsUtxos(List<BitcoinSpenderAddress> addresses) async {
     final utxos = await _getAccountsUtxo(addresses);
     return utxos.where((e) {
       final height = e.utxo.blockHeight;
@@ -69,8 +65,7 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
     }).toList();
   }
 
-  Future<List<PsbtUtxo>> _getAccountsUtxo(
-      List<BitcoinSpenderAddress> addresses) async {
+  Future<List<PsbtUtxo>> _getAccountsUtxo(List<BitcoinSpenderAddress> addresses) async {
     final utxos = await Future.wait(addresses.map((e) async {
       return await provider.request(ElectrumRequestScriptHashListUnspent(
           scriptHash: e.address.baseAddress.pubKeyHash()));
@@ -79,8 +74,7 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
       final request = addresses[i];
       final accountUtxos = utxos[i];
       final er = await Future.wait(accountUtxos
-          .map(
-              (e) => provider.request(ElectrumRequestGetRawTransaction(e.txId)))
+          .map((e) => provider.request(ElectrumRequestGetRawTransaction(e.txId)))
           .toList());
       return List.generate(
         accountUtxos.length,
@@ -102,12 +96,10 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
   @override
   Future<String> genesisHash() async {
     if (_genesis != null) return _genesis!;
-    final header = await provider
-        .request(ElectrumRequestBlockHeader(startHeight: 0, cpHeight: 0));
+    final header =
+        await provider.request(ElectrumRequestBlockHeader(startHeight: 0, cpHeight: 0));
     _genesis = BytesUtils.toHexString(
-        QuickCrypto.sha256DoubleHash(BytesUtils.fromHexString(header))
-            .reversed
-            .toList());
+        QuickCrypto.sha256DoubleHash(BytesUtils.fromHexString(header)).reversed.toList());
     return _genesis!;
   }
 
@@ -117,7 +109,6 @@ class SwapBitcoinClient implements BaseSwapBitcoinClient {
     return genesis == StringUtils.strip0x(network.genesis.toLowerCase());
   }
 
-  @override
   Future<SwapBitcoinAccountAssetBalance> getAccountsAssetBalance(
       BitcoinSwapAsset asset, BitcoinBaseAddress account) async {
     return SwapBitcoinAccountAssetBalance(

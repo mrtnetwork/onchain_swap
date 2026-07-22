@@ -2,8 +2,8 @@ import 'package:blockchain_utils/utils/utils.dart';
 import 'package:on_chain_swap/src/providers/cf/core/core.dart';
 import 'package:on_chain_swap/src/providers/cf/models/models.dart';
 
-class CfTRPCRequestOpenSwapDepositChannel extends CfTRPCRequest<
-    TRPCOpenDepositChannelResponse, Map<String, dynamic>> {
+class CfTRPCRequestOpenSwapDepositChannel
+    extends CfTRPCRequest<TRPCOpenDepositChannelResponse, Map<String, dynamic>> {
   final String? srcAddress;
   final String destAddress;
   final RPCFillOrKillParam fillOrKillParams;
@@ -25,8 +25,7 @@ class CfTRPCRequestOpenSwapDepositChannel extends CfTRPCRequest<
         "destChain": quote.destAsset.chain,
         "srcAddress": srcAddress,
         "destAddress": destAddress,
-        "dcaParams":
-            quote.type == QuoteType.dca ? quote.dcaParams?.toJson() : null,
+        "dcaParams": quote.type == QuoteType.dca ? quote.dcaParams?.toJson() : null,
         "fillOrKillParams": fillOrKillParams.toJson(),
         "maxBoostFeeBps": (quote is QuoteBoostedDetails)
             ? (quote as QuoteBoostedDetails).maxBoostFeeBps

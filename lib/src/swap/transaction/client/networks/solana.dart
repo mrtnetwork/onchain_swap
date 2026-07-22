@@ -11,8 +11,7 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
   final SwapSolanaNetwork network;
   SwapSolanaClient({required this.provider, required this.network});
   static Future<SwapSolanaClient> check(
-      {required SolanaProvider provider,
-      required SwapSolanaNetwork network}) async {
+      {required SolanaProvider provider, required SwapSolanaNetwork network}) async {
     final client = SwapSolanaClient(provider: provider, network: network);
     if (!(await client.initSwapClient())) {
       throw const DartOnChainSwapPluginException(
@@ -30,8 +29,7 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
 
   @override
   Future<SolanaAccountInfo?> getAccountInfo(SolAddress address) async {
-    final info =
-        await provider.request(SolanaRequestGetAccountInfo(account: address));
+    final info = await provider.request(SolanaRequestGetAccountInfo(account: address));
     return info;
   }
 
@@ -51,8 +49,8 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
       MinContextSlot? minContextSlot}) async {
     return await provider.request(
       SolanaRequestSimulateTransaction(
-          encodedTransaction: transaction.serializeString(
-              encoding: TransactionSerializeEncoding.base64),
+          encodedTransaction:
+              transaction.serializeString(encoding: TransactionSerializeEncoding.base64),
           sigVerify: sigVerify,
           replaceRecentBlockhash: replaceRecentBlockhash,
           encoding: SolanaRequestEncoding.base64,
@@ -61,15 +59,13 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
           accounts: account == null
               ? null
               : RPCAccountConfig(
-                  addresses: [account],
-                  encoding: SolanaRequestEncoding.base64)),
+                  addresses: [account], encoding: SolanaRequestEncoding.base64)),
     );
   }
 
   @override
   Future<SolAddress> getBlockHash() async {
-    final blockHash =
-        await provider.request(const SolanaRequestGetLatestBlockhash());
+    final blockHash = await provider.request(const SolanaRequestGetLatestBlockhash());
     return blockHash.blockhash;
   }
 
@@ -131,9 +127,8 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
         skipPreflight: skipPreflight,
         maxRetries: maxRetries,
         commitment: skipPreflight ? Commitment.processed : commitment,
-        minContextSlot: minContextSlot == null
-            ? null
-            : MinContextSlot(slot: minContextSlot)));
+        minContextSlot:
+            minContextSlot == null ? null : MinContextSlot(slot: minContextSlot)));
   }
 
   @override
@@ -160,9 +155,7 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
         tokenProgramId: tokenProgramId,
         allowOwnerOffCurve: true);
     return SolanaTokenPDAInfo(
-        address: account,
-        pdaAddress: pda.address,
-        tokenProgramId: tokenProgramId);
+        address: account, pdaAddress: pda.address, tokenProgramId: tokenProgramId);
   }
 
   @override
@@ -203,22 +196,20 @@ class SwapSolanaClient implements BaseSwapSolanaClient {
     return genesis == network.genesis;
   }
 
-  @override
   Future<SwapSolanaAccountAssetBalance> getAccountsAssetBalance(
       SolanaSwapAsset asset, SolAddress account) async {
     return SwapSolanaAccountAssetBalance(
         address: account,
         balance: asset.isNative
             ? await getBalance(account)
-            : await getTokenBalance(
-                account: account, mint: asset.contractAddress),
+            : await getTokenBalance(account: account, mint: asset.contractAddress),
         asset: asset);
   }
 
   @override
   Future<BigInt> getBlockHeight() async {
-    final block = await provider.request(
-        const SolanaRequestGetBlockHeight(commitment: Commitment.finalized));
+    final block = await provider
+        .request(const SolanaRequestGetBlockHeight(commitment: Commitment.finalized));
     return BigInt.from(block);
   }
 }

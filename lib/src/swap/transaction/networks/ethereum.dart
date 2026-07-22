@@ -6,12 +6,7 @@ import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
-enum SwapRouteEthereumTransactionStrategy {
-  native,
-  token,
-  aprove,
-  callContract
-}
+enum SwapRouteEthereumTransactionStrategy { native, token, aprove, callContract }
 
 class SwapRouteEthereumTransactionBuilder extends SwapRouteTransactionBuilder<
     ETHAddress,
@@ -29,8 +24,7 @@ class SwapRouteEthereumTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions({
-    required CbGetRouteNetwork<BaseSwapEthereumClient, SwapEthereumNetwork>
-        client,
+    required CbGetRouteNetwork<BaseSwapEthereumClient, SwapEthereumNetwork> client,
     required CbGetSigner<Web3SignerEthereum, ETHAddress> signer,
     required CbOnStatusChanged stepsCallBack,
   }) async {
@@ -48,8 +42,7 @@ class SwapRouteEthereumTransactionBuilder extends SwapRouteTransactionBuilder<
               "None of the connected accounts match the source address of the transaction."));
       stepsCallBack(TransactionOperationStep.broadcast);
       final transactionId = await signerInfo.excuteTransaction(transaction);
-      stepsCallBack(TransactionOperationStep.txHash,
-          transactionHash: transactionId);
+      stepsCallBack(TransactionOperationStep.txHash, transactionHash: transactionId);
       if (mode.isSerial) {
         await ethereumClient.trackTransaction(transactionId: transactionId);
       }
@@ -63,10 +56,7 @@ abstract class SwapRouteEthereumTransactionOperation
   final SwapRouteEthereumTransactionStrategy strategy;
   final ETHAddress source;
   const SwapRouteEthereumTransactionOperation(
-      {required super.network,
-      required this.strategy,
-      required this.source,
-      this.memo});
+      {required super.network, required this.strategy, required this.source, this.memo});
   ETHTransactionType? _txType(BigInt chainId) {
     return switch (chainId.toString()) {
       '1' || "42161" || "8453" || "43114" => ETHTransactionType.eip1559,
@@ -75,8 +65,7 @@ abstract class SwapRouteEthereumTransactionOperation
     };
   }
 
-  Future<Web3TransactionEthereum?> _buildTransactions(
-      BaseSwapEthereumClient client);
+  Future<Web3TransactionEthereum?> _buildTransactions(BaseSwapEthereumClient client);
 }
 
 class SwapRouteEthereumNativeTransactionOperation
@@ -112,11 +101,10 @@ class SwapRouteEthereumNativeTransactionOperation
         value: amount.amount,
         to: destination,
         from: source,
-        data: BytesUtils.toHexString(
-            memo == null ? [] : StringUtils.encode(memo!),
+        data: BytesUtils.toHexString(memo == null ? [] : StringUtils.encode(memo!),
             prefix: '0x'),
         gasLimit: transactionBuilder.gasLimit!,
-        transactionType: transactionBuilder.type!,
+        transactionType: transactionBuilder.type,
         chainId: network.chainId,
         gasPrice: transactionBuilder.gasPrice);
   }
@@ -158,11 +146,11 @@ class SwapRouteEthereumSendTokenTransactionOperation
       throw SwapConstants.insufficientTokenBalance;
     }
     final encodeParams =
-        EthereumAbiCons.transferFragment.encode([destination, amount.amount]);
+        EthereumAbiConst.transferFragment.encode([destination, amount.amount]);
     final transactionBuilder = ETHTransactionBuilder.contract(
         from: source,
         contractAddress: contract,
-        function: EthereumAbiCons.transferFragment,
+        function: EthereumAbiConst.transferFragment,
         functionParams: [destination, amount.amount],
         value: BigInt.zero,
         chainId: network.chainId,
@@ -202,9 +190,9 @@ class SwapRouteEthereumAproveTransactionOperation
       required this.spender,
       required super.network,
       required this.contract})
-      : functionName = EthereumAbiCons.approve.name,
+      : functionName = EthereumAbiConst.approve.name,
         data = BytesUtils.toHexString(
-            EthereumAbiCons.approve.encode([spender, amount.amount]),
+            EthereumAbiConst.approve.encode([spender, amount.amount]),
             prefix: "0x"),
         super(strategy: SwapRouteEthereumTransactionStrategy.aprove);
 
@@ -220,13 +208,13 @@ class SwapRouteEthereumAproveTransactionOperation
     if (tokenBalance < amount.amount) {
       throw SwapConstants.insufficientTokenBalance;
     }
-    final allowance = await client.getAllowance(
-        contract: contract, owner: source, spender: spender);
+    final allowance =
+        await client.getAllowance(contract: contract, owner: source, spender: spender);
     if (allowance >= amount.amount) return null;
     final transactionBuilder = ETHTransactionBuilder.contract(
         from: source,
         contractAddress: contract,
-        function: EthereumAbiCons.approve,
+        function: EthereumAbiConst.approve,
         functionParams: [spender, amount.amount],
         value: BigInt.zero,
         chainId: network.chainId,
@@ -273,8 +261,7 @@ class SwapRouteEthereumCallContractTransactionOperation
       String? data,
       required List<dynamic> params})
       : params = params.immutable,
-        data =
-            data ?? BytesUtils.toHexString(method.encode(params), prefix: '0x'),
+        data = data ?? BytesUtils.toHexString(method.encode(params), prefix: '0x'),
         super(strategy: SwapRouteEthereumTransactionStrategy.callContract);
   @override
   Future<Web3TransactionEthereum?> _buildTransactions(

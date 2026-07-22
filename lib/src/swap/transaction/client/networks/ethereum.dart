@@ -27,8 +27,7 @@ class SwapEthereumClient implements BaseSwapEthereumClient {
 
   @override
   Future<BigInt> getBalance(ETHAddress address) async {
-    return await provider
-        .request(EthereumRequestGetBalance(address: address.address));
+    return await provider.request(EthereumRequestGetBalance(address: address.address));
   }
 
   @override
@@ -43,23 +42,19 @@ class SwapEthereumClient implements BaseSwapEthereumClient {
       {required ETHAddress contract,
       required ETHAddress owner,
       required ETHAddress spender}) async {
-    final function = EthereumAbiCons.getAllowance;
+    final function = EthereumAbiConst.getAllowance;
     final result = await provider.request(EthereumRequestCall.fromMethod(
-        contractAddress: contract.address,
-        function: function,
-        params: [owner, spender]));
+        contractAddress: contract.address, function: function, params: [owner, spender]));
     return (result as List)[0];
   }
 
   @override
   Future<BigInt> getTokenBalance(
-      {required SolidityAddress address,
-      required SolidityAddress? contract}) async {
+      {required SolidityAddress address, required SolidityAddress? contract}) async {
     if (contract == null) {
-      throw const DartOnChainSwapPluginException(
-          "missing token contract address.");
+      throw const DartOnChainSwapPluginException("missing token contract address.");
     }
-    final function = EthereumAbiCons.erc20BalaceFragment;
+    final function = EthereumAbiConst.erc20BalaceFragment;
     final result = await provider.request(EthereumRequestFunctionCall(
         contractAddress: contract.toSolidityHex(),
         function: function,
@@ -74,12 +69,10 @@ class SwapEthereumClient implements BaseSwapEthereumClient {
       Duration periodicTimeOut = const Duration(seconds: 3)}) async {
     Timer? timer;
     try {
-      final Completer<TransactionReceipt> completer =
-          Completer<TransactionReceipt>();
+      final Completer<TransactionReceipt> completer = Completer<TransactionReceipt>();
       timer = Timer.periodic(periodicTimeOut, (t) async {
         final receipt = await provider
-            .request(EthereumRequestGetTransactionReceipt(
-                transactionHash: transactionId))
+            .request(EthereumRequestGetTransactionReceipt(transactionHash: transactionId))
             .catchError((e, s) {
           return null;
         });
@@ -104,15 +97,13 @@ class SwapEthereumClient implements BaseSwapEthereumClient {
     return chainId == network.chainId;
   }
 
-  @override
   Future<SwapEthereumAccountAssetBalance> getAccountsAssetBalance(
       ETHSwapAsset asset, ETHAddress account) async {
     return SwapEthereumAccountAssetBalance(
         address: account,
         balance: asset.isNative
             ? await getBalance(account)
-            : await getTokenBalance(
-                address: account, contract: asset.contractAddress),
+            : await getTokenBalance(address: account, contract: asset.contractAddress),
         asset: asset);
   }
 

@@ -20,8 +20,8 @@ class CfQuoteSwapParams extends QuoteSwapParams<BaseSwapAsset> {
       super.destinationAddress});
 }
 
-class CfSwapRoute extends SwapRoute<CfQuoteSwapParams,
-    SwapRouteCfGeneralTransactionBuilderParam> {
+class CfSwapRoute
+    extends SwapRoute<CfQuoteSwapParams, SwapRouteCfGeneralTransactionBuilderParam> {
   final QuoteDetails route;
 
   CfSwapRoute(
@@ -86,6 +86,33 @@ class CfSwapRoute extends SwapRoute<CfQuoteSwapParams,
                   destination: destination,
                   network: network)
             ]);
+      case SwapChainType.tron:
+        final network = quote.sourceAsset.network.cast<SwapTronNetwork>();
+        final TronAddress source =
+            SwapUtils.toNetworkAddress(network, params.sourceAddress);
+        final TronAddress destination =
+            SwapUtils.toNetworkAddress(network, params.channel.depositAddress);
+        if (quote.sourceAsset.isNative) {
+          return SwapRouteTronTransactionBuilder(
+              params: params,
+              route: this,
+              operations: [
+                SwapRouteTronNativeTransactionOperation(
+                    amount: quote.amount,
+                    source: source,
+                    destination: destination,
+                    network: network)
+              ]);
+        }
+        final contract = TronAddress(quote.sourceAsset.identifier);
+        return SwapRouteTronTransactionBuilder(route: this, params: params, operations: [
+          SwapRouteTronSendTokenTransactionOperation(
+              contract: contract,
+              amount: quote.amount,
+              source: source,
+              destination: destination,
+              network: network)
+        ]);
 
       case SwapChainType.solana:
         final network = quote.sourceAsset.network.cast<SwapSolanaNetwork>();
@@ -124,8 +151,7 @@ class CfSwapRoute extends SwapRoute<CfQuoteSwapParams,
         if (asset.type == SwapAssetType.asset) {
           assetId = asset.assetId;
           if (assetId == null) {
-            throw const DartOnChainSwapPluginException(
-                "Missing polkadot asset id.");
+            throw const DartOnChainSwapPluginException("Missing polkadot asset id.");
           }
         }
         final network = asset.network.cast<SwapSubstrateNetwork>();
@@ -133,15 +159,13 @@ class CfSwapRoute extends SwapRoute<CfQuoteSwapParams,
             SwapUtils.toNetworkAddress(network, params.sourceAddress);
         final SubstrateAddress destination =
             SwapUtils.toNetworkAddress(network, params.channel.depositAddress);
-        final SwapRouteSubstrateTransactionOperation operation =
-            switch (assetId) {
-          final BigInt id =>
-            SwapRouteSubstrateAssetHubAssetTransactionOperation(
-                amount: quote.amount,
-                source: source,
-                destination: destination,
-                network: network,
-                assetId: id),
+        final SwapRouteSubstrateTransactionOperation operation = switch (assetId) {
+          final BigInt id => SwapRouteSubstrateAssetHubAssetTransactionOperation(
+              amount: quote.amount,
+              source: source,
+              destination: destination,
+              network: network,
+              assetId: id),
           _ => SwapRouteSubstrateNativeTransactionOperation(
               amount: quote.amount,
               source: source,
@@ -187,6 +211,6 @@ class SwapRouteCfGeneralTransactionBuilderParam
       super.expireTime,
       required BigInt super.sourceExpireBlock});
 
-  late final String channelUrl = CfSwapUtils.channelUrl(
-      network: destionationNetwork, channelId: channel.id);
+  late final String channelUrl =
+      CfSwapUtils.channelUrl(network: destionationNetwork, channelId: channel.id);
 }

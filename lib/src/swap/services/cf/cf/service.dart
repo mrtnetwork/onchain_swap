@@ -7,11 +7,8 @@ import 'package:on_chain_swap/src/swap/services/services.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:on_chain_swap/src/swap/utils/utils.dart';
 
-class CfSwapService extends SwapService<
-    BaseSwapAsset,
-    IProvider<IServiceProvider, CfRequestDetails>,
-    CfSwapRoute,
-    CfQuoteSwapParams> {
+class CfSwapService extends SwapService<BaseSwapAsset,
+    IProvider<IServiceProvider, CfRequestDetails>, CfSwapRoute, CfQuoteSwapParams> {
   final ChainType chainType;
   CfSwapService({required super.provider, this.chainType = ChainType.mainnet})
       : super(service: SwapServiceType.chainFlip);
@@ -48,27 +45,24 @@ class CfSwapService extends SwapService<
       return CfSwapRoute(
           expireTime: DateTime.now().add(const Duration(hours: 23)),
           expectedAmount: SwapAmount.fromBigInt(
-              BigintUtils.parse(e.egressAmount),
-              params.destinationAsset.decimal),
+              BigintUtils.parse(e.egressAmount), params.destinationAsset.decimal),
           worstCaseAmount: CfSwapUtils.calculateMinAmount(
               amount: BigintUtils.parse(e.egressAmount),
               tolerance: e.recommendedSlippageTolerancePercent,
               destinationAsset: params.destinationAsset),
           quote: params,
           route: e,
-          estimateTime:
-              SwapUtils.secondsToMinutes(e.estimatedDurationSeconds.toInt()),
+          estimateTime: SwapUtils.secondsToMinutes(e.estimatedDurationSeconds.toInt()),
           tolerance: e.recommendedSlippageTolerancePercent.toDouble(),
           provider: SwapConstants.chainflip,
           fees: e.includedFees.map((e) {
-            final feeAsset = assets.firstWhere((i) =>
-                i.providerIdentifier == e.asset && i.network.name == e.chain);
+            final feeAsset = assets.firstWhere(
+                (i) => i.providerIdentifier == e.asset && i.network.name == e.chain);
             return SwapFee(
-                token: assets.firstWhere((i) =>
-                    i.providerIdentifier == e.asset &&
-                    i.network.name == e.chain),
-                amount: SwapAmount.fromBigInt(
-                    BigintUtils.parse(e.amount), feeAsset.decimal),
+                token: assets.firstWhere(
+                    (i) => i.providerIdentifier == e.asset && i.network.name == e.chain),
+                amount:
+                    SwapAmount.fromBigInt(BigintUtils.parse(e.amount), feeAsset.decimal),
                 type: e.type.type,
                 asset: e.asset);
           }).toList());
@@ -96,7 +90,7 @@ class CfSwapService extends SwapService<
         estimatedPrice: route.route.estimatedPrice,
         tolerance: tolerance!,
         destinationAsset: route.quote.destinationAsset);
-    return provider.request(_CfTRPCRequestOpenSwapDepositChannel(
+    return provider.request(CfAPIRequestOpenSwapDepositChannel(
         srcAddress: sourceAddress,
         destAddress: destinationAddress,
         fillOrKillParams: RPCFillOrKillX128Price(
@@ -122,60 +116,5 @@ class CfSwapService extends SwapService<
       networkAssets[i.network]?.add(i);
     }
     return networkAssets;
-  }
-}
-
-class _CfTRPCRequestOpenSwapDepositChannel extends CfTRPCRequest<
-    TRPCOpenDepositChannelResponse, Map<String, dynamic>> {
-  final String? srcAddress;
-  final String destAddress;
-  final RPCFillOrKillParam fillOrKillParams;
-  final QuoteDetails quote;
-  const _CfTRPCRequestOpenSwapDepositChannel(
-      {required this.srcAddress,
-      required this.destAddress,
-      required this.fillOrKillParams,
-      required this.quote});
-  @override
-  Map<String, dynamic> get params {
-    return {
-      "json": {
-        "srcAsset": quote.srcAsset.asset,
-        "srcChain": quote.srcAsset.chain,
-        "destAsset": quote.destAsset.asset,
-        "destChain": quote.destAsset.chain,
-        "srcAddress": null,
-        "destAddress": destAddress,
-        "dcaParams":
-            quote.type == QuoteType.dca ? quote.dcaParams?.toJson() : null,
-        "fillOrKillParams": fillOrKillParams.toJson(),
-        "maxBoostFeeBps": (quote is QuoteBoostedDetails)
-            ? (quote as QuoteBoostedDetails).maxBoostFeeBps
-            : null,
-        "ccmParams": null,
-        "amount": quote.depositAmount,
-        "quote": quote.toJson(),
-        "takeCommission": true,
-      },
-      "meta": {
-        "values": {
-          "srcAddress": ["undefined"],
-          "dcaParams": ["undefined"],
-          "maxBoostFeeBps": ["undefined"],
-          "ccmParams": ["undefined"]
-        }
-      }
-    };
-  }
-
-  @override
-  String get method => "openSwapDepositChannel";
-
-  @override
-  TRPCOpenDepositChannelResponse onResonse(Map<String, dynamic> result) {
-    return TRPCOpenDepositChannelResponse.fromJson(result
-        .valueEnsureAsMap<String, dynamic>("result")
-        .valueEnsureAsMap<String, dynamic>("data")
-        .valueEnsureAsMap<String, dynamic>("json"));
   }
 }

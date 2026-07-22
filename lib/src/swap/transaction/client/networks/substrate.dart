@@ -15,8 +15,7 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
   MetadataApi get api {
     final metadata = _api;
     if (metadata == null) {
-      throw const DartOnChainSwapPluginException(
-          "Client has not been initialized.");
+      throw const DartOnChainSwapPluginException("Client has not been initialized.");
     }
     return metadata;
   }
@@ -40,18 +39,17 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
 
   @override
   Future<SubstrateBlockHash> getFinalizBlock({int? atNumber}) async {
-    final blockHash = await provider
-        .request(const SubstrateRequestChainChainGetFinalizedHead());
+    final blockHash =
+        await provider.request(const SubstrateRequestChainChainGetFinalizedHead());
     return SubstrateBlockHash.hash(blockHash);
   }
 
   @override
   Future<SubstrateBlockHash> getGenesis() async {
-    final genesis = await provider
-        .request(const SubstrateRequestChainGetBlockHash(number: 0));
+    final genesis =
+        await provider.request(const SubstrateRequestChainGetBlockHash(number: 0));
     if (genesis == null) {
-      throw const DartOnChainSwapPluginException(
-          "Failed to fetch genesis block hash.");
+      throw const DartOnChainSwapPluginException("Failed to fetch genesis block hash.");
     }
     return SubstrateBlockHash.hash(genesis);
   }
@@ -64,8 +62,7 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
   }
 
   @override
-  Future<SubstrateTransactionBlockRequirment>
-      transactionBlockRequirment() async {
+  Future<SubstrateTransactionBlockRequirment> transactionBlockRequirment() async {
     final finalizeBlock = (await getFinalizBlock());
     final genesis = await getGenesis();
     final blockHash = finalizeBlock.toHex();
@@ -87,8 +84,8 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
 
   @override
   Future<String> sendTransaction(Extrinsic extrinsic) async {
-    return await provider.request(
-        SubstrateRequestAuthorSubmitExtrinsic(extrinsic.toHex(prefix: "0x")));
+    return await provider
+        .request(SubstrateRequestAuthorSubmitExtrinsic(extrinsic.toHex(prefix: "0x")));
   }
 
   @override
@@ -102,8 +99,8 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
   }
 
   Future<MetadataApi> _init() async {
-    final metadata = (await provider.request(
-            const SubstrateRequestRuntimeMetadataGetMetadataAtVersion(15)))
+    final metadata = (await provider
+            .request(const SubstrateRequestRuntimeMetadataGetMetadataAtVersion(15)))
         ?.toApi();
     if (metadata == null) {
       throw const DartOnChainSwapPluginException(
@@ -111,12 +108,10 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
     }
     final client = SwapSubstrateClient(provider: provider, network: network);
     final genesis = await client.getGenesis();
-    if (BytesUtils.bytesEqual(
-        genesis.bytes, BytesUtils.fromHexString(network.genesis))) {
+    if (BytesUtils.bytesEqual(genesis.bytes, BytesUtils.fromHexString(network.genesis))) {
       return metadata;
     }
-    throw const DartOnChainSwapPluginException(
-        "Client has not been initialized.");
+    throw const DartOnChainSwapPluginException("Client has not been initialized.");
   }
 
   @override
@@ -125,7 +120,6 @@ class SwapSubstrateClient implements BaseSwapSubstrateClient {
     return true;
   }
 
-  @override
   Future<SwapPolkadotAccountAssetBalance> getAccountsAssetBalance(
       PolkadotSwapAsset asset, BaseSubstrateAddress account) async {
     assert(asset.type.isNative, "Unsuported polkadot asset.");

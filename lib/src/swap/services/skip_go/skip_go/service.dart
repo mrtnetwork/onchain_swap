@@ -89,8 +89,7 @@ class SkipGoSwapService extends SwapService<
   }
 
   @override
-  Future<List<SkipGoSwapRoute>> createRoutes(
-      SkipGoQuoteSwapParams params) async {
+  Future<List<SkipGoSwapRoute>> createRoutes(SkipGoQuoteSwapParams params) async {
     throw const DartOnChainSwapPluginException("Unsupported api.");
     // final quote = await provider.request(SkipGoApiRequestRoute.givenIn(
     //     sourceAssetDenom: params.sourceAsset.asset.denom,
@@ -101,7 +100,7 @@ class SkipGoSwapService extends SwapService<
     // return [
     //   SkipGoSwapRoute(
     //       expire: quote.,
-    //       expectedAmount: SwapAmount.fromBigInt(
+    //       expectedAmount: BaseSwapAmount.fromBigInt(
     //           BigintUtils.parse(quote.amountOut),
     //           params.destinationAsset.decimal),
     //       quote: params,
@@ -134,7 +133,7 @@ class SkipGoSwapService extends SwapService<
     //             );
     //             return SwapFee(
     //                 token: feeAsset,
-    //                 amount: SwapAmount.fromBigInt(
+    //                 amount: BaseSwapAmount.fromBigInt(
     //                     BigintUtils.parse(e.amount), feeAsset.decimal),
     //                 type: e.feeType,
     //                 asset: e.originAsset.symbol ??

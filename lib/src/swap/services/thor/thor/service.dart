@@ -13,8 +13,7 @@ class ThorSwapService extends SwapService<
     IProvider<IServiceProvider, ThorNodeRequestDetails>,
     ThorSwapRoute,
     ThorQuoteSwapParams> {
-  ThorSwapService(
-      {required super.provider, super.service = SwapServiceType.thor});
+  ThorSwapService({required super.provider, super.service = SwapServiceType.thor});
 
   @override
   Future<List<BaseSwapAsset>> loadAssets() async {
@@ -26,9 +25,8 @@ class ThorSwapService extends SwapService<
     return ThorNodeRequestSwapQuote(
         fromAsset: params.sourceAsset.providerIdentifier,
         toAsset: params.destinationAsset.providerIdentifier,
-        amount: ThorSwapUtils.toAmountFromInput(
-                amount: params.amount.amountString, asset: params.sourceAsset)
-            .amount,
+        amount: ThorSwapUtils.toThorUnitFromInput(
+            amount: params.amount.amountString, asset: params.sourceAsset),
         streamingInterval: streamingInterval,
         fromAddress: SwapUtils.getFakeAddress(params.sourceAsset.network),
         destination: SwapUtils.getFakeAddress(params.destinationAsset.network));
@@ -36,20 +34,20 @@ class ThorSwapService extends SwapService<
 
   Future<ThorSwapRoute?> _quote(ThorQuoteSwapParams params,
       {int? streamingInterval}) async {
-    final request =
-        _createRequest(params, streamingInterval: streamingInterval);
+    final request = _createRequest(params, streamingInterval: streamingInterval);
     try {
       final e = await provider.request(request);
       final assets = await loadAssets();
-      final feeAsset = assets
-          .firstWhereNullable((i) => i.providerIdentifier == e.fees.asset);
+      final feeAsset =
+          assets.firstWhereNullable((i) => i.providerIdentifier == e.fees.asset);
       final bps = ThorSwapUtils.ceilBpsToDouble(e.fees.totalBps);
+      final expectedAmount = ThorSwapUtils.toNativeAmountFromThor(
+          amount: e.expectedAmountOut, asset: params.destinationAsset);
       return ThorSwapRoute(
           expireTime: SwapUtils.secondsToDateTime(e.expiry),
-          expectedAmount: ThorSwapUtils.toAmountFromBigInt(
-              amount: e.expectedAmountOut, asset: params.destinationAsset),
+          expectedAmount: expectedAmount,
           worstCaseAmount: ThorSwapUtils.calculateWorstCaseAmount(
-              expectedAmount: e.expectedAmountOut, tolranceBps: bps),
+              expectedAmount: expectedAmount, tolerancePercent: bps),
           quote: params,
           tolerance: bps,
           interval: streamingInterval,
@@ -62,36 +60,101 @@ class ThorSwapService extends SwapService<
     }
   }
 
+  // @override
+  // Future<List<ThorSwapRoute>> createRoutes(ThorQuoteSwapParams params) async {
+  //   List<ThorSwapRoute> quotes = [];
+  //   final q1 = await _quote(params);
+  //   final q2 = await _quote(params, streamingInterval: 1);
+  //   if (q1 != null) {
+  //     quotes.add(q1);
+  //   }
+  //   if (q2 != null && q2.route.expectedAmountOut != quotes.last.route.expectedAmountOut) {
+  //     quotes.add(q2);
+  //   }
+  //   if (q2 != null) {
+  //     if (q2.route.maxStreamingQuantity > 1) {
+  //       final quantities = <int>{
+  //         q2.route.maxStreamingQuantity ~/ 2,
+  //         q2.route.maxStreamingQuantity
+  //       };
+  //       for (final i in quantities) {
+  //         final r = await _quote(params, streamingInterval: i);
+  //         if (r == null ||
+  //             r.route.expectedAmountOut == quotes.last.route.expectedAmountOut) {
+  //           break;
+  //         } else {
+  //           quotes.add(r);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return quotes;
+  // }
   @override
-  Future<List<ThorSwapRoute>> createRoutes(ThorQuoteSwapParams params) async {
-    List<ThorSwapRoute> quotes = [];
-    final q1 = await _quote(params);
-    final q2 = await _quote(params, streamingInterval: 1);
-    if (q1 != null) {
-      quotes.add(q1);
+  Future<List<ThorSwapRoute>> createRoutes(
+    ThorQuoteSwapParams params,
+  ) async {
+    final quotes = <ThorSwapRoute>[];
+
+    bool isBetterRoute(ThorSwapRoute route) {
+      if (quotes.isEmpty) return true;
+
+      final last = quotes.last;
+
+      final outputBetter = route.route.expectedAmountOut > last.route.expectedAmountOut;
+      final rootFee = ThorSwapUtils.totalFee(route.fees);
+      final lastFee = ThorSwapUtils.totalFee(last.fees);
+
+      final feeBetter = rootFee != null &&
+          lastFee != null &&
+          route.fees.firstOrNull?.asset == last.fees.firstOrNull?.asset &&
+          rootFee.amount < lastFee.amount;
+
+      return outputBetter || feeBetter;
     }
-    if (q2 != null &&
-        q2.route.expectedAmountOut != quotes.last.route.expectedAmountOut) {
-      quotes.add(q2);
+
+    void addIfBetter(ThorSwapRoute? route) {
+      if (route == null) return;
+
+      if (isBetterRoute(route)) {
+        quotes.add(route);
+      }
     }
-    if (q2 != null) {
-      if (q2.route.maxStreamingQuantity > 1) {
-        final quantities = <int>{
-          q2.route.maxStreamingQuantity ~/ 2,
-          q2.route.maxStreamingQuantity
-        };
-        for (final i in quantities) {
-          final r = await _quote(params, streamingInterval: i);
-          if (r == null ||
-              r.route.expectedAmountOut ==
-                  quotes.last.route.expectedAmountOut) {
-            break;
-          } else {
-            quotes.add(r);
-          }
+
+    // Get normal + fastest streaming quote
+    final results = await Future.wait([
+      _quote(params),
+      _quote(params, streamingInterval: 1),
+    ]);
+
+    final normal = results[0];
+    final streaming = results[1];
+
+    addIfBetter(normal);
+    addIfBetter(streaming);
+
+    if (streaming != null && streaming.route.maxStreamingQuantity > 1) {
+      final max = streaming.route.maxStreamingQuantity;
+
+      final intervals = <int>{
+        max ~/ 2,
+        max,
+      }..removeWhere((e) => e <= 1);
+
+      for (final interval in intervals) {
+        final route = await _quote(
+          params,
+          streamingInterval: interval,
+        );
+
+        if (route == null) continue;
+
+        if (isBetterRoute(route)) {
+          quotes.add(route);
         }
       }
     }
+
     return quotes;
   }
 

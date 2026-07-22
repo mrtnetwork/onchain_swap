@@ -4,19 +4,21 @@ import 'package:cosmos_sdk/cosmos_sdk.dart';
 import 'package:cosmos_sdk/proto_messages/cosmos/auth/v1beta1/src/auth.dart';
 import 'package:cosmos_sdk/proto_messages/cosmos/tx/v1beta1/src/tx.dart';
 import 'package:on_chain/on_chain.dart'
-    show ETHAddress, ETHTransactionType, SolanaTransaction, SolAddress;
+    show ETHAddress, ETHTransactionType, SolAddress, SolanaTransaction, TronAddress;
+import 'package:on_chain/tron/src/models/contract/contract.dart';
 import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/swap/transaction/client/core/client.dart'
     show SwapNetworkClient;
 import 'package:on_chain_swap/src/swap/transaction/signer/signer.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
+import 'package:xrpl_dart/xrpl_dart.dart';
+import 'package:zcash_dart/zcash.dart';
 
-typedef CbGetRouteNetwork<CLIENT extends SwapNetworkClient,
-        NETWORK extends SwapNetwork>
+typedef CbGetRouteNetwork<CLIENT extends SwapNetworkClient, NETWORK extends SwapNetwork>
     = Future<CLIENT> Function(NETWORK network);
-typedef CbGetSigner<SIGNER extends Web3Signer, ADDRESS> = Future<SIGNER>
-    Function(ADDRESS signer);
+typedef CbGetSigner<SIGNER extends Web3Signer, ADDRESS> = Future<SIGNER> Function(
+    ADDRESS signer);
 
 abstract class Web3Transaction {
   const Web3Transaction();
@@ -72,8 +74,7 @@ class Web3TransactionSolana extends Web3Transaction {
 
   List<int> get legacyTransactionBytes => legacy.serialize();
   List<int> get v0transactionBytes => v0.serialize();
-  Web3TransactionSolana(
-      {required this.legacy, required this.v0, required this.source});
+  Web3TransactionSolana({required this.legacy, required this.v0, required this.source});
 }
 
 class Web3TransactionBitcoinOutputs {
@@ -108,8 +109,7 @@ class Web3TransactionSubstrate extends Web3Transaction {
           prefix: '0x'),
       "era": transaction.block.era.toHex(prefix: "0x"),
       "genesisHash": StringUtils.add0x(transaction.genesisHash),
-      "metadataHash":
-          BytesUtils.tryToHexString(transaction.metadataHash, prefix: "0x"),
+      "metadataHash": BytesUtils.tryToHexString(transaction.metadataHash, prefix: "0x"),
       "method": BytesUtils.toHexString(transaction.methodBytes, prefix: "0x"),
       "mode": 0,
       "nonce": BytesUtils.toHexString(
@@ -123,8 +123,7 @@ class Web3TransactionSubstrate extends Web3Transaction {
           prefix: '0x'),
       "version": transaction.builder.metadataFields.extrinsicInfo.version,
       "tip": "0x00000000000000000000000000000000",
-      "signedExtensions": transaction
-          .builder.metadataFields.extrinsicInfo.extrinsic
+      "signedExtensions": transaction.builder.metadataFields.extrinsicInfo.extrinsic
           .map((e) => e.name)
           .cast<String>()
           .toList()
@@ -138,8 +137,7 @@ class Web3TransactionSubstrate extends Web3Transaction {
         withSignedTransaction: false, transaction: transaction);
   }
 
-  Web3TransactionSubstrate._(
-      {required this.transaction, this.withSignedTransaction});
+  Web3TransactionSubstrate._({required this.transaction, this.withSignedTransaction});
 }
 
 class Web3TransactionCosmos extends Web3Transaction {
@@ -171,8 +169,7 @@ class BitcoinSpenderAddress {
     final addressScript = address.baseAddress.toScriptPubKey();
     if (type.isP2sh) {
       if (p2shreedemScript == null) {
-        throw const DartOnChainSwapPluginException(
-            "Missing p2sh redeem script.");
+        throw const DartOnChainSwapPluginException("Missing p2sh redeem script.");
       }
       P2shAddress p2shAddress;
       if (witnessScript != null) {
@@ -180,8 +177,7 @@ class BitcoinSpenderAddress {
         p2shAddress = P2shAddress.fromScript(
             script: addr.toScriptPubKey(), type: P2shAddressType.p2wshInP2sh);
         if (p2shAddress.toScriptPubKey() != currentAddress.toScriptPubKey()) {
-          throw const DartOnChainSwapPluginException(
-              "Invalid p2sh redeem script.");
+          throw const DartOnChainSwapPluginException("Invalid p2sh redeem script.");
         }
       } else {
         if (BitcoinScriptUtils.isP2wsh(p2shreedemScript)) {
@@ -191,46 +187,37 @@ class BitcoinSpenderAddress {
         bool isP2wpkh = BitcoinScriptUtils.isP2wpkh(p2shreedemScript);
         p2shAddress = P2shAddress.fromScript(
             script: p2shreedemScript,
-            type: isP2wpkh
-                ? P2shAddressType.p2wpkhInP2sh
-                : P2shAddressType.p2pkInP2sh);
+            type: isP2wpkh ? P2shAddressType.p2wpkhInP2sh : P2shAddressType.p2pkInP2sh);
       }
       if (addressScript != p2shAddress.toScriptPubKey()) {
-        throw const DartOnChainSwapPluginException(
-            "Invalid p2sh or witness script.");
+        throw const DartOnChainSwapPluginException("Invalid p2sh or witness script.");
       }
       currentAddress = p2shAddress;
     } else if (isWitness) {
       if (witnessScript == null) {
-        throw const DartOnChainSwapPluginException(
-            "Missing p2wsh witness script.");
+        throw const DartOnChainSwapPluginException("Missing p2wsh witness script.");
       }
       final addr = P2wshAddress.fromScript(script: witnessScript);
       if (addr.toScriptPubKey() != addressScript) {
-        throw const DartOnChainSwapPluginException(
-            "Invalid p2wsh witness script.");
+        throw const DartOnChainSwapPluginException("Invalid p2wsh witness script.");
       }
     } else if (type.isP2tr) {
       if (taprootInternal == null) {
-        throw const DartOnChainSwapPluginException(
-            "Missing taproot internal key.");
+        throw const DartOnChainSwapPluginException("Missing taproot internal key.");
       }
       if (taprootInternal.length != EcdsaKeysConst.pointCoordByteLen) {
-        throw const DartOnChainSwapPluginException(
-            "Invalid taproot internal key.");
+        throw const DartOnChainSwapPluginException("Invalid taproot internal key.");
       }
       final addr = P2trAddress.fromInternalKey(internalKey: taprootInternal);
       if (addr.toScriptPubKey() != addressScript) {
-        throw const DartOnChainSwapPluginException(
-            "Invalid taproot internal key.");
+        throw const DartOnChainSwapPluginException("Invalid taproot internal key.");
       }
     }
     return BitcoinSpenderAddress._(
         address: BitcoinNetworkAddress.fromBaseAddress(
             address: currentAddress, network: address.network),
         p2shreedemScript: type.isP2sh ? p2shreedemScript : null,
-        witnessScript:
-            type.isP2sh || isP2shSegwit || isWitness ? witnessScript : null,
+        witnessScript: type.isP2sh || isP2shSegwit || isWitness ? witnessScript : null,
         taprootInternal: type.isP2tr ? taprootInternal : null);
   }
 }
@@ -261,9 +248,7 @@ class SolanaTokenPDAInfo {
   final SolAddress pdaAddress;
   final SolAddress tokenProgramId;
   const SolanaTokenPDAInfo(
-      {required this.address,
-      required this.pdaAddress,
-      required this.tokenProgramId});
+      {required this.address, required this.pdaAddress, required this.tokenProgramId});
 }
 
 class SubstrateTransactionBlockRequirment {
@@ -285,71 +270,126 @@ class SubstrateTransactionBlockRequirment {
 class CosmosSwapTransactionRequirment {
   final BigInt? fixedNativeGas;
   final BaseAccount account;
-  final BigRational? ethermintTxFee;
-  CosmosSwapTransactionRequirment(
-      {this.ethermintTxFee, this.fixedNativeGas, required this.account});
+  CosmosSwapTransactionRequirment({this.fixedNativeGas, required this.account});
   CosmosSwapTransactionRequirment copyWith(
-      {BigInt? fixedNativeGas,
-      BaseAccount? account,
-      BigRational? ethermintTxFee}) {
+      {BigInt? fixedNativeGas, BaseAccount? account, BigRational? averageTxFee}) {
     return CosmosSwapTransactionRequirment(
         account: account ?? this.account,
-        ethermintTxFee: ethermintTxFee ?? this.ethermintTxFee,
         fixedNativeGas: fixedNativeGas ?? this.fixedNativeGas);
   }
 }
 
 class CosmosSwapNetworkReuirment {
-  final CosmosSdkAsset native;
-  final List<CosmosSdkAsset> feeTokens;
+  final List<CosmosSwapFeeCoin> feeTokens;
+  final BigRational feeMultiply;
   CosmosSwapNetworkReuirment._(
-      {required this.native, required List<CosmosSdkAsset> feeTokens})
+      {required List<CosmosSwapFeeCoin> feeTokens, required this.feeMultiply})
       : feeTokens = feeTokens.immutable;
   factory CosmosSwapNetworkReuirment(
-      {required CosmosSdkAsset native,
-      required List<CosmosSdkAsset> feeTokens}) {
+      {required CosmosSwapCoin native,
+      required List<CosmosSwapFeeCoin> feeTokens,
+      BigRational? feeMultiply}) {
     if (feeTokens.isEmpty) {
-      throw const DartOnChainSwapPluginException(
-          "At least one fee token required.");
+      throw const DartOnChainSwapPluginException("At least one fee token required.");
     }
-    return CosmosSwapNetworkReuirment._(native: native, feeTokens: feeTokens);
+    return CosmosSwapNetworkReuirment._(
+        feeTokens: feeTokens,
+        feeMultiply: feeMultiply ?? BigRational.parseDecimal("1.4"));
   }
 }
 
-abstract class SwapAccountAssetBalance<ASSET extends BaseSwapAsset, ADDRESS> {
+class CosmosSwapCoin {
+  final String denom;
+  const CosmosSwapCoin({required this.denom});
+}
+
+class CosmosSwapFeeCoin extends CosmosSwapCoin {
+  CosmosSwapFeeCoin({required super.denom, required this.averageGasPrice});
+  final BigInt averageGasPrice;
+}
+
+abstract class SwapAccountAssetBalance<ASSET extends BaseSwapAsset, ADDRESS,
+    BALANCE extends Object> {
   final ADDRESS address;
-  final BigInt balance;
+  final BALANCE balance;
   final ASSET asset;
   const SwapAccountAssetBalance(
       {required this.address, required this.balance, required this.asset});
 }
 
 class SwapBitcoinAccountAssetBalance
-    extends SwapAccountAssetBalance<BitcoinSwapAsset, BitcoinBaseAddress> {
+    extends SwapAccountAssetBalance<BitcoinSwapAsset, BitcoinBaseAddress, BigInt> {
   SwapBitcoinAccountAssetBalance(
       {required super.address, required super.balance, required super.asset});
 }
 
 class SwapEthereumAccountAssetBalance
-    extends SwapAccountAssetBalance<ETHSwapAsset, ETHAddress> {
+    extends SwapAccountAssetBalance<ETHSwapAsset, ETHAddress, BigInt> {
   SwapEthereumAccountAssetBalance(
       {required super.address, required super.balance, required super.asset});
 }
 
 class SwapSolanaAccountAssetBalance
-    extends SwapAccountAssetBalance<SolanaSwapAsset, SolAddress> {
+    extends SwapAccountAssetBalance<SolanaSwapAsset, SolAddress, BigInt> {
   SwapSolanaAccountAssetBalance(
       {required super.address, required super.balance, required super.asset});
 }
 
 class SwapCosmosAccountAssetBalance
-    extends SwapAccountAssetBalance<CosmosSwapAsset, CosmosBaseAddress> {
+    extends SwapAccountAssetBalance<CosmosSwapAsset, CosmosBaseAddress, BigInt> {
   SwapCosmosAccountAssetBalance(
       {required super.address, required super.balance, required super.asset});
 }
 
 class SwapPolkadotAccountAssetBalance
-    extends SwapAccountAssetBalance<PolkadotSwapAsset, BaseSubstrateAddress> {
+    extends SwapAccountAssetBalance<PolkadotSwapAsset, BaseSubstrateAddress, BigInt> {
   SwapPolkadotAccountAssetBalance(
       {required super.address, required super.balance, required super.asset});
+}
+
+class SwapTronAccountAssetBalance
+    extends SwapAccountAssetBalance<TronSwapAsset, TronAddress, BigInt> {
+  SwapTronAccountAssetBalance(
+      {required super.address, required super.balance, required super.asset});
+}
+
+class SwapXRPAccountAssetBalance
+    extends SwapAccountAssetBalance<XRPSwapAsset, XRPBaseAddress, BigInt> {
+  SwapXRPAccountAssetBalance(
+      {required super.address, required super.balance, required super.asset});
+}
+
+class SwapZcashAccountAssetBalance
+    extends SwapAccountAssetBalance<ZcashSwapAsset, ZcashAddress, BigInt> {
+  SwapZcashAccountAssetBalance(
+      {required super.address, required super.balance, required super.asset});
+}
+
+class Web3TransactionTron extends Web3Transaction {
+  final Transaction transaction;
+  Web3TransactionTron({required this.transaction});
+}
+
+class Web3TransactionXRP extends Web3Transaction {
+  final SubmittableTransaction transaction;
+  final XRPBaseAddress account;
+  Web3TransactionXRP({required this.transaction, required this.account});
+}
+
+final class ZcashSwapTransparentDestination {
+  final ZcashAddress destination;
+  final BigInt amount;
+  ZcashProtocol get protocol => ZcashProtocol.transparent;
+  const ZcashSwapTransparentDestination({
+    required this.destination,
+    required this.amount,
+  });
+}
+
+class Web3TransactionZcash extends Web3Transaction {
+  final List<ZcashSwapTransparentDestination> destinations;
+  final List<Script> transparentMemos;
+  final ZcashAddress source;
+  const Web3TransactionZcash(
+      {required this.destinations, required this.transparentMemos, required this.source});
 }

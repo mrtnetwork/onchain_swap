@@ -4,8 +4,7 @@ import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'constants.dart';
 
 class CfSwapUtils {
-  static String channelUrl(
-      {required SwapNetwork network, required String channelId}) {
+  static String channelUrl({required SwapNetwork network, required String channelId}) {
     switch (network.chainType) {
       case ChainType.mainnet:
         return CfSwapConstants.mainnetChannelUrl.replaceFirst("#id", channelId);

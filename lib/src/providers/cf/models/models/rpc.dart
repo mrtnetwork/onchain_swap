@@ -78,8 +78,7 @@ class RPCFillOrKillSlippageTolerancePercent extends RPCFillOrKillParam {
       required super.retryDurationBlocks,
       required this.slippageTolerancePercent});
   RPCFillOrKillSlippageTolerancePercent.fromJson(super.json)
-      : slippageTolerancePercent =
-            json.valueAsDouble("slippageTolerancePercent"),
+      : slippageTolerancePercent = json.valueAsDouble("slippageTolerancePercent"),
         super.fromJson();
   @override
   Map<String, dynamic> toJson() {
@@ -119,10 +118,7 @@ class DCAParams {
   final int chunkInterval;
   const DCAParams({required this.numberOfChunks, required this.chunkInterval});
   Map<String, dynamic> toJson() {
-    return {
-      "chunk_interval": chunkInterval,
-      "number_of_chunks": numberOfChunks
-    };
+    return {"chunk_interval": chunkInterval, "number_of_chunks": numberOfChunks};
   }
 
   factory DCAParams.fromJson(Map<String, dynamic> json) {
@@ -196,14 +192,12 @@ class BrokerRequestSwapDepositAddressResponse {
     required this.channelOpeningFee,
   });
 
-  factory BrokerRequestSwapDepositAddressResponse.fromJson(
-      Map<String, dynamic> json) {
+  factory BrokerRequestSwapDepositAddressResponse.fromJson(Map<String, dynamic> json) {
     return BrokerRequestSwapDepositAddressResponse(
       address: json['address'],
       issuedBlock: json['issued_block'],
       channelId: json['channel_id'],
-      sourceChainExpiryBlock:
-          BigintUtils.parse(json['source_chain_expiry_block']),
+      sourceChainExpiryBlock: BigintUtils.parse(json['source_chain_expiry_block']),
       channelOpeningFee: BigintUtils.parse(json['channel_opening_fee']),
     );
   }
@@ -315,18 +309,16 @@ class ChainAssetMap {
   // Factory constructor to parse from JSON
   factory ChainAssetMap.fromJson(Map<String, dynamic> json) {
     return ChainAssetMap(
-        bitcoin: Map<CfAssets, BigInt?>.from((json['Bitcoin'] as Map).map(
-            (key, value) =>
-                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-        ethereum: Map<CfAssets, BigInt?>.from((json['Ethereum'] as Map).map(
-            (key, value) =>
-                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-        polkadot: Map<CfAssets, BigInt?>.from((json['Polkadot'] as Map).map(
-            (key, value) =>
-                MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-        arbitrum: Map<CfAssets, BigInt?>.from(
-            (json['Arbitrum'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
-        solana: Map<CfAssets, BigInt?>.from((json['Solana'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        bitcoin: Map<CfAssets, BigInt?>.from((json['Bitcoin'] as Map).map((key, value) =>
+            MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        ethereum: Map<CfAssets, BigInt?>.from((json['Ethereum'] as Map).map((key, value) =>
+            MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        polkadot: Map<CfAssets, BigInt?>.from((json['Polkadot'] as Map).map((key, value) =>
+            MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        arbitrum: Map<CfAssets, BigInt?>.from((json['Arbitrum'] as Map).map((key, value) =>
+            MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
+        solana:
+            Map<CfAssets, BigInt?>.from((json['Solana'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))),
         assetHub: Map<CfAssets, BigInt?>.from((json['Assethub'] as Map).map((key, value) => MapEntry(CfAssets.fromName(key), BigintUtils.tryParse(value)))));
   }
 
@@ -362,24 +354,15 @@ class ChainAssetFees {
       bitcoin: (json[CfChain.bitcoin.name] as Map).map((key, value) => MapEntry(
           CfAssets.fromName(key),
           value == null ? FeeInfo.defaultFeeInfo() : FeeInfo.fromJson(value))),
-      ethereum: (json[CfChain.ethereum.name] as Map).map((key, value) =>
-          MapEntry(
-              CfAssets.fromName(key),
-              value == null
-                  ? FeeInfo.defaultFeeInfo()
-                  : FeeInfo.fromJson(value))),
-      polkadot: (json[CfChain.polkadot.name] as Map).map((key, value) =>
-          MapEntry(
-              CfAssets.fromName(key),
-              value == null
-                  ? FeeInfo.defaultFeeInfo()
-                  : FeeInfo.fromJson(value))),
-      arbitrum: (json[CfChain.arbitrum.name] as Map).map((key, value) =>
-          MapEntry(
-              CfAssets.fromName(key),
-              value == null
-                  ? FeeInfo.defaultFeeInfo()
-                  : FeeInfo.fromJson(value))),
+      ethereum: (json[CfChain.ethereum.name] as Map).map((key, value) => MapEntry(
+          CfAssets.fromName(key),
+          value == null ? FeeInfo.defaultFeeInfo() : FeeInfo.fromJson(value))),
+      polkadot: (json[CfChain.polkadot.name] as Map).map((key, value) => MapEntry(
+          CfAssets.fromName(key),
+          value == null ? FeeInfo.defaultFeeInfo() : FeeInfo.fromJson(value))),
+      arbitrum: (json[CfChain.arbitrum.name] as Map).map((key, value) => MapEntry(
+          CfAssets.fromName(key),
+          value == null ? FeeInfo.defaultFeeInfo() : FeeInfo.fromJson(value))),
       solana: (json[CfChain.solana.name] as Map).map((key, value) => MapEntry(
           CfAssets.fromName(key),
           value == null ? FeeInfo.defaultFeeInfo() : FeeInfo.fromJson(value))),
@@ -412,10 +395,8 @@ class SwappingEnvironment {
       this.maxSwapRequestDurationBlocks});
   factory SwappingEnvironment.fromJson(Map<String, dynamic> json) {
     return SwappingEnvironment(
-        maximumSwapAmounts:
-            ChainAssetMap.fromJson(json["maximum_swap_amounts"]),
-        networkFeeHundredthPips:
-            IntUtils.parse(json["network_fee_hundredth_pips"]),
+        maximumSwapAmounts: ChainAssetMap.fromJson(json["maximum_swap_amounts"]),
+        networkFeeHundredthPips: IntUtils.parse(json["network_fee_hundredth_pips"]),
         swapRetryDelayBlock: IntUtils.tryParse(json["swap_retry_delay_blocks"]),
         maxRetrySwapDurationBlocks:
             IntUtils.tryParse(json["max_swap_retry_duration_blocks"]),
@@ -441,8 +422,7 @@ class FundingEnvironment {
   factory FundingEnvironment.fromJson(Map<String, dynamic> json) {
     return FundingEnvironment(
         redemptionTax: BigintUtils.parse(json["redemption_tax"]),
-        minimumFundingAmount:
-            BigintUtils.parse(json["minimum_funding_amount"]));
+        minimumFundingAmount: BigintUtils.parse(json["minimum_funding_amount"]));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -474,10 +454,8 @@ class FeeInfo {
     return FeeInfo(
       limitOrderFeeHundredthPips: json["limit_order_fee_hundredth_pips"],
       rangeOrderFeeHundredthPips: json["range_order_fee_hundredth_pips"],
-      rangeOrderTotalFeesEarned:
-          FeeInput.fromJson(json["range_order_total_fees_earned"]),
-      limitOrderTotalFeesEarned:
-          FeeInput.fromJson(json["limit_order_total_fees_earned"]),
+      rangeOrderTotalFeesEarned: FeeInput.fromJson(json["range_order_total_fees_earned"]),
+      limitOrderTotalFeesEarned: FeeInput.fromJson(json["limit_order_total_fees_earned"]),
       rangeTotalSwapInputs: FeeInput.fromJson(json["range_total_swap_inputs"]),
       limitTotalSwapInputs: FeeInput.fromJson(json["limit_total_swap_inputs"]),
       quoteAsset: UncheckedAssetAndChain.fromJson(json["quote_asset"]),
@@ -500,14 +478,11 @@ class FeeInfo {
     return FeeInfo(
       limitOrderFeeHundredthPips: 0,
       rangeOrderFeeHundredthPips: 0,
-      rangeOrderTotalFeesEarned:
-          FeeInput(base: BigInt.zero, quote: BigInt.zero),
-      limitOrderTotalFeesEarned:
-          FeeInput(base: BigInt.zero, quote: BigInt.zero),
+      rangeOrderTotalFeesEarned: FeeInput(base: BigInt.zero, quote: BigInt.zero),
+      limitOrderTotalFeesEarned: FeeInput(base: BigInt.zero, quote: BigInt.zero),
       rangeTotalSwapInputs: FeeInput(base: BigInt.zero, quote: BigInt.zero),
       limitTotalSwapInputs: FeeInput(base: BigInt.zero, quote: BigInt.zero),
-      quoteAsset:
-          const UncheckedAssetAndChain(chain: 'Ethereum', asset: 'USDC'),
+      quoteAsset: const UncheckedAssetAndChain(chain: 'Ethereum', asset: 'USDC'),
     );
   }
 }
@@ -536,9 +511,7 @@ class PoolsEnvironment {
   const PoolsEnvironment({this.fees});
   factory PoolsEnvironment.fromJson(Map<String, dynamic> json) {
     return PoolsEnvironment(
-        fees: json["fees"] == null
-            ? null
-            : ChainAssetFees.fromJson(json["fees"]));
+        fees: json["fees"] == null ? null : ChainAssetFees.fromJson(json["fees"]));
   }
 
   Map<String, dynamic> toJson() {
@@ -563,14 +536,12 @@ class IngressEgressEnvironment {
       required this.channelOpeningFees});
   factory IngressEgressEnvironment.fromJson(Map<String, dynamic> json) {
     return IngressEgressEnvironment(
-        minimumDepositAmounts:
-            ChainAssetMap.fromJson(json["minimum_deposit_amounts"]),
+        minimumDepositAmounts: ChainAssetMap.fromJson(json["minimum_deposit_amounts"]),
         ingressFees: ChainAssetMap.fromJson(json["ingress_fees"]),
         egressDustLimits: ChainAssetMap.fromJson(json["egress_dust_limits"]),
         egressFees: ChainAssetMap.fromJson(json["egress_fees"]),
-        witnessSafetyMargins: (json["witness_safety_margins"] as Map).map((k,
-                v) =>
-            MapEntry<CfChain, int?>(CfChain.fromName(k), IntUtils.tryParse(v))),
+        witnessSafetyMargins: (json["witness_safety_margins"] as Map).map(
+            (k, v) => MapEntry<CfChain, int?>(CfChain.fromName(k), IntUtils.tryParse(v))),
         channelOpeningFees: (json["channel_opening_fees"] as Map).map((k, v) =>
             MapEntry<CfChain, BigInt>(
                 CfChain.fromName(k), BigintUtils.tryParse(v) ?? BigInt.zero)));
@@ -583,8 +554,7 @@ class IngressEgressEnvironment {
       "egress_fees": egressFees.toJson(),
       "channel_opening_fees":
           channelOpeningFees.map((k, v) => MapEntry(k.name, v.toHexaDecimal)),
-      "witness_safety_margins":
-          witnessSafetyMargins.map((k, v) => MapEntry(k.name, v))
+      "witness_safety_margins": witnessSafetyMargins.map((k, v) => MapEntry(k.name, v))
     };
   }
 }
@@ -596,8 +566,7 @@ class Environment {
   final PoolsEnvironment pools;
   factory Environment.fromJson(Map<String, dynamic> json) {
     return Environment(
-        ingressEgress:
-            IngressEgressEnvironment.fromJson(json["ingress_egress"]),
+        ingressEgress: IngressEgressEnvironment.fromJson(json["ingress_egress"]),
         swapping: SwappingEnvironment.fromJson(json["swapping"]),
         funding: FundingEnvironment.fromJson(json["funding"]),
         pools: PoolsEnvironment.fromJson(json["pools"]));
@@ -683,8 +652,7 @@ class SwapRateV2Fee {
   final String chain;
   final String asset;
 
-  SwapRateV2Fee(
-      {required this.amount, required this.chain, required this.asset});
+  SwapRateV2Fee({required this.amount, required this.chain, required this.asset});
 
   // Factory constructor to parse from JSON
   factory SwapRateV2Fee.fromJson(Map<String, dynamic> json) {
@@ -766,8 +734,7 @@ class DepositsPendingFinalizationResponse {
   });
 
   // Factory constructor to parse from JSON
-  factory DepositsPendingFinalizationResponse.fromJson(
-      Map<String, dynamic> json) {
+  factory DepositsPendingFinalizationResponse.fromJson(Map<String, dynamic> json) {
     return DepositsPendingFinalizationResponse(
       depositId: json['deposit_id'],
       owedAmounts: (json["owed_amounts"] as List)
@@ -837,10 +804,9 @@ class BoostPoolDetailsResponse {
       availableAmounts: (json['available_amounts'] as List)
           .map((item) => BoostPoolAmountResponse.fromJson(item))
           .toList(),
-      depositsPendingFinalization:
-          (json['deposits_pending_finalization'] as List)
-              .map((item) => DepositsPendingFinalizationResponse.fromJson(item))
-              .toList(),
+      depositsPendingFinalization: (json['deposits_pending_finalization'] as List)
+          .map((item) => DepositsPendingFinalizationResponse.fromJson(item))
+          .toList(),
       pendingWithdrawals: (json['pending_withdrawals'] as List)
           .map((item) => PendingWithdrawalsResponse.fromJson(item))
           .toList(),
@@ -853,12 +819,10 @@ class BoostPoolDetailsResponse {
       'asset': asset,
       'chain': chain,
       "fee_tier": feeTier,
-      'available_amounts':
-          availableAmounts.map((item) => item.toJson()).toList(),
+      'available_amounts': availableAmounts.map((item) => item.toJson()).toList(),
       'deposits_pending_finalization':
           depositsPendingFinalization.map((item) => item.toJson()).toList(),
-      'pending_withdrawals':
-          pendingWithdrawals.map((item) => item.toJson()).toList(),
+      'pending_withdrawals': pendingWithdrawals.map((item) => item.toJson()).toList(),
     };
   }
 }
@@ -1034,11 +998,10 @@ class PoolOrdersResponse {
   // Factory constructor to parse from JSON
   factory PoolOrdersResponse.fromJson(Map<String, dynamic> json) {
     return PoolOrdersResponse(
-      limitOrders: LimitOrdersResponse.fromJson(
-          json['limit_orders'] as Map<String, dynamic>),
+      limitOrders:
+          LimitOrdersResponse.fromJson(json['limit_orders'] as Map<String, dynamic>),
       rangeOrders: (json['range_orders'] as List)
-          .map((order) =>
-              RangeOrderResponse.fromJson(order as Map<String, dynamic>))
+          .map((order) => RangeOrderResponse.fromJson(order as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -1053,8 +1016,7 @@ class PoolOrdersResponse {
 }
 
 class LimitOrdersResponse {
-  final List<LimitOrderResponse>
-      asks; // Define these based on ask/bid structure
+  final List<LimitOrderResponse> asks; // Define these based on ask/bid structure
   final List<LimitOrderResponse> bids;
 
   LimitOrdersResponse({
@@ -1065,12 +1027,8 @@ class LimitOrdersResponse {
   // Factory constructor to parse from JSON
   factory LimitOrdersResponse.fromJson(Map<String, dynamic> json) {
     return LimitOrdersResponse(
-      asks: (json['asks'] as List)
-          .map((e) => LimitOrderResponse.fromJson(e))
-          .toList(),
-      bids: (json['bids'] as List)
-          .map((e) => LimitOrderResponse.fromJson(e))
-          .toList(), //
+      asks: (json['asks'] as List).map((e) => LimitOrderResponse.fromJson(e)).toList(),
+      bids: (json['bids'] as List).map((e) => LimitOrderResponse.fromJson(e)).toList(), //
     );
   }
 
@@ -1429,8 +1387,7 @@ class AssetAndChain {
 
   factory AssetAndChain.ethereum({CfAssets asset = CfAssets.eth}) {
     return AssetAndChain._(
-        asset: CfChain.ethereum.validateChainAsset(asset),
-        chain: CfChain.ethereum);
+        asset: CfChain.ethereum.validateChainAsset(asset), chain: CfChain.ethereum);
   }
 
   factory AssetAndChain.polkadot() {
@@ -1439,14 +1396,12 @@ class AssetAndChain {
 
   factory AssetAndChain.arbitrum({CfAssets asset = CfAssets.eth}) {
     return AssetAndChain._(
-        asset: CfChain.arbitrum.validateChainAsset(asset),
-        chain: CfChain.arbitrum);
+        asset: CfChain.arbitrum.validateChainAsset(asset), chain: CfChain.arbitrum);
   }
 
   factory AssetAndChain.fromJson(Map<String, dynamic> json) {
     final chain = CfChain.fromName(json["chain"]);
-    return AssetAndChain._(
-        asset: CfAssets.fromName(json["asset"]), chain: chain);
+    return AssetAndChain._(asset: CfAssets.fromName(json["asset"]), chain: chain);
   }
 
   Map<String, dynamic> toJson() {

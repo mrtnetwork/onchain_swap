@@ -5,13 +5,12 @@ import 'package:on_chain_swap/src/swap/transaction/const/abis/one_inch_agg.dart'
 
 class SwapKitSwapUtils {
   static SwapRouteEthereumCallContractTransactionOperation parseEthSwapData(
-      {required Map<String, dynamic> jsonTx,
-      required SwapEthereumNetwork network}) {
+      {required Map<String, dynamic> jsonTx, required SwapEthereumNetwork network}) {
     final ethTx = Web3TransactionEthereum.fromJson(jsonTx);
     final contract = ethTx.to;
     final source = ethTx.from;
     switch (contract.address) {
-      case EthereumAbiCons.oneInchAggregationV6:
+      case EthereumAbiConst.oneInchAggregationV6:
         final abi = ContractABI.fromJson(oneInchAggregationRouterV6);
         final dataBytes = BytesUtils.fromHexString(ethTx.data);
         final func = abi.findFunctionFromSelector(dataBytes);

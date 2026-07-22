@@ -1,0 +1,20 @@
+[
+    {asset: ADA.ADA, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 1515656200, balance_rune: null, pool_units: 73800000000000, LP_units: 73800000000000, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: ARB.ETH, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 1328516, balance_rune: null, pool_units: 238181013398056, LP_units: 225000000000000, synth_units: 13181013398056, synth_supply: 147041, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: ARB.USDT-0XFD086BC7CD5C481DCC9C85EBE478A1C0B69FCBB9, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 1846313300, balance_rune: null, pool_units: 50000000000000, LP_units: 50000000000000, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: BTC.BTC, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 43767, balance_rune: null, pool_units: 70000000000007, LP_units: 70000000000007, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: DASH.DASH, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 40158847, balance_rune: null, pool_units: 74530504370038, LP_units: 74530504370038, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: ETH.ETH, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 0, balance_rune: null, pool_units: 20000000000000, LP_units: 20000000000000, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: true, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: MAYA.MAYA, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 900000000, balance_rune: null, pool_units: 90000000000000000, LP_units: 90000000000000000, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: THOR.RUNE, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 3042758071, balance_rune: null, pool_units: 75025319266753, LP_units: 75025319266753, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    },
+    {asset: ZEC.ZEC, short_code: null, status: Available, pending_inbound_asset: 0, pending_inbound_rune: null, balance_asset: 26288513, balance_rune: null, pool_units: 12222222222223, LP_units: 12222222222223, synth_units: 0, synth_supply: 0, savers_depth: null, savers_units: null, synth_mint_paused: false, synth_supply_remaining: null, loan_collateral: null, loan_collateral_remaining: null, loan_cr: null, derived_depth_bps: null
+    }
+]

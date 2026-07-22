@@ -25,8 +25,8 @@ class SkipGoQuoteSwapParams extends QuoteSwapParams<SkipGoSwapAsset> {
       this.unsafe = false});
 }
 
-class SkipGoSwapRoute extends SwapRoute<SkipGoQuoteSwapParams,
-    SwapRouteGeneralTransactionBuilderParam> {
+class SkipGoSwapRoute
+    extends SwapRoute<SkipGoQuoteSwapParams, SwapRouteGeneralTransactionBuilderParam> {
   final SkipGoApiRoute route;
 
   SkipGoSwapRoute(
@@ -41,8 +41,7 @@ class SkipGoSwapRoute extends SwapRoute<SkipGoQuoteSwapParams,
       required super.worstCaseAmount});
 
   @override
-  SwapRoute<QuoteSwapParams<BaseSwapAsset>,
-          SwapRouteGeneralTransactionBuilderParam>
+  SwapRoute<QuoteSwapParams<BaseSwapAsset>, SwapRouteGeneralTransactionBuilderParam>
       updateTolerance(double tolerance) {
     throw const DartOnChainSwapPluginException("Unsupported api.");
   }
@@ -52,7 +51,7 @@ class SkipGoSwapRoute extends SwapRoute<SkipGoQuoteSwapParams,
           dynamic,
           SwapNetwork,
           SwapNetworkClient<BaseSwapAsset, dynamic,
-              SwapAccountAssetBalance<BaseSwapAsset, dynamic>>,
+              SwapAccountAssetBalance<BaseSwapAsset, dynamic, Object>>,
           Web3Transaction,
           Web3Signer<dynamic>,
           SwapRouteTransactionOperation<SwapNetwork>>

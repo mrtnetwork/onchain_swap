@@ -19,8 +19,7 @@ class SwapRouteBitcoinTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions({
-    required CbGetRouteNetwork<BaseSwapBitcoinClient, SwapBitcoinNetwork>
-        client,
+    required CbGetRouteNetwork<BaseSwapBitcoinClient, SwapBitcoinNetwork> client,
     required CbGetSigner<Web3SignerBitcoin, BitcoinNetworkAddress> signer,
     required CbOnStatusChanged stepsCallBack,
   }) async {
@@ -30,8 +29,7 @@ class SwapRouteBitcoinTransactionBuilder extends SwapRouteTransactionBuilder<
       stepsCallBack(TransactionOperationStep.generateTx);
       final signerInfo = await signer(operation.source);
       final sources = await signerInfo.signers();
-      final transaction =
-          await operation._buildTransactions(bitcoinClient, sources);
+      final transaction = await operation._buildTransactions(bitcoinClient, sources);
       switch (signerInfo.signingSchames) {
         case BitcoinSigningScheme.psbt:
           stepsCallBack(TransactionOperationStep.signing);
@@ -78,7 +76,6 @@ abstract class SwapRouteBitcoinTransactionOperation
 class SwapRouteBitcoinNativeTransactionOperation
     extends SwapRouteBitcoinTransactionOperation
     implements SwapRouteTransactionTransferDetails<SwapBitcoinNetwork> {
-  // final BitcoinSpenderAddress source;
   SwapRouteBitcoinNativeTransactionOperation(
       {required super.amount,
       required super.destination,
@@ -91,8 +88,7 @@ class SwapRouteBitcoinNativeTransactionOperation
   Future<Web3TransactionBitcoin> _buildTransactions(
       BaseSwapBitcoinClient client, List<BitcoinSpenderAddress> sources) async {
     sources = sources.clone();
-    final sourceAddress = sources.firstWhere(
-        (e) => e.address.address == source.address,
+    final sourceAddress = sources.firstWhere((e) => e.address.address == source.address,
         orElse: () => throw const DartOnChainSwapPluginException(
             "None of the connected accounts match the source address of the transaction."));
     sources.sort((a, b) {
@@ -105,16 +101,15 @@ class SwapRouteBitcoinNativeTransactionOperation
     if (balance < amount.amount) {
       throw SwapConstants.insufficientAccountBalance;
     }
-    if (!utxos
-        .any((e) => e.scriptPubKey == source.baseAddress.toScriptPubKey())) {
+    if (!utxos.any((e) => e.scriptPubKey == source.baseAddress.toScriptPubKey())) {
       throw const DartOnChainSwapPluginException(
           "Source account not found. It must contribute at least one UTXO to the transaction.");
     }
     final feeRate = await client.estimateFeePerByte(network);
     final psbt = PsbtBuilderV0.create();
     psbt.addUtxos(utxos);
-    psbt.addOutput(PsbtTransactionOutput(
-        amount: amount.amount, address: destination.baseAddress));
+    psbt.addOutput(
+        PsbtTransactionOutput(amount: amount.amount, address: destination.baseAddress));
     psbt.addOutput(PsbtTransactionOutput(
         amount: BigInt.zero, address: sources[0].address.baseAddress));
     if (memo != null) {
@@ -135,25 +130,19 @@ class SwapRouteBitcoinNativeTransactionOperation
     if (change == BigInt.zero) {
       psbt.removeOutput(1);
     } else {
-      psbt.updateOutput(
-          1,
-          PsbtTransactionOutput(
-              amount: change, address: sources[0].address.baseAddress));
+      psbt.updateOutput(1,
+          PsbtTransactionOutput(amount: change, address: sources[0].address.baseAddress));
     }
-    return Web3TransactionBitcoin(
-        source: sourceAddress,
-        psbt: psbt.toBase64(),
-        outputs: [
-          Web3TransactionBitcoinOutputs(
-              address: destination.address,
-              script: destination.baseAddress.toScriptPubKey(),
-              value: amount.amount),
-          if (memo != null)
-            Web3TransactionBitcoinOutputs(
-                value: BigInt.zero,
-                script: BitcoinScriptUtils.buildOpReturn(
-                    [StringUtils.encode(memo!)]))
-        ]);
+    return Web3TransactionBitcoin(source: sourceAddress, psbt: psbt.toBase64(), outputs: [
+      Web3TransactionBitcoinOutputs(
+          address: destination.address,
+          script: destination.baseAddress.toScriptPubKey(),
+          value: amount.amount),
+      if (memo != null)
+        Web3TransactionBitcoinOutputs(
+            value: BigInt.zero,
+            script: BitcoinScriptUtils.buildOpReturn([StringUtils.encode(memo!)]))
+    ]);
   }
 
   @override

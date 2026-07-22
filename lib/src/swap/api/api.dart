@@ -107,8 +107,7 @@ class SwapServiceApi {
     List<RouteOrError> routes = [];
     for (final i in _localAssets.entries) {
       final sAsset = i.value.firstWhereNullable((e) => e == sourceAsset);
-      final destAsset =
-          i.value.firstWhereNullable((e) => e == destinationAsset);
+      final destAsset = i.value.firstWhereNullable((e) => e == destinationAsset);
       final service = _services[i.key];
       if (sAsset == null || destAsset == null || service == null) {
         continue;
@@ -121,8 +120,8 @@ class SwapServiceApi {
           destinationAddress: destinationAddress);
       try {
         final serviceRoutes = await service.createRoutes(params);
-        routes.addAll(serviceRoutes.map(
-            (e) => RouteOrError.route(provider: sAsset.provider, route: e)));
+        routes.addAll(serviceRoutes
+            .map((e) => RouteOrError.route(provider: sAsset.provider, route: e)));
       } catch (err) {
         routes.add(RouteOrError.error(provider: sAsset.provider, error: err));
       }
@@ -131,11 +130,8 @@ class SwapServiceApi {
   }
 
   Future<SwapRouteTransactionBuilder> builSwapTransaction({
-    /// spender source address
     required String sourceAddress,
     required String destinationAddress,
-
-    /// swap route
     required SwapRoute swapRoute,
   }) async {
     final service = swapRoute.quote.sourceAsset.provider.service;
@@ -154,8 +150,8 @@ class SwapServiceApi {
           sourceAddress: sourceAddress,
           destinationAddress: destinationAddress,
           destionationNetwork: swapRoute.quote.destinationAsset.network,
-          expireTime: DateTime.fromMillisecondsSinceEpoch(
-              channel.estimatedExpiryTime.toInt()),
+          expireTime:
+              DateTime.fromMillisecondsSinceEpoch(channel.estimatedExpiryTime.toInt()),
           sourceExpireBlock: BigintUtils.parse(channel.srcChainExpiryBlock));
     } else {
       params = SwapRouteGeneralTransactionBuilderParam(

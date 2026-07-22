@@ -22,3 +22,5 @@ export 'backend/quote_v2.dart';
 export 'backend/swaps.dart';
 export 'backend/swap_v2.dart';
 export 'rpc/open_deposit_channel.dart';
+export 'api/network_info.dart';
+export 'api/open_deposit_channel.dart';

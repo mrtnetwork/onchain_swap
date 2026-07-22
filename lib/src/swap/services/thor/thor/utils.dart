@@ -1,8 +1,6 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain_swap/src/swap/services/thor/thor/route.dart'
-    show ThorSwapRoute;
+import 'package:on_chain_swap/src/swap/services/thor/thor/route.dart' show ThorSwapRoute;
 import 'package:on_chain_swap/src/swap/types/types.dart';
-import 'package:on_chain_swap/src/swap/utils/utils.dart';
 import 'package:cosmos_sdk/cosmos_sdk.dart';
 
 class ThorSwapUtils {
@@ -14,7 +12,7 @@ class ThorSwapUtils {
     final ticker = symbolParts[0];
     final address = symbolParts.length > 1 ? symbolParts[1] : '';
     if (address.isEmpty || short) {
-      return "$chain.$ticker"; // e.g. "RUNE"
+      return "$chain.$ticker";
     }
     return '$chain.$ticker-${address.substring(address.length - 3)}';
   }
@@ -32,82 +30,115 @@ class ThorSwapUtils {
     if (route.tolerance == 0 && interval == null) {
       return "=:$assetIdentifier:$destination";
     }
-
-    /// 58688998000
-    /// 57298026550
     BigInt worstAmount = BigInt.zero;
     if (route.tolerance != 0) {
-      worstAmount = calculateWorstCaseAmount(
-              expectedAmount: route.route.expectedAmountOut,
-              tolranceBps: route.tolerance)
-          .amount;
+      final amount = calculateWorstCaseAmount(
+          expectedAmount: route.expectedAmount, tolerancePercent: route.tolerance);
+      worstAmount = toThorUnit(amount.amount, amount.decimals);
     }
-
     if (interval == null) {
       return "=:$assetIdentifier:$destination:$worstAmount";
     }
     return "=:$assetIdentifier:$destination:$worstAmount/$interval/0";
   }
 
-  static SwapAmount calculateWorstCaseAmount(
-      {required BigInt expectedAmount, required double tolranceBps}) {
-    final tolerance = (tolranceBps * 100).ceil();
-    final toleranceMultiplier =
-        BigRational.from(10000 - tolerance) / BigRational.from(10000);
-    final expected = BigRational(expectedAmount);
-    final worstCaseDecimal = expected * toleranceMultiplier;
-    return SwapAmount.fromBigInt(worstCaseDecimal.toBigInt(), 8);
+  static SwapAmount calculateWorstCaseAmount({
+    required SwapAmount expectedAmount,
+    required double tolerancePercent,
+  }) {
+    // 0.5% => 50 bps
+    final toleranceBps = (tolerancePercent * 100).ceil();
+
+    final numerator = BigInt.from(10000 - toleranceBps);
+    final denominator = BigInt.from(10000);
+
+    final worst = (expectedAmount.amount * numerator) ~/ denominator;
+
+    return SwapAmount.fromBigInt(
+      worst,
+      expectedAmount.decimals,
+    );
   }
 
   static List<SwapFee> buildQuoteFee(
       {required ThoreNodeQouteSwapFeeResponse fees, BaseSwapAsset? asset}) {
     if (asset == null) return [];
-    final liquidity = BigintUtils.tryParse(fees.liquidity);
-    final outbound = BigintUtils.tryParse(fees.outbound);
-    final affiliate = BigintUtils.tryParse(fees.affiliate);
+    final liquidity = BigintUtils.tryParse(fees.liquidity) ?? BigInt.zero;
+    final outbound = BigintUtils.tryParse(fees.outbound) ?? BigInt.zero;
+    final affiliate = BigintUtils.tryParse(fees.affiliate) ?? BigInt.zero;
     return [
-      if (liquidity != null && liquidity > BigInt.zero)
+      if (liquidity > BigInt.zero)
         SwapFee(
             token: asset,
-            amount: toAmountFromBigInt(asset: asset, amount: liquidity),
+            amount: toNativeAmountFromThor(asset: asset, amount: liquidity),
             type: SwapFeeType.liquidity.name,
             asset: asset.symbol),
-      if (outbound != null && outbound > BigInt.zero)
+      if (outbound > BigInt.zero)
         SwapFee(
             token: asset,
-            amount: toAmountFromBigInt(asset: asset, amount: outbound),
+            amount: toNativeAmountFromThor(asset: asset, amount: outbound),
             type: SwapFeeType.outbound.name,
             asset: asset.symbol),
-      if (affiliate != null && affiliate > BigInt.zero)
+      if (affiliate > BigInt.zero)
         SwapFee(
             token: asset,
-            amount: toAmountFromBigInt(asset: asset, amount: affiliate),
+            amount: toNativeAmountFromThor(asset: asset, amount: affiliate),
             type: SwapFeeType.affiliate.name,
             asset: asset.symbol),
     ];
   }
 
-  static SwapAmount toAmountFromInput(
-      {required BaseSwapAsset asset, required String amount}) {
-    if (asset.decimal == 8) {
-      return SwapAmount.fromString(amount, 8);
+  static BigInt toThorUnit(BigInt amount, int decimals) {
+    if (decimals == 8) return amount;
+
+    if (decimals > 8) {
+      return amount ~/ BigInt.from(10).pow(decimals - 8);
     }
-    final decodePrice =
-        BigRational(SwapUtils.decodePrice(amount, asset.decimal));
-    final decimals = 8 - asset.decimal;
-    if (decimals.isNegative) {
-      final amountBig =
-          (decodePrice / BigRational(BigInt.from(10).pow(decimals.abs())))
-              .toBigInt();
-      return SwapAmount.fromBigInt(amountBig, 8);
-    }
-    final amountBig =
-        (decodePrice * BigRational(BigInt.from(10).pow(decimals))).toBigInt();
-    return SwapAmount.fromBigInt(amountBig, 8);
+
+    return amount * BigInt.from(10).pow(8 - decimals);
   }
 
-  static SwapAmount toAmountFromBigInt(
-      {required BaseSwapAsset asset, required BigInt amount}) {
-    return SwapAmount.fromBigInt(amount, 8);
+  static BigInt toThorUnitFromInput(
+      {required BaseSwapAsset asset, required String amount}) {
+    if (asset.decimal == 8) {
+      return SwapAmount.fromString(amount, 8).amount;
+    }
+    final decodePrice = SwapAmount.fromString(amount, asset.decimal);
+    return SwapAmount.fromBigInt(toThorUnit(decodePrice.amount, asset.decimal), 8).amount;
+  }
+
+  static SwapAmount toNativeAmountFromThor({
+    required BaseSwapAsset asset,
+    required BigInt amount,
+  }) {
+    if (asset.decimal == 8) {
+      return SwapAmount.fromBigInt(amount, 8);
+    }
+
+    if (asset.decimal > 8) {
+      return SwapAmount.fromBigInt(
+        amount * BigInt.from(10).pow(asset.decimal - 8),
+        asset.decimal,
+      );
+    }
+
+    return SwapAmount.fromBigInt(
+      amount ~/ BigInt.from(10).pow(8 - asset.decimal),
+      asset.decimal,
+    );
+  }
+
+  static SwapAmount? totalFee(List<SwapFee> fees) {
+    final token = fees.firstOrNull?.token;
+    if (token == null) return null;
+    BigInt total = BigInt.zero;
+    for (final fee in fees) {
+      if (fee.amount case SwapAmount(:final amount) when fee.token == token) {
+        total += amount;
+      } else {
+        return null;
+      }
+    }
+    return SwapAmount.fromBigInt(total, token.decimal);
   }
 }

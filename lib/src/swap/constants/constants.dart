@@ -7,8 +7,8 @@ import 'package:on_chain_swap/src/swap/types/types.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
 
 class SwapConstants {
-  static const routeExpiredException = DartOnChainSwapPluginException(
-      "Swap route has expired and cannot be executed.");
+  static const routeExpiredException =
+      DartOnChainSwapPluginException("Swap route has expired and cannot be executed.");
 
   static const clientInitializationFailedException =
       DartOnChainSwapPluginException("Network client initialization failed.");
@@ -36,6 +36,10 @@ class SwapConstants {
     kujira,
     mayachain,
     gaia,
+    xrp,
+    ada,
+    zcash,
+    tron
     // cosmos
   ];
   static const List<SwapServiceProvider> supportProviders = [
@@ -99,8 +103,7 @@ class SwapConstants {
       chain: BitcoinNetwork.mainnet,
       explorerTxUrl: "https://live.blockcypher.com/btc/tx/#txid/",
       explorerAddressUrl: "https://live.blockcypher.com/btc/address/#address/",
-      genesis:
-          "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      genesis: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400");
 
@@ -118,8 +121,7 @@ class SwapConstants {
       explorerAddressUrl: "https://polkadot.subscan.io/account/#address",
       explorerTxUrl: "https://polkadot.subscan.io/extrinsic/#txid",
       ss58Format: SS58Const.polkadot,
-      genesis:
-          "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+      genesis: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
 
@@ -136,8 +138,7 @@ class SwapConstants {
       name: "Avalanche C-Chain",
       identifier: "43114",
       explorerTxUrl: "https://subnets.avax.network/c-chain/tx/#txid",
-      explorerAddressUrl:
-          "https://subnets.avax.network/c-chain/address/#address",
+      explorerAddressUrl: "https://subnets.avax.network/c-chain/address/#address",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369");
 
@@ -163,8 +164,7 @@ class SwapConstants {
       chain: BitcoinCashNetwork.mainnet,
       explorerAddressUrl: "https://bch.loping.net/address/#address",
       explorerTxUrl: "https://bch.loping.net/tx/#txid",
-      genesis:
-          "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      genesis: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/780/large/bitcoin-cash-circle.png?1696501932");
 
@@ -172,8 +172,7 @@ class SwapConstants {
     name: "Kujira",
     identifier: "kaiyo-1",
     bech32: "kujira",
-    explorerAddressUrl:
-        "https://finder.kujira.network/kaiyo-1/address/#address",
+    explorerAddressUrl: "https://finder.kujira.network/kaiyo-1/address/#address",
     explorerTxUrl: "https://finder.kujira.network/kaiyo-1/tx/#txid",
     logoUrl:
         "https://coin-images.coingecko.com/coins/images/20685/large/kuji-200x200.png?1696520085",
@@ -193,8 +192,7 @@ class SwapConstants {
       chain: DogecoinNetwork.mainnet,
       explorerTxUrl: "https://live.blockcypher.com/doge/tx/#txid/",
       explorerAddressUrl: "https://live.blockcypher.com/doge/address/#address/",
-      genesis:
-          "1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691",
+      genesis: "1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409");
 
@@ -204,8 +202,7 @@ class SwapConstants {
       chain: LitecoinNetwork.mainnet,
       explorerTxUrl: "https://live.blockcypher.com/ltc/tx/#txid/",
       explorerAddressUrl: "https://live.blockcypher.com/ltc/address/#address/",
-      genesis:
-          "12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2",
+      genesis: "12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/2/large/litecoin.png?1696501400");
 
@@ -223,8 +220,7 @@ class SwapConstants {
       chain: DashNetwork.mainnet,
       explorerTxUrl: "https://live.blockcypher.com/dash/tx/#txid/",
       explorerAddressUrl: "https://live.blockcypher.com/dash/address/#address/",
-      genesis:
-          "00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6",
+      genesis: "00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/19/large/dash-logo.png?1696501423");
 
@@ -273,8 +269,7 @@ class SwapConstants {
       chain: BitcoinNetwork.testnet,
       explorerTxUrl: "https://live.blockcypher.com/btc/tx/#txid/",
       explorerAddressUrl: "https://live.blockcypher.com/btc/address/#address/",
-      genesis:
-          "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943",
+      genesis: "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943",
       chainType: ChainType.testnet,
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400");
@@ -298,8 +293,7 @@ class SwapConstants {
       explorerTxUrl: "https://polkadot.subscan.io/extrinsic/#txid",
       ss58Format: SS58Const.polkadot,
       chainType: ChainType.testnet,
-      genesis:
-          "4fb7a1b11ba4a38827cf211b3effc87971413e4a9fd79c6bcc2c633383496832",
+      genesis: "4fb7a1b11ba4a38827cf211b3effc87971413e4a9fd79c6bcc2c633383496832",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
   static const assetHub = SwapSubstrateNetwork(
@@ -310,8 +304,53 @@ class SwapConstants {
       explorerTxUrl:
           "https://polkadot.js.org/apps/?rpc=wss://assethub.perseverance.chainflip.io",
       ss58Format: SS58Const.polkadot,
-      genesis:
-          "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+      genesis: "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
+
+  static const tron = SwapTronNetwork(
+      name: "Tron",
+      identifier: "tron",
+      explorerAddressUrl: "https://tronscan.org/#/address/#address",
+      explorerTxUrl: "https://tronscan.org/#/transaction/#txid",
+      genesis: "00000000000000001ebf88508a03865c71d452e25f4d51194196a1d22b6653dc",
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
+  static const tronNile = SwapTronNetwork(
+      name: "Tron",
+      identifier: "tron",
+      explorerAddressUrl: "https://nile.tronscan.org/#/address/#address",
+      explorerTxUrl: "https://nile.tronscan.org/#/transaction/#txid",
+      genesis: "0000000000000000d698d4192c56cb6be724a558448e2684802de4d6cd8690dc",
+      chainType: ChainType.testnet,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/12171/large/polkadot.png?1696512008");
+  static const xrp = SwapXRPNetwork(
+      name: "Ripple",
+      chainType: ChainType.mainnet,
+      identifier: "ripple",
+      networkId: 0,
+      explorerTxUrl: "https://livenet.xrpl.org/transactions/#txid",
+      explorerAddressUrl: "https://livenet.xrpl.org/accounts/#address",
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442");
+  static const ada = SwapADANetwork(
+      name: "Cardano",
+      chainType: ChainType.mainnet,
+      identifier: "ada",
+      protocolMagic: 764824073,
+      explorerTxUrl: "https://cardanoscan.io/transaction/#txid",
+      explorerAddressUrl: "https://cardanoscan.io/address/#address",
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/975/large/cardano.png?1696502090");
+
+  static const zcash = SwapZcashNetwork(
+      name: "Zcash",
+      chainType: ChainType.mainnet,
+      identifier: "zec",
+      nu6BlockHash: "000000000032935a403a29822df72549d9a201e08cfbd5b3c770bb0d66615247",
+      explorerTxUrl: "https://mainnet.zcashexplorer.app/transactions/#txid",
+      explorerAddressUrl: null,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/486/large/circle-zcash-color.png?1696501740");
 }

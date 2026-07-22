@@ -18,17 +18,14 @@ class SwapKitSwapService extends SwapService<
     SwapKitQuoteSwapParams> {
   final List<SwapKitSwapServiceProvider> providers;
   SwapKitSwapService(
-      {required super.provider,
-      required List<SwapKitSwapServiceProvider> providers})
+      {required super.provider, required List<SwapKitSwapServiceProvider> providers})
       : providers = providers.immutable,
         super(service: SwapServiceType.swapKit);
 
   List<BaseSwapAsset> _assets = [];
 
-  Future<List<BaseSwapAsset>> _loadAssets(
-      SwapKitSwapServiceProvider provider) async {
-    final tokens =
-        await this.provider.request(SwapKitRequestTokens(provider.identifier));
+  Future<List<BaseSwapAsset>> _loadAssets(SwapKitSwapServiceProvider provider) async {
+    final tokens = await this.provider.request(SwapKitRequestTokens(provider.identifier));
     final List<BaseSwapAsset> supportedTokens = [];
     for (final i in tokens.tokens) {
       final network = SwapUtils.findAssetNetwork(i.chainId);
@@ -90,15 +87,14 @@ class SwapKitSwapService extends SwapService<
   }
 
   @override
-  Future<List<SwapKitSwapRoute>> createRoutes(
-      SwapKitQuoteSwapParams params) async {
+  Future<List<SwapKitSwapRoute>> createRoutes(SwapKitQuoteSwapParams params) async {
     if (params.sourceAsset.network != params.destinationAsset.network) {
       throw const DartOnChainSwapPluginException(
           "Mismatch between source and destination networks.");
     }
     final network = params.sourceAsset.network;
-    final sourceAddress = SwapUtils.checkOrGetFakeAddress(
-        address: params.sourceAddress, network: network);
+    final sourceAddress =
+        SwapUtils.checkOrGetFakeAddress(address: params.sourceAddress, network: network);
     final destinationAddress = SwapUtils.checkOrGetFakeAddress(
         address: params.destinationAddress, network: network);
     final quote = await provider.request(SwapKitRequestQuote(
@@ -119,25 +115,23 @@ class SwapKitSwapService extends SwapService<
       return SwapKitSwapRoute(
           route: e,
           transaction: transaction,
-          expectedAmount: SwapAmount.fromString(
-              e.expectedBuyAmount, params.destinationAsset.decimal),
+          expectedAmount:
+              SwapAmount.fromString(e.expectedBuyAmount, params.destinationAsset.decimal),
           worstCaseAmount: SwapAmount.fromString(
               e.expectedBuyAmountMaxSlippage, params.destinationAsset.decimal),
           quote: params.copyWith(
-              sourceAddress: sourceAddress,
-              destinationAddress: destinationAddress),
+              sourceAddress: sourceAddress, destinationAddress: destinationAddress),
           provider: params.sourceAsset.provider,
           tolerance: 0.0,
-          expireTime: SwapUtils.unixSecondsToDateTime(
-              BigintUtils.tryParse(e.expiration)),
+          expireTime: SwapUtils.unixSecondsToDateTime(BigintUtils.tryParse(e.expiration)),
           estimateTime: estimateTime?.ceil() ?? 0,
           fees: e.fees.map((e) {
-            final asset = _assets
-                .firstWhereNullable((i) => i.providerIdentifier == e.asset);
+            final asset =
+                _assets.firstWhereNullable((i) => i.providerIdentifier == e.asset);
             return SwapFee(
                 token: asset,
                 amount: asset == null
-                    ? SwapAmount.view(e.amount)
+                    ? ViewSwapAmount(amountString: e.amount)
                     : SwapAmount.fromString(e.amount, asset.decimal),
                 type: e.type,
                 asset: e.asset);

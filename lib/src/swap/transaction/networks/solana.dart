@@ -77,8 +77,7 @@ class SwapRouteSolanaNativeTransactionOperation
         super(strategy: SwapRouteSolanaTransactionStrategy.native);
 
   @override
-  Future<Web3TransactionSolana> _buildTransactions(
-      BaseSwapSolanaClient client) async {
+  Future<Web3TransactionSolana> _buildTransactions(BaseSwapSolanaClient client) async {
     final account = await client.getAccountInfo(source);
     if (account == null) {
       throw const DartOnChainSwapPluginException("Source account not found.");
@@ -141,8 +140,7 @@ class SwapRouteSolanaSendTokenTransactionOperation
       : super(strategy: SwapRouteSolanaTransactionStrategy.token);
 
   @override
-  Future<Web3TransactionSolana> _buildTransactions(
-      BaseSwapSolanaClient client) async {
+  Future<Web3TransactionSolana> _buildTransactions(BaseSwapSolanaClient client) async {
     final account = await client.getAccountInfo(source);
     if (account == null) {
       throw const DartOnChainSwapPluginException("Source account not found.");
@@ -151,21 +149,17 @@ class SwapRouteSolanaSendTokenTransactionOperation
       throw const DartOnChainSwapPluginException(
           "Invalid source account owner: the source account must be owned by the system program.");
     }
-    final tokenBalance =
-        await client.getTokenBalance(account: source, mint: contract);
+    final tokenBalance = await client.getTokenBalance(account: source, mint: contract);
     if (tokenBalance < amount.amount) {
       throw SwapConstants.insufficientAccountBalance;
     }
-    final destinationPdaInfo = await client.getTokenAccountAddress(
-        account: destination, mint: contract);
+    final destinationPdaInfo =
+        await client.getTokenAccountAddress(account: destination, mint: contract);
 
     final ownerPda = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
-        mint: contract,
-        owner: source,
-        tokenProgramId: destinationPdaInfo.tokenProgramId);
+        mint: contract, owner: source, tokenProgramId: destinationPdaInfo.tokenProgramId);
 
-    final destinationInfo =
-        await client.getAccountInfo(destinationPdaInfo.pdaAddress);
+    final destinationInfo = await client.getAccountInfo(destinationPdaInfo.pdaAddress);
     TransactionInstruction? ascAccout;
     if (destinationInfo == null) {
       ascAccout = AssociatedTokenAccountProgram.associatedTokenAccount(

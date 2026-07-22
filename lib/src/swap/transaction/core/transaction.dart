@@ -3,14 +3,7 @@ import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/transaction/transaction.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
-enum TransactionOperationStep {
-  client,
-  generateTx,
-  signing,
-  broadcast,
-  txHash,
-  complete
-}
+enum TransactionOperationStep { client, generateTx, signing, broadcast, txHash, complete }
 
 typedef CbOnStatusChanged = void Function(TransactionOperationStep,
     {String? transactionHash});
@@ -23,17 +16,14 @@ abstract class SwapRouteTransactionBuilder<
     SIGNER extends Web3Signer,
     OPERATION extends SwapRouteTransactionOperation<NETWORK>> {
   SwapRouteTransactionBuilder(
-      {required List<OPERATION> operations,
-      required this.params,
-      required this.route})
+      {required List<OPERATION> operations, required this.params, required this.route})
       : operations = operations.immutable;
   final List<OPERATION> operations;
   final SwapRoute route;
   final SwapRouteGeneralTransactionBuilderParam params;
 
   Future<CLIENT> checkRouteAndClient(
-      CbGetRouteNetwork<CLIENT, NETWORK> onGetClient,
-      OPERATION operation) async {
+      CbGetRouteNetwork<CLIENT, NETWORK> onGetClient, OPERATION operation) async {
     final client = await onGetClient(operation.network);
     final init = await client.initSwapClient();
     if (!init) {

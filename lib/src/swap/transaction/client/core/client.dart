@@ -9,11 +9,12 @@ import 'package:on_chain/on_chain.dart';
 import 'package:on_chain/solidity/address/core.dart';
 import 'package:on_chain_swap/src/swap/swap.dart';
 import 'package:polkadot_dart/polkadot_dart.dart';
+import 'package:xrpl_dart/xrpl_dart.dart';
+import 'package:zcash_dart/zcash.dart';
 
 abstract class SwapNetworkClient<ASSET extends BaseSwapAsset, ADDRESS,
     BALANCE extends SwapAccountAssetBalance> {
   Future<bool> initSwapClient();
-  Future<BALANCE> getAccountsAssetBalance(ASSET asset, ADDRESS account);
   Future<BigInt?> getBlockHeight();
 }
 
@@ -24,15 +25,13 @@ abstract class BaseSwapBitcoinClient
   Future<BigRational> estimateFeePerByte(SwapBitcoinNetwork network);
   Future<BigInt> getBalance(BitcoinBaseAddress address);
   Future<String> sendTransaction(BtcTransaction transaction);
-  Future<List<PsbtUtxo>> getAccountsUtxos(
-      List<BitcoinSpenderAddress> addresses);
+  Future<List<PsbtUtxo>> getAccountsUtxos(List<BitcoinSpenderAddress> addresses);
   Future<String> genesisHash();
 }
 
 abstract class BaseSwapEthereumClient
     implements
-        SwapNetworkClient<ETHSwapAsset, ETHAddress,
-            SwapEthereumAccountAssetBalance> {
+        SwapNetworkClient<ETHSwapAsset, ETHAddress, SwapEthereumAccountAssetBalance> {
   IProvider<IServiceProvider, EthereumRequestDetails> get provider;
   Future<BigInt> getBalance(ETHAddress address);
   Future<BigInt> getChainId();
@@ -59,17 +58,13 @@ abstract class BaseSwapCosmosClient
   Future<SimulateResponse> simulateTx(List<int> txBytes);
   Future<BigInt> getBalance(CosmosBaseAddress address, String denom);
   Future<String> broadcastTransaction(List<int> txRaw);
-  Future<ThorNodeNetworkConstants> getThorNodeConstants();
-  // Future<bool> isEthereum();
-  Future<BigRational?> getEthereumBaseFee();
   Future<CosmosSwapTransactionRequirment> getSwapTransactionRequirment(
-      CosmosBaseAddress address);
+      CosmosBaseAddress address, int totalMesssages);
 }
 
 abstract class BaseSwapSolanaClient
     implements
-        SwapNetworkClient<SolanaSwapAsset, SolAddress,
-            SwapSolanaAccountAssetBalance> {
+        SwapNetworkClient<SolanaSwapAsset, SolAddress, SwapSolanaAccountAssetBalance> {
   Future<String> getGenesis();
   Future<SolanaAccountInfo?> getAccountInfo(SolAddress address);
   Future<BigInt> getBalance(SolAddress address);
@@ -116,6 +111,42 @@ abstract class BaseSwapSubstrateClient
   Future<BigInt> getAccountNonce(SubstrateAddress address);
   Future<String> sendTransaction(Extrinsic extrinsic);
   Future<SubtrateTransactionSubmitionResult> submitExtrinsicAndWatch(
-      {required SubstrateSubmitableTransaction extrinsic,
-      int maxRetryEachBlock = 5});
+      {required SubstrateSubmitableTransaction extrinsic, int maxRetryEachBlock = 5});
 }
+
+abstract class BaseSwapTronClient
+    implements
+        SwapNetworkClient<TronSwapAsset, TronAddress, SwapTronAccountAssetBalance> {
+  Future<BigInt> getBalance(TronAddress address);
+  Future<int?> getAccountPermissionId(
+      {required TronAddress address, required TronBaseContract contract});
+  Future<TronTransactionBlockRequirment> transactionBlockRequirment(
+      {bool simulate = false, Duration? expiration});
+  Future<BigInt> getTrc20TokenBalance(
+      {required TronAddress address, required TronAddress contractAddress});
+  Future<BigInt?> getTransactionFeeLimit(TransactionRaw transaction);
+  Future<TronBroadcastHexResponse> sendTransaction(String digest);
+  Future<BigInt> getAllowance(
+      {required TronAddress contract,
+      required TronAddress owner,
+      required TronAddress spender});
+  Future<TronGetTransactionByIdResponse> trackTransaction(
+      {required String transactionId, Duration? timeout, Duration? periodicTimeOut});
+}
+
+abstract class BaseSwapXRPClient
+    implements
+        SwapNetworkClient<XRPSwapAsset, XRPBaseAddress, SwapXRPAccountAssetBalance> {
+  Future<BigInt> getAccountBalance(XRPBaseAddress address);
+
+  Future<SubmittableTransaction> simulateTransactionFee(
+      SubmittableTransaction transaction);
+  Future<SubmittableTransaction> filledTransactionRequirment(
+      SubmittableTransaction transaction);
+
+  Future<SubmitResult> broadcastTransaction(SubmittableTransaction transaction);
+}
+
+abstract class BaseSwapZcashClient
+    implements
+        SwapNetworkClient<ZcashSwapAsset, ZcashAddress, SwapZcashAccountAssetBalance> {}

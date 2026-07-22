@@ -5,18 +5,48 @@
   "packages": [
     {
       "name": "on_chain_swap",
-      "version": "0.3.0",
+      "version": "0.5.0",
       "dependencies": [
         "bitcoin_base",
         "blockchain_utils",
         "cosmos_sdk",
         "on_chain",
-        "polkadot_dart"
+        "polkadot_dart",
+        "xrpl_dart",
+        "zcash_dart"
       ],
       "devDependencies": [
         "flutter_lints",
+        "grpc",
+        "http",
         "lints",
         "test"
+      ]
+    },
+    {
+      "name": "grpc",
+      "version": "5.1.0",
+      "dependencies": [
+        "async",
+        "clock",
+        "crypto",
+        "fixnum",
+        "googleapis_auth",
+        "http",
+        "http2",
+        "meta",
+        "protobuf",
+        "web"
+      ]
+    },
+    {
+      "name": "http",
+      "version": "1.6.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
       ]
     },
     {
@@ -64,6 +94,21 @@
       ]
     },
     {
+      "name": "zcash_dart",
+      "version": "0.2.0",
+      "dependencies": [
+        "bitcoin_base",
+        "blockchain_utils"
+      ]
+    },
+    {
+      "name": "xrpl_dart",
+      "version": "7.6.0",
+      "dependencies": [
+        "blockchain_utils"
+      ]
+    },
+    {
       "name": "polkadot_dart",
       "version": "5.3.0",
       "dependencies": [
@@ -86,7 +131,7 @@
     },
     {
       "name": "cosmos_sdk",
-      "version": "4.0.0",
+      "version": "4.1.0",
       "dependencies": [
         "blockchain_utils"
       ]
@@ -95,6 +140,77 @@
       "name": "blockchain_utils",
       "version": "7.1.0",
       "dependencies": []
+    },
+    {
+      "name": "web",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "clock",
+      "version": "1.1.2",
+      "dependencies": []
+    },
+    {
+      "name": "protobuf",
+      "version": "6.0.0",
+      "dependencies": [
+        "collection",
+        "fixnum",
+        "meta"
+      ]
+    },
+    {
+      "name": "http2",
+      "version": "2.3.1",
+      "dependencies": []
+    },
+    {
+      "name": "meta",
+      "version": "1.17.0",
+      "dependencies": []
+    },
+    {
+      "name": "googleapis_auth",
+      "version": "2.3.3",
+      "dependencies": [
+        "crypto",
+        "google_cloud",
+        "google_identity_services_web",
+        "http",
+        "http_parser",
+        "meta"
+      ]
+    },
+    {
+      "name": "fixnum",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "crypto",
+      "version": "3.0.7",
+      "dependencies": [
+        "typed_data"
+      ]
+    },
+    {
+      "name": "async",
+      "version": "2.13.0",
+      "dependencies": [
+        "collection",
+        "meta"
+      ]
+    },
+    {
+      "name": "http_parser",
+      "version": "4.1.2",
+      "dependencies": [
+        "collection",
+        "source_span",
+        "string_scanner",
+        "typed_data"
+      ]
     },
     {
       "name": "yaml",
@@ -324,14 +440,6 @@
       ]
     },
     {
-      "name": "async",
-      "version": "2.13.0",
-      "dependencies": [
-        "collection",
-        "meta"
-      ]
-    },
-    {
       "name": "analyzer",
       "version": "8.4.1",
       "dependencies": [
@@ -347,6 +455,24 @@
         "source_span",
         "watcher",
         "yaml"
+      ]
+    },
+    {
+      "name": "google_identity_services_web",
+      "version": "0.3.3+1",
+      "dependencies": [
+        "meta",
+        "web"
+      ]
+    },
+    {
+      "name": "google_cloud",
+      "version": "0.5.0",
+      "dependencies": [
+        "collection",
+        "http",
+        "meta",
+        "stack_trace"
       ]
     },
     {
@@ -369,18 +495,6 @@
       ]
     },
     {
-      "name": "web",
-      "version": "1.1.1",
-      "dependencies": []
-    },
-    {
-      "name": "crypto",
-      "version": "3.0.7",
-      "dependencies": [
-        "typed_data"
-      ]
-    },
-    {
       "name": "vm_service",
       "version": "15.0.2",
       "dependencies": []
@@ -400,11 +514,6 @@
         "source_maps",
         "stack_trace"
       ]
-    },
-    {
-      "name": "meta",
-      "version": "1.17.0",
-      "dependencies": []
     },
     {
       "name": "glob",
@@ -439,16 +548,6 @@
       "name": "mime",
       "version": "2.0.0",
       "dependencies": []
-    },
-    {
-      "name": "http_parser",
-      "version": "4.1.2",
-      "dependencies": [
-        "collection",
-        "source_span",
-        "string_scanner",
-        "typed_data"
-      ]
     },
     {
       "name": "convert",

@@ -4,8 +4,7 @@ import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
 class CfSwapConstants {
-  static const String mainnetChannelUrl =
-      "https://scan.chainflip.io/channels/#id";
+  static const String mainnetChannelUrl = "https://scan.chainflip.io/channels/#id";
   static const String testnetChannelUrl =
       "https://scan.perseverance.chainflip.io/channels/#id";
 
@@ -22,6 +21,9 @@ class CfSwapConstants {
     arbUsdc,
     sol,
     solUSDC,
+    solUsdt,
+    trx,
+    trxUsdc
   ].immutable;
 
   static const ETHSwapAsset eth = ETHSwapAsset(
@@ -154,14 +156,47 @@ class CfSwapConstants {
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
       coingeckoId: null,
-      contractAddress: SolAddress.uncheckCurve(
-          "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+      contractAddress:
+          SolAddress.uncheckCurve("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
       fullName: "USDC");
+  static final SolanaSwapAsset solUsdt = SolanaSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.solana,
+      provider: SwapConstants.chainflip,
+      contractAddress:
+          SolAddress.uncheckCurve("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: "tether",
+      fullName: "Tether");
+  static const TronSwapAsset trx = TronSwapAsset(
+      symbol: "TRX",
+      providerIdentifier: "TRX",
+      decimal: 6,
+      network: SwapConstants.tron,
+      provider: SwapConstants.chainflip,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png?1776048311",
+      coingeckoId: "tron",
+      fullName: "Trx");
+
+  static final TronSwapAsset trxUsdc = TronSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.tron,
+      provider: SwapConstants.chainflip,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: null,
+      contractAddress: TronAddress("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"),
+      fullName: "USDT");
 }
 
 class CfTestnetSwapConstants {
-  static const String mainnetChannelUrl =
-      "https://scan.chainflip.io/channels/#id";
+  static const String mainnetChannelUrl = "https://scan.chainflip.io/channels/#id";
   static const String testnetChannelUrl =
       "https://scan.perseverance.chainflip.io/channels/#id";
 
@@ -177,7 +212,9 @@ class CfTestnetSwapConstants {
     sol,
     solUSDC,
     assetHubUsdc,
-    assetHubUsdt
+    assetHubUsdt,
+    trx,
+    trxUsdc
   ].immutable;
 
   static const ETHSwapAsset eth = ETHSwapAsset(
@@ -285,10 +322,21 @@ class CfTestnetSwapConstants {
       logoUrl:
           "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
       coingeckoId: null,
-      contractAddress: SolAddress.uncheckCurve(
-          "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"),
+      contractAddress:
+          SolAddress.uncheckCurve("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"),
       fullName: "USDC");
-
+  static final SolanaSwapAsset solUsdt = SolanaSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.solanaDevnet,
+      provider: SwapConstants.chainflip,
+      contractAddress:
+          SolAddress.uncheckCurve("FvuqJYh8YeEmarW5qkSrYeEgzaTKktgL3vhgBy2Csy4o"),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: "tether",
+      fullName: "Tether");
   static final PolkadotSwapAsset assetHubUsdt = PolkadotSwapAsset(
       symbol: "USDT",
       providerIdentifier: "USDT",
@@ -312,4 +360,27 @@ class CfTestnetSwapConstants {
           "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
       coingeckoId: "usd-coin",
       fullName: "USDC");
+
+  static const TronSwapAsset trx = TronSwapAsset(
+      symbol: "TRX",
+      providerIdentifier: "TRX",
+      decimal: 6,
+      network: SwapConstants.tronNile,
+      provider: SwapConstants.chainflip,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png?1776048311",
+      coingeckoId: "tron",
+      fullName: "Trx");
+
+  static final TronSwapAsset trxUsdc = TronSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "USDT",
+      decimal: 6,
+      network: SwapConstants.tronNile,
+      provider: SwapConstants.chainflip,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: null,
+      contractAddress: TronAddress("TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"),
+      fullName: "USDT");
 }

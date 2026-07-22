@@ -19,8 +19,7 @@ class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
 
   @override
   Future<void> buildTransactions(
-      {required CbGetRouteNetwork<BaseSwapSubstrateClient, SwapSubstrateNetwork>
-          client,
+      {required CbGetRouteNetwork<BaseSwapSubstrateClient, SwapSubstrateNetwork> client,
       required CbGetSigner<Web3SignerSubstrate, SubstrateAddress> signer,
       required CbOnStatusChanged stepsCallBack}) async {
     for (final operation in operations) {
@@ -30,21 +29,18 @@ class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
       final callData = await operation._buildTransactions(substrateClient);
       final extersinc = substrateClient.api.metadata.extrinsicInfo();
       if (extersinc.isEmpty) {
-        throw const DartOnChainSwapPluginException(
-            "Unsported metadata extersinc.");
+        throw const DartOnChainSwapPluginException("Unsported metadata extersinc.");
       }
       final metadataWithProvider = substrateClient.metadataWitPorvider();
-      final transaction =
-          await SubstrateTransactionBuilder.buildTransactionStatic(
-              owner: operation.source,
-              calls: SubstrateTransactionSubmitableParams(calls: [
-                SubstrateEncodedCallParams(
-                    pallet: callData.pallet.name,
-                    method: callData.type.method,
-                    bytes: callData.encodeCall(
-                        extrinsic: metadataWithProvider.metadata))
-              ]),
-              provider: metadataWithProvider);
+      final transaction = await SubstrateTransactionBuilder.buildTransactionStatic(
+          owner: operation.source,
+          calls: SubstrateTransactionSubmitableParams(calls: [
+            SubstrateEncodedCallParams(
+                pallet: callData.pallet.name,
+                method: callData.type.method,
+                bytes: callData.encodeCall(extrinsic: metadataWithProvider.metadata))
+          ]),
+          provider: metadataWithProvider);
       stepsCallBack(TransactionOperationStep.signing);
       final signerInfo = await signer(operation.source);
       final signers = await signerInfo.signers();
@@ -58,8 +54,7 @@ class SwapRouteSubstrateTransactionBuilder extends SwapRouteTransactionBuilder<
           provider: metadataWithProvider,
           encodedSignature: BytesUtils.fromHexString(signature));
       stepsCallBack(TransactionOperationStep.broadcast);
-      final result =
-          await substrateClient.submitExtrinsicAndWatch(extrinsic: extrinsic);
+      final result = await substrateClient.submitExtrinsicAndWatch(extrinsic: extrinsic);
       stepsCallBack(TransactionOperationStep.txHash,
           transactionHash: result.transactionHash);
     }
@@ -137,12 +132,9 @@ class SwapRouteSubstrateAssetHubAssetTransactionOperation
   Future<BigInt> getAssetBalance(BaseSwapSubstrateClient client) async {
     final balancesEntries = await SubstrateNetworkControllerAssetQueryHelper
         .getAssetsPalletAccountIdentifierBigInt(
-            provider: client.metadataWitPorvider(),
-            address: source,
-            assetIds: [assetId]);
-    final balanceEntry = balancesEntries.entries
-        .firstWhereNullable((e) => e.key == assetId)
-        ?.value;
+            provider: client.metadataWitPorvider(), address: source, assetIds: [assetId]);
+    final balanceEntry =
+        balancesEntries.entries.firstWhereNullable((e) => e.key == assetId)?.value;
     if (balanceEntry == null) return BigInt.zero;
     final balance = PolkadotAssetBalance.fromJson(balanceEntry);
     return balance.balance;
@@ -157,8 +149,7 @@ class SwapRouteSubstrateAssetHubAssetTransactionOperation
     }
     final extersinc = client.api.metadata.extrinsicInfo();
     if (extersinc.isEmpty) {
-      throw const DartOnChainSwapPluginException(
-          "Unsported metadata extersinc.");
+      throw const DartOnChainSwapPluginException("Unsported metadata extersinc.");
     }
     final extWithMetadata = client.api.metadataWithExtrinsic();
     return SubstrateNetworkControllerLocalAssetTransferBuilder

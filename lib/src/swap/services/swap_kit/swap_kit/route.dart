@@ -29,8 +29,8 @@ class SwapKitQuoteSwapParams extends QuoteSwapParams<BaseSwapAsset> {
   }
 }
 
-class SwapKitSwapRoute extends SwapRoute<SwapKitQuoteSwapParams,
-    SwapRouteGeneralTransactionBuilderParam> {
+class SwapKitSwapRoute
+    extends SwapRoute<SwapKitQuoteSwapParams, SwapRouteGeneralTransactionBuilderParam> {
   final SwapKitRoute route;
   final SwapRouteEthereumCallContractTransactionOperation transaction;
   @override
@@ -48,8 +48,7 @@ class SwapKitSwapRoute extends SwapRoute<SwapKitQuoteSwapParams,
       required super.worstCaseAmount});
 
   @override
-  SwapRouteTransactionBuilder txBuilder(
-      SwapRouteGeneralTransactionBuilderParam params) {
+  SwapRouteTransactionBuilder txBuilder(SwapRouteGeneralTransactionBuilderParam params) {
     switch (quote.sourceAsset.network.type) {
       case SwapChainType.ethereum:
         final network = quote.sourceAsset.network.cast<SwapEthereumNetwork>();
@@ -62,8 +61,8 @@ class SwapKitSwapRoute extends SwapRoute<SwapKitQuoteSwapParams,
             destination.address != quote.destinationAddress ||
             transaction.source.address != quote.sourceAddress ||
             (source != destination &&
-                !transaction.data.contains(
-                    destination.address.substring(2).toLowerCase()))) {
+                !transaction.data
+                    .contains(destination.address.substring(2).toLowerCase()))) {
           throw const DartOnChainSwapPluginException(
               "The provided address doesn't match the address in the swap quote.");
         }
@@ -92,8 +91,7 @@ class SwapKitSwapRoute extends SwapRoute<SwapKitQuoteSwapParams,
   }
 
   @override
-  SwapRoute<QuoteSwapParams<BaseSwapAsset>,
-          SwapRouteGeneralTransactionBuilderParam>
+  SwapRoute<QuoteSwapParams<BaseSwapAsset>, SwapRouteGeneralTransactionBuilderParam>
       updateTolerance(double tolerance) {
     throw const DartOnChainSwapPluginException("Unsupported api.");
   }

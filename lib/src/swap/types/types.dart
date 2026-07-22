@@ -14,7 +14,11 @@ enum SwapChainType {
   bitcoin,
   polkadot,
   solana,
-  cosmos;
+  cosmos,
+  tron,
+  xrp,
+  ada,
+  zcash;
 }
 
 // enum SolanaChainType {
@@ -127,10 +131,7 @@ abstract class SwapNetwork with Equatable {
   }
 
   bool isThorchainOrMaya() {
-    final List<String> thorchainIdentifiers = [
-      "thorchain-1",
-      "mayachain-mainnet-v1"
-    ];
+    final List<String> thorchainIdentifiers = ["thorchain-1", "mayachain-mainnet-v1"];
     return thorchainIdentifiers.contains(identifier);
   }
 
@@ -229,9 +230,8 @@ class ETHSwapAsset extends BaseSwapAsset {
       super.fullName,
       super.logoUrl})
       : super(
-            type: contractAddress == null
-                ? SwapAssetType.native
-                : SwapAssetType.contract);
+            type:
+                contractAddress == null ? SwapAssetType.native : SwapAssetType.contract);
 
   @override
   String get identifier => contractAddress?.address ?? network.identifier;
@@ -250,46 +250,97 @@ class SolanaSwapAsset extends BaseSwapAsset {
       super.fullName,
       super.logoUrl})
       : super(
-            type: contractAddress == null
-                ? SwapAssetType.native
-                : SwapAssetType.contract);
+            type:
+                contractAddress == null ? SwapAssetType.native : SwapAssetType.contract);
 
   @override
   String get identifier => contractAddress?.address ?? network.identifier;
 }
 
-class CosmosSwapAsset extends BaseSwapAsset {
-  final String denom;
-  const CosmosSwapAsset(
+class TronSwapAsset extends BaseSwapAsset {
+  final TronAddress? contractAddress;
+  const TronSwapAsset(
       {required super.symbol,
       required super.providerIdentifier,
       required super.decimal,
       required super.network,
       required super.provider,
       super.coingeckoId,
-      required this.denom,
+      this.contractAddress,
       super.fullName,
       super.logoUrl})
-      : super(type: SwapAssetType.contract);
+      : super(
+            type:
+                contractAddress == null ? SwapAssetType.native : SwapAssetType.contract);
 
   @override
-  String get identifier => denom;
+  String get identifier => contractAddress?.address ?? network.identifier;
 }
 
-// class SwapNativeAsset extends BaseSwapAsset {
-//   @override
-//   String get identifier => network.identifier;
-//   const SwapNativeAsset(
-//       {required super.symbol,
-//       required super.providerIdentifier,
-//       required super.decimal,
-//       required super.network,
-//       required super.provider,
-//       super.coingeckoId,
-//       super.fullName,
-//       super.logoUrl})
-//       : super(type: SwapAssetType.native);
-// }
+class XRPSwapAsset extends BaseSwapAsset {
+  const XRPSwapAsset(
+      {required super.symbol,
+      required super.providerIdentifier,
+      required super.decimal,
+      required super.network,
+      required super.provider,
+      super.coingeckoId,
+      super.fullName,
+      super.logoUrl})
+      : super(type: SwapAssetType.native);
+
+  @override
+  String get identifier => network.identifier;
+}
+
+class CosmosSwapAsset extends BaseSwapAsset {
+  final String baseDenom;
+  const CosmosSwapAsset(
+      {required super.symbol,
+      required super.providerIdentifier,
+      required super.network,
+      required super.provider,
+      super.coingeckoId,
+      required this.baseDenom,
+      super.fullName,
+      super.logoUrl})
+      : super(type: SwapAssetType.contract, decimal: 0);
+
+  @override
+  String get identifier => baseDenom;
+}
+
+class AdaSwapAsset extends BaseSwapAsset {
+  const AdaSwapAsset(
+      {required super.symbol,
+      required super.providerIdentifier,
+      required super.decimal,
+      required super.network,
+      required super.provider,
+      super.coingeckoId,
+      super.fullName,
+      super.logoUrl})
+      : super(type: SwapAssetType.native);
+
+  @override
+  String get identifier => network.identifier;
+}
+
+class ZcashSwapAsset extends BaseSwapAsset {
+  const ZcashSwapAsset(
+      {required super.symbol,
+      required super.providerIdentifier,
+      required super.decimal,
+      required super.network,
+      required super.provider,
+      super.coingeckoId,
+      super.fullName,
+      super.logoUrl})
+      : super(type: SwapAssetType.native);
+
+  @override
+  String get identifier => network.identifier;
+}
 
 class BitcoinSwapAsset extends BaseSwapAsset {
   @override
@@ -320,52 +371,50 @@ class PolkadotSwapAsset extends BaseSwapAsset {
       super.coingeckoId,
       super.fullName,
       super.logoUrl})
-      : super(
-            type: assetId == null ? SwapAssetType.native : SwapAssetType.asset);
+      : super(type: assetId == null ? SwapAssetType.native : SwapAssetType.asset);
 }
 
-class SwapAmount with Equatable {
-  final BigInt amount;
+abstract class BaseSwapAmount with Equatable {
   final String amountString;
-  final int? decimals;
-  static final SwapAmount zero =
-      SwapAmount._(amount: BigInt.zero, amountString: '0.0', decimals: 1);
+  const BaseSwapAmount({required this.amountString});
+}
+
+class ViewSwapAmount extends BaseSwapAmount {
+  const ViewSwapAmount({required super.amountString});
+
+  @override
+  List<dynamic> get variabels => [amountString];
+}
+
+class SwapAmount extends BaseSwapAmount {
+  final BigInt amount;
+  final int decimals;
+
   bool get isZero => amount == BigInt.zero;
-  BigRational get rational => BigRational.parseDecimal(amountString);
+  BigRational get rational => BigRational(amount);
   SwapAmount._(
-      {required this.amount,
-      required this.amountString,
-      required this.decimals});
+      {required this.amount, required super.amountString, required this.decimals});
   factory SwapAmount.fromString(String amount, int decimals) {
-    final decode = SwapUtils.decodePrice(amount, decimals);
-    if (decode == BigInt.zero) {
-      amount = '0.0';
-    }
+    final converter = AmountConverter(decimals: decimals, displayPrecision: decimals);
     return SwapAmount._(
-        amount: decode, amountString: amount, decimals: decimals);
+        amount: converter.toUnit(amount), amountString: amount, decimals: decimals);
   }
-  factory SwapAmount.view(String amount) {
+  factory SwapAmount.fromBigInt(BigInt amount, int decimals, {int? amoutDecimal}) {
+    final converter =
+        AmountConverter(decimals: decimals, displayPrecision: amoutDecimal ?? decimals);
     return SwapAmount._(
-        amount: BigInt.zero, amountString: amount, decimals: null);
+        amount: amount, amountString: converter.toAmount(amount), decimals: decimals);
   }
 
-  factory SwapAmount.fromBigInt(BigInt amount, int decimals,
-      {int amoutDecimal = 8}) {
-    final encode =
-        SwapUtils.encodePrice(amount, decimals, amoutDecimal: amoutDecimal);
-    return SwapAmount._(
-        amount: amount, amountString: encode, decimals: decimals);
-  }
+  // SwapAmount operator -(SwapAmount other) {
+  //   assert(other.decimals == decimals);
+  //   return SwapAmount.fromBigInt(amount - other.amount, decimals);
+  // }
 
-  SwapAmount operator -(SwapAmount other) {
-    assert(other.decimals == decimals);
-    return SwapAmount.fromBigInt(amount - other.amount, decimals!);
-  }
-
-  SwapAmount operator +(SwapAmount other) {
-    assert(other.decimals == decimals);
-    return SwapAmount.fromBigInt(amount + other.amount, decimals!);
-  }
+  // SwapAmount operator +(SwapAmount other) {
+  //   assert(other.decimals == decimals);
+  //   return SwapAmount.fromBigInt(amount + other.amount, decimals);
+  // }
 
   @override
   List get variabels => [amount, decimals];
@@ -475,6 +524,72 @@ class SwapSubstrateNetwork extends SwapNetwork {
   List get variabels => [type, chainType, ss58Format];
 }
 
+class SwapTronNetwork extends SwapNetwork {
+  final String genesis;
+  const SwapTronNetwork({
+    required super.name,
+    required super.identifier,
+    required this.genesis,
+    required super.explorerTxUrl,
+    required super.explorerAddressUrl,
+    super.chainType = ChainType.mainnet,
+    required super.logoUrl,
+  }) : super(type: SwapChainType.tron);
+
+  @override
+  List get variabels => [type, chainType];
+}
+
+class SwapXRPNetwork extends SwapNetwork {
+  final int networkId;
+  const SwapXRPNetwork({
+    required super.name,
+    required super.identifier,
+    required this.networkId,
+    required super.explorerTxUrl,
+    required super.explorerAddressUrl,
+    super.chainType = ChainType.mainnet,
+    required super.logoUrl,
+  }) : super(type: SwapChainType.xrp);
+
+  @override
+  List get variabels => [type, chainType];
+}
+
+class SwapADANetwork extends SwapNetwork {
+  final int protocolMagic;
+  const SwapADANetwork({
+    required super.name,
+    required super.identifier,
+    required this.protocolMagic,
+    required super.explorerTxUrl,
+    required super.explorerAddressUrl,
+    super.chainType = ChainType.mainnet,
+    required super.logoUrl,
+  }) : super(type: SwapChainType.ada);
+
+  @override
+  List get variabels => [type, chainType];
+}
+
+class SwapZcashNetwork extends SwapNetwork {
+  /// 764824073
+  /// 000000000032935a403a29822df72549d9a201e08cfbd5b3c770bb0d66615247
+  final String nu6BlockHash;
+  const SwapZcashNetwork({
+    required super.name,
+    required super.identifier,
+    required this.nu6BlockHash,
+    required super.explorerTxUrl,
+    required super.explorerAddressUrl,
+    super.chainType = ChainType.mainnet,
+    required super.logoUrl,
+  }) : super(type: SwapChainType.zcash);
+
+  @override
+  List get variabels => [type, chainType];
+}
+
 class SwapServiceProvider with Equatable {
   final String name;
   final String identifier;
@@ -496,7 +611,7 @@ class SwapServiceProvider with Equatable {
 
 class SwapFee {
   final String type;
-  final SwapAmount amount;
+  final BaseSwapAmount amount;
   final String asset;
   final BaseSwapAsset? token;
   const SwapFee(

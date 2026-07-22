@@ -8,3 +8,6 @@ export 'types/types.dart';
 export 'signer/signer.dart';
 export 'client/client.dart';
 export 'const/const.dart';
+export 'networks/tron.dart';
+export 'networks/xrp.dart';
+export 'networks/zcash.dart';

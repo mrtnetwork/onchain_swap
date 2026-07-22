@@ -32,8 +32,7 @@ class ChainFlipFeeType {
 
   static ChainFlipFeeType fromName(String? name) {
     return values.firstWhere((e) => e.type == name,
-        orElse: () => throw DartOnChainSwapPluginException(
-            "fee type not found.",
+        orElse: () => throw DartOnChainSwapPluginException("fee type not found.",
             details: {"type": name}));
   }
 }
@@ -50,12 +49,7 @@ abstract class ChainFlipFee {
       required this.amount});
 
   Map<String, dynamic> toJson() {
-    return {
-      "type": type.type,
-      "chain": chain,
-      "asset": asset,
-      "amount": amount
-    };
+    return {"type": type.type, "chain": chain, "asset": asset, "amount": amount};
   }
 
   factory ChainFlipFee.fromJson(Map<String, dynamic> json) {
@@ -84,8 +78,7 @@ class ChainFlipSwapFee extends ChainFlipFee {
       throw DartOnChainSwapPluginException("Invalid swap Fee type.",
           details: {"type": type.type});
     }
-    return ChainFlipSwapFee._(
-        type: type, chain: chain, asset: asset, amount: amount);
+    return ChainFlipSwapFee._(type: type, chain: chain, asset: asset, amount: amount);
   }
   // Converts JSON map to ChainFlipSwapFee instance
   factory ChainFlipSwapFee.fromJson(Map<String, dynamic> json) {
@@ -99,8 +92,7 @@ class ChainFlipSwapFee extends ChainFlipFee {
 }
 
 class ChainFlipPoolFee extends ChainFlipFee {
-  ChainFlipPoolFee(
-      {required super.chain, required super.asset, required super.amount})
+  ChainFlipPoolFee({required super.chain, required super.asset, required super.amount})
       : super(type: ChainFlipFeeType.liquidity);
 
   factory ChainFlipPoolFee.fromJson(Map<String, dynamic> json) {
@@ -114,21 +106,16 @@ class SwapStateStatus {
 
   const SwapStateStatus._(this._state);
 
-  static const SwapStateStatus awaitingDeposit =
-      SwapStateStatus._("AWAITING_DEPOSIT");
-  static const SwapStateStatus depositReceived =
-      SwapStateStatus._("DEPOSIT_RECEIVED");
-  static const SwapStateStatus swapExecuted =
-      SwapStateStatus._("SWAP_EXECUTED");
-  static const SwapStateStatus egressScheduled =
-      SwapStateStatus._("EGRESS_SCHEDULED");
+  static const SwapStateStatus awaitingDeposit = SwapStateStatus._("AWAITING_DEPOSIT");
+  static const SwapStateStatus depositReceived = SwapStateStatus._("DEPOSIT_RECEIVED");
+  static const SwapStateStatus swapExecuted = SwapStateStatus._("SWAP_EXECUTED");
+  static const SwapStateStatus egressScheduled = SwapStateStatus._("EGRESS_SCHEDULED");
   static const SwapStateStatus broadcastRequested =
       SwapStateStatus._("BROADCAST_REQUESTED");
   static const SwapStateStatus broadcasted = SwapStateStatus._("BROADCASTED");
   static const SwapStateStatus complete = SwapStateStatus._("COMPLETE");
   static const SwapStateStatus completed = SwapStateStatus._("COMPLETED");
-  static const SwapStateStatus broadcastAborted =
-      SwapStateStatus._("BROADCAST_ABORTED");
+  static const SwapStateStatus broadcastAborted = SwapStateStatus._("BROADCAST_ABORTED");
   static const SwapStateStatus failed = SwapStateStatus._("FAILED");
   static List<SwapStateStatus> get values => [
         awaitingDeposit,
@@ -145,8 +132,7 @@ class SwapStateStatus {
 
   static SwapStateStatus fromName(String? name) {
     return values.firstWhere((e) => e._state == name,
-        orElse: () =>
-            throw DartOnChainSwapPluginException("state not found $name"));
+        orElse: () => throw DartOnChainSwapPluginException("state not found $name"));
   }
 
   @override
@@ -231,8 +217,8 @@ class SwapEgress extends EgressScheduled {
       egressScheduledBlockIndex: json['egressScheduledBlockIndex'],
       swapExecutedAt: json['swapExecutedAt'],
       swapExecutedBlockIndex: json['swapExecutedBlockIndex'],
-      intermediateAmount: json[
-          'intermediateAmount'], // Nullable, no need for explicit null check
+      intermediateAmount:
+          json['intermediateAmount'], // Nullable, no need for explicit null check
     );
   }
 
@@ -935,14 +921,12 @@ class SwapStatusResponseCommonFields {
             ? CcmParams.fromJson(json['ccmParams'] as Map<String, dynamic>)
             : null,
         feesPaid: (json['feesPaid'] as List?)
-                ?.map(
-                    (fee) => ChainFlipFee.fromJson(fee as Map<String, dynamic>))
+                ?.map((fee) => ChainFlipFee.fromJson(fee as Map<String, dynamic>))
                 .toList() ??
             [],
         estimatedDefaultDurationSeconds:
             json.valueAsNum("estimatedDefaultDurationSeconds"),
-        srcChainRequiredBlockConfirmations:
-            json['srcChainRequiredBlockConfirmations'],
+        srcChainRequiredBlockConfirmations: json['srcChainRequiredBlockConfirmations'],
         depositTransactionRef: json['depositTransactionRef'],
         swapScheduledAt: json['swapScheduledAt'],
         swapScheduledBlockIndex: json['swapScheduledBlockIndex'],
@@ -960,9 +944,8 @@ class SwapStatusResponseCommonFields {
       'destAddress': destAddress,
       'ccmDepositReceivedBlockIndex': ccmDepositReceivedBlockIndex,
       'ccmParams': ccmParams?.toJson(), // Convert CcmParams to JSON
-      'feesPaid': feesPaid
-          .map((fee) => fee.toJson())
-          .toList(), // Convert List<SwapFee> to JSON
+      'feesPaid':
+          feesPaid.map((fee) => fee.toJson()).toList(), // Convert List<SwapFee> to JSON
       'estimatedDefaultDurationSeconds': estimatedDefaultDurationSeconds,
       'srcChainRequiredBlockConfirmations': srcChainRequiredBlockConfirmations,
       'depositTransactionRef': depositTransactionRef,
@@ -980,9 +963,7 @@ class CcmParams {
   final String message;
   final String? additionalData;
   const CcmParams(
-      {required this.additionalData,
-      required this.gasBudget,
-      required this.message});
+      {required this.additionalData, required this.gasBudget, required this.message});
   factory CcmParams.fromJson(Map<String, dynamic> json) {
     return CcmParams(
         additionalData: json["cfParameters"] ?? json["additionalData"],
@@ -990,11 +971,7 @@ class CcmParams {
         message: json["message"]);
   }
   Map<String, dynamic> toJson() {
-    return {
-      "gasBudget": gasBudget,
-      "message": message,
-      "additionalData": additionalData
-    };
+    return {"gasBudget": gasBudget, "message": message, "additionalData": additionalData};
   }
 }
 
@@ -1051,28 +1028,25 @@ class DepositAddressFields extends SwapStatusResponseCommonFields {
     return DepositAddressFields(
         depositAddress: json['depositAddress'],
         depositChannelCreatedAt: json['depositChannelCreatedAt'],
-        depositChannelBrokerCommissionBps:
-            json['depositChannelBrokerCommissionBps'],
+        depositChannelBrokerCommissionBps: json['depositChannelBrokerCommissionBps'],
         expectedDepositAmount: json['expectedDepositAmount'],
         depositChannelExpiryBlock: json['depositChannelExpiryBlock'],
-        estimatedDepositChannelExpiryTime:
-            json['estimatedDepositChannelExpiryTime'],
+        estimatedDepositChannelExpiryTime: json['estimatedDepositChannelExpiryTime'],
         isDepositChannelExpired: json['isDepositChannelExpired'] as bool,
         depositChannelOpenedThroughBackend:
             json['depositChannelOpenedThroughBackend'] as bool,
-        depositChannelAffiliateBrokers:
-            (json['depositChannelAffiliateBrokers'] as List<dynamic>?)
-                ?.map((broker) => DepositChannelAffiliateBroker.fromJson(
-                    broker as Map<String, dynamic>))
-                .toList(),
+        depositChannelAffiliateBrokers: (json['depositChannelAffiliateBrokers']
+                as List<dynamic>?)
+            ?.map((broker) =>
+                DepositChannelAffiliateBroker.fromJson(broker as Map<String, dynamic>))
+            .toList(),
         depositChannelMaxBoostFeeBps: json['depositChannelMaxBoostFeeBps'],
         effectiveBoostFeeBps: json['effectiveBoostFeeBps'],
         boostSkippedAt: json['boostSkippedAt'],
         boostSkippedBlockIndex: json['boostSkippedBlockIndex'],
         fillOrKillParams: json['fillOrKillParams'] == null
             ? null
-            : FillOrKillParams.fromJson(
-                json['fillOrKillParams'] as Map<String, dynamic>),
+            : FillOrKillParams.fromJson(json['fillOrKillParams'] as Map<String, dynamic>),
         destAddress: json['destAddress'],
         ccmDepositReceivedBlockIndex: json['ccmDepositReceivedBlockIndex'],
         ccmParams: json['ccmParams'] != null
@@ -1081,10 +1055,8 @@ class DepositAddressFields extends SwapStatusResponseCommonFields {
         feesPaid: (json['feesPaid'] as List<dynamic>)
             .map((fee) => ChainFlipFee.fromJson(fee as Map<String, dynamic>))
             .toList(),
-        estimatedDefaultDurationSeconds:
-            json['estimatedDefaultDurationSeconds'],
-        srcChainRequiredBlockConfirmations:
-            json['srcChainRequiredBlockConfirmations'],
+        estimatedDefaultDurationSeconds: json['estimatedDefaultDurationSeconds'],
+        srcChainRequiredBlockConfirmations: json['srcChainRequiredBlockConfirmations'],
         depositTransactionRef: json['depositTransactionRef'],
         swapScheduledAt: json['swapScheduledAt'],
         swapScheduledBlockIndex: json['swapScheduledBlockIndex'],
@@ -1108,22 +1080,19 @@ class DepositAddressFields extends SwapStatusResponseCommonFields {
       'estimatedDepositChannelExpiryTime': estimatedDepositChannelExpiryTime,
       'isDepositChannelExpired': isDepositChannelExpired,
       'depositChannelOpenedThroughBackend': depositChannelOpenedThroughBackend,
-      'depositChannelAffiliateBrokers': depositChannelAffiliateBrokers
-          ?.map((broker) => broker.toJson())
-          .toList(),
+      'depositChannelAffiliateBrokers':
+          depositChannelAffiliateBrokers?.map((broker) => broker.toJson()).toList(),
       'depositChannelMaxBoostFeeBps': depositChannelMaxBoostFeeBps,
       'effectiveBoostFeeBps': effectiveBoostFeeBps,
       'boostSkippedAt': boostSkippedAt,
       'boostSkippedBlockIndex': boostSkippedBlockIndex,
-      'fillOrKillParams':
-          fillOrKillParams?.toJson(), // Convert FillOrKillParams to JSON
+      'fillOrKillParams': fillOrKillParams?.toJson(), // Convert FillOrKillParams to JSON
       // Include fields from the superclass as well
       'destAddress': destAddress,
       'ccmDepositReceivedBlockIndex': ccmDepositReceivedBlockIndex,
       'ccmParams': ccmParams?.toJson(), // Convert CcmParams to JSON
-      'feesPaid': feesPaid
-          .map((fee) => fee.toJson())
-          .toList(), // Convert List<SwapFee> to JSON
+      'feesPaid':
+          feesPaid.map((fee) => fee.toJson()).toList(), // Convert List<SwapFee> to JSON
       'estimatedDefaultDurationSeconds': estimatedDefaultDurationSeconds,
       'srcChainRequiredBlockConfirmations': srcChainRequiredBlockConfirmations,
       'depositTransactionRef': depositTransactionRef,
@@ -1225,8 +1194,7 @@ class FailedVaultSwapStatusResponse extends DepositAddressFields {
           ? CcmParams.fromJson(json['ccmParams'] as Map<String, dynamic>)
           : null,
       estimatedDefaultDurationSeconds: json['estimatedDefaultDurationSeconds'],
-      srcChainRequiredBlockConfirmations:
-          json['srcChainRequiredBlockConfirmations'],
+      srcChainRequiredBlockConfirmations: json['srcChainRequiredBlockConfirmations'],
       depositTransactionRef: json['depositTransactionRef'],
       swapScheduledAt: json['swapScheduledAt'],
       swapScheduledBlockIndex: json['swapScheduledBlockIndex'],
@@ -1237,26 +1205,24 @@ class FailedVaultSwapStatusResponse extends DepositAddressFields {
           : null,
       depositAddress: json['depositAddress'],
       depositChannelCreatedAt: json['depositChannelCreatedAt'],
-      depositChannelBrokerCommissionBps:
-          json['depositChannelBrokerCommissionBps'],
+      depositChannelBrokerCommissionBps: json['depositChannelBrokerCommissionBps'],
       expectedDepositAmount: json['expectedDepositAmount'],
       depositChannelExpiryBlock: json['depositChannelExpiryBlock'],
-      estimatedDepositChannelExpiryTime:
-          json['estimatedDepositChannelExpiryTime'],
+      estimatedDepositChannelExpiryTime: json['estimatedDepositChannelExpiryTime'],
       isDepositChannelExpired: json['isDepositChannelExpired'] as bool,
       depositChannelOpenedThroughBackend:
           json['depositChannelOpenedThroughBackend'] as bool,
       depositChannelAffiliateBrokers:
           (json['depositChannelAffiliateBrokers'] as List<dynamic>?)
-              ?.map((broker) => DepositChannelAffiliateBroker.fromJson(
-                  broker as Map<String, dynamic>))
+              ?.map((broker) =>
+                  DepositChannelAffiliateBroker.fromJson(broker as Map<String, dynamic>))
               .toList(),
       depositChannelMaxBoostFeeBps: json['depositChannelMaxBoostFeeBps'],
       effectiveBoostFeeBps: json['effectiveBoostFeeBps'],
       boostSkippedAt: json['boostSkippedAt'],
       boostSkippedBlockIndex: json['boostSkippedBlockIndex'],
-      fillOrKillParams: FillOrKillParams.fromJson(
-          json['fillOrKillParams'] as Map<String, dynamic>),
+      fillOrKillParams:
+          FillOrKillParams.fromJson(json['fillOrKillParams'] as Map<String, dynamic>),
     );
   }
 
@@ -1295,8 +1261,7 @@ class VaultSwapResponse {
   const VaultSwapResponse({required this.deposit, required this.state});
   factory VaultSwapResponse.fromJson(Map<String, dynamic> json) {
     return VaultSwapResponse(
-        deposit: DepositAddressFields.fromJson(json),
-        state: SwapState.fromJson(json));
+        deposit: DepositAddressFields.fromJson(json), state: SwapState.fromJson(json));
   }
 }
 
@@ -1320,8 +1285,7 @@ class QuoteType {
   static QuoteType fromName(String? name) {
     return values.firstWhere(
       (e) => e.name == name,
-      orElse: () => throw DartOnChainSwapPluginException(
-          "Quote type not found.",
+      orElse: () => throw DartOnChainSwapPluginException("Quote type not found.",
           details: {"type": name}),
     );
   }
@@ -1415,13 +1379,11 @@ class QuoteDetails {
       "isVaultSwap": isVaultSwap,
       "depositAmount": depositAmount,
       if (intermediateAmount != null) 'intermediateAmount': intermediateAmount,
-      "recommendedSlippageTolerancePercent":
-          recommendedSlippageTolerancePercent,
+      "recommendedSlippageTolerancePercent": recommendedSlippageTolerancePercent,
       'egressAmount': egressAmount,
       'includedFees': includedFees.map((fee) => fee.toJson()).toList(),
       'poolInfo': poolInfo.map((info) => info.toJson()).toList(),
-      if (lowLiquidityWarning != null)
-        'lowLiquidityWarning': lowLiquidityWarning,
+      if (lowLiquidityWarning != null) 'lowLiquidityWarning': lowLiquidityWarning,
       'estimatedDurationSeconds': estimatedDurationSeconds,
       "estimatedDurationsSeconds": estimatedDurationsSeconds.toJson(),
       'estimatedPrice': estimatedPrice,

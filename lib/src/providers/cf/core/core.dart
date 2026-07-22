@@ -46,11 +46,10 @@ abstract class CfBackendRequestParam<RESULT, RESPONSE>
   CfRequestDetails buildRequest(int v) {
     final pathParams = ChainFlipProviderUtils.extractParams(method);
     if (pathParams.length != pathParameters.length) {
-      throw DartOnChainSwapPluginException("Invalid Path Parameters.",
-          details: {
-            "pathParams": pathParameters.join(","),
-            "ExceptedPathParametersLength": pathParams.length.toString()
-          });
+      throw DartOnChainSwapPluginException("Invalid Path Parameters.", details: {
+        "pathParams": pathParameters.join(","),
+        "ExceptedPathParametersLength": pathParams.length.toString()
+      });
     }
     String params = method;
     for (int i = 0; i < pathParams.length; i++) {
@@ -58,9 +57,7 @@ abstract class CfBackendRequestParam<RESULT, RESPONSE>
     }
     final queryParams = Map<String, dynamic>.from(queryParameters ?? {});
     if (queryParams.isNotEmpty) {
-      params = Uri(path: params, queryParameters: queryParams)
-          .normalizePath()
-          .toString();
+      params = Uri(path: params, queryParameters: queryParams).normalizePath().toString();
     }
     return CfRequestDetails(
       requestID: v,
@@ -100,8 +97,7 @@ abstract class CfRPCRequestParam<RESULT, RESPONSE>
   }
 }
 
-abstract class CfTRPCRequest<RESULT, RESPONSE>
-    extends CfRequestParam<RESULT, RESPONSE> {
+abstract class CfTRPCRequest<RESULT, RESPONSE> extends CfRequestParam<RESULT, RESPONSE> {
   const CfTRPCRequest();
   abstract final String method;
 
@@ -126,6 +122,39 @@ abstract class CfTRPCRequest<RESULT, RESPONSE>
         headers: headers ?? ServiceConst.defaultPostHeaders,
         path: pathParameters,
         requestMethod: RequestMethod.post,
+        bodyString: StringUtils.fromJson(params),
+        cfRequestType: cfRequestType,
+        responseEncoding: ServiceReponseEncoding.fromType<RESPONSE>(),
+        method: method,
+        errorStatusCodes: CfProviderConst.trpcErrorStatusCodes);
+  }
+}
+
+abstract class CfAPIRequest<RESULT, RESPONSE> extends CfRequestParam<RESULT, RESPONSE> {
+  const CfAPIRequest();
+  abstract final String method;
+
+  @override
+  CfRequestType get cfRequestType => CfRequestType.batchTrcp;
+  Map<String, dynamic> get params => {};
+  Map<String, dynamic>? get queryParameters => null;
+  final Map<String, String>? headers = null;
+  @override
+  RequestMethod get requestMethod => RequestMethod.post;
+  @override
+  CfRequestDetails buildRequest(int requestID) {
+    String pathParameters = "/api/$method";
+    final queryParams = Map<String, dynamic>.from(queryParameters ?? {});
+    if (queryParams.isNotEmpty) {
+      pathParameters = Uri(path: pathParameters, queryParameters: queryParams)
+          .normalizePath()
+          .toString();
+    }
+    return CfRequestDetails(
+        requestID: requestID,
+        headers: headers ?? ServiceConst.defaultPostHeaders,
+        path: pathParameters,
+        requestMethod: requestMethod,
         bodyString: StringUtils.fromJson(params),
         cfRequestType: cfRequestType,
         responseEncoding: ServiceReponseEncoding.fromType<RESPONSE>(),
@@ -162,15 +191,11 @@ class CfRequestDetails extends OnChainSwapRequestDetails {
         headers: values
             .mapAt<CborStringValue, CborStringValue>(1)
             .map((k, v) => MapEntry(k.value, v.value)),
-        errorStatusCodes: values
-            .listAt<CborIntValue>(2)
-            .map((e) => e.value)
-            .toList()
-            .emptyAsNull,
+        errorStatusCodes:
+            values.listAt<CborIntValue>(2).map((e) => e.value).toList().emptyAsNull,
         path: values.rawValueAt(3),
         requestMethod: RequestMethod.fromValue(values.rawValueAt(4)),
-        responseEncoding:
-            ServiceReponseEncoding.fromValue(values.rawValueAt(5)),
+        responseEncoding: ServiceReponseEncoding.fromValue(values.rawValueAt(5)),
         bodyBytes: values.rawValueAt(6),
         bodyString: values.rawValueAt(7),
         requestID: values.rawValueAt(8),
@@ -236,8 +261,7 @@ class CfRequestDetails extends OnChainSwapRequestDetails {
   List<CborObject?> get serializationItems => [
         api.value.toCbor(),
         CborMapValue.definite(
-          headers
-              .map((k, v) => MapEntry(CborStringValue(k), CborStringValue(v))),
+          headers.map((k, v) => MapEntry(CborStringValue(k), CborStringValue(v))),
         ),
         CborTagSerializable.listFromDynamic(
           errorStatusCodes?.map((e) => CborIntValue(e)).toList() ?? [],

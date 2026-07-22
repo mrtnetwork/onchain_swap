@@ -1,13 +1,11 @@
 import 'package:on_chain/on_chain.dart';
 
-class EthereumAbiCons {
+class EthereumAbiConst {
   static const int methodSignatureHexLength = 10;
 
-  static const String oneInchAggregationV6 =
-      "0x111111125421cA6dc452d289314280a0f8842A65";
+  static const String oneInchAggregationV6 = "0x111111125421cA6dc452d289314280a0f8842A65";
 
-  static final AbiFunctionFragment erc20BalaceFragment =
-      AbiFunctionFragment.fromJson({
+  static final AbiFunctionFragment erc20BalaceFragment = AbiFunctionFragment.fromJson({
     "inputs": [
       {"internalType": "address", "name": "account", "type": "address"}
     ],
@@ -60,11 +58,7 @@ class EthereumAbiCons {
         {"internalType": "string", "name": "name", "type": "string"},
         {"internalType": "string", "name": "version", "type": "string"},
         {"internalType": "uint256", "name": "chainId", "type": "uint256"},
-        {
-          "internalType": "address",
-          "name": "verifyingContract",
-          "type": "address"
-        },
+        {"internalType": "address", "name": "verifyingContract", "type": "address"},
         {"internalType": "bytes32", "name": "salt", "type": "bytes32"},
         {"internalType": "uint256[]", "name": "extensions", "type": "uint256[]"}
       ],
@@ -73,8 +67,7 @@ class EthereumAbiCons {
     },
   );
 
-  static final AbiFunctionFragment transferFragment =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment transferFragment = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "address", "name": "to", "type": "address"},
@@ -88,8 +81,7 @@ class EthereumAbiCons {
       "type": "function"
     },
   );
-  static final AbiFunctionFragment increaseAllowance =
-      AbiFunctionFragment.fromJson({
+  static final AbiFunctionFragment increaseAllowance = AbiFunctionFragment.fromJson({
     "inputs": [
       {"internalType": "address", "name": "spender", "type": "address"},
       {"internalType": "uint256", "name": "addedValue", "type": "uint256"}
@@ -114,16 +106,11 @@ class EthereumAbiCons {
     "type": "function"
   });
 
-  static final AbiFunctionFragment decreaseAllowance =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment decreaseAllowance = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "address", "name": "spender", "type": "address"},
-        {
-          "internalType": "uint256",
-          "name": "subtractedValue",
-          "type": "uint256"
-        }
+        {"internalType": "uint256", "name": "subtractedValue", "type": "uint256"}
       ],
       "name": "decreaseAllowance",
       "outputs": [
@@ -149,8 +136,7 @@ class EthereumAbiCons {
     },
   );
 
-  static final AbiFunctionFragment fundStateChainAccount =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment fundStateChainAccount = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "bytes32", "name": "nodeID", "type": "bytes32"},
@@ -162,8 +148,7 @@ class EthereumAbiCons {
       "type": "function"
     },
   );
-  static final AbiFunctionFragment executeRedemption =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment executeRedemption = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "bytes32", "name": "nodeID", "type": "bytes32"}
@@ -177,8 +162,7 @@ class EthereumAbiCons {
       "type": "function"
     },
   );
-  static final AbiFunctionFragment getMinimumFunding =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment getMinimumFunding = AbiFunctionFragment.fromJson(
     {
       "inputs": [],
       "name": "getMinimumFunding",
@@ -189,8 +173,7 @@ class EthereumAbiCons {
       "type": "function"
     },
   );
-  static final AbiFunctionFragment getPendingRedemption =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment getPendingRedemption = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "bytes32", "name": "nodeID", "type": "bytes32"}
@@ -200,11 +183,7 @@ class EthereumAbiCons {
         {
           "components": [
             {"internalType": "uint256", "name": "amount", "type": "uint256"},
-            {
-              "internalType": "address",
-              "name": "redeemAddress",
-              "type": "address"
-            },
+            {"internalType": "address", "name": "redeemAddress", "type": "address"},
             {"internalType": "uint48", "name": "startTime", "type": "uint48"},
             {"internalType": "uint48", "name": "expiryTime", "type": "uint48"},
             {"internalType": "address", "name": "executor", "type": "address"}
@@ -218,8 +197,7 @@ class EthereumAbiCons {
       "type": "function"
     },
   );
-  static final AbiFunctionFragment getRedemptionDelay =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment getRedemptionDelay = AbiFunctionFragment.fromJson(
     {
       "inputs": [],
       "name": "REDEMPTION_DELAY",
@@ -236,11 +214,7 @@ class EthereumAbiCons {
         {"internalType": "uint32", "name": "dstChain", "type": "uint32"},
         {"internalType": "bytes", "name": "dstAddress", "type": "bytes"},
         {"internalType": "uint32", "name": "dstToken", "type": "uint32"},
-        {
-          "internalType": "contract IERC20",
-          "name": "srcToken",
-          "type": "address"
-        },
+        {"internalType": "contract IERC20", "name": "srcToken", "type": "address"},
         {"internalType": "uint256", "name": "amount", "type": "uint256"},
         {"internalType": "bytes", "name": "cfParameters", "type": "bytes"}
       ],
@@ -288,11 +262,7 @@ class EthereumAbiCons {
         {"internalType": "uint32", "name": "dstToken", "type": "uint32"},
         {"internalType": "bytes", "name": "message", "type": "bytes"},
         {"internalType": "uint256", "name": "gasAmount", "type": "uint256"},
-        {
-          "internalType": "contract IERC20",
-          "name": "srcToken",
-          "type": "address"
-        },
+        {"internalType": "contract IERC20", "name": "srcToken", "type": "address"},
         {"internalType": "uint256", "name": "amount", "type": "uint256"},
         {"internalType": "bytes", "name": "cfParameters", "type": "bytes"}
       ],

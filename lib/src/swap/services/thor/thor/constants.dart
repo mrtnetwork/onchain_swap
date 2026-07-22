@@ -4,8 +4,7 @@ import 'package:on_chain_swap/src/swap/constants/constants.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
 class ThorSwapConstants {
-  static final AbiFunctionFragment depositWithExpiry =
-      AbiFunctionFragment.fromJson(
+  static final AbiFunctionFragment depositWithExpiry = AbiFunctionFragment.fromJson(
     {
       "inputs": [
         {"internalType": "address payable", "name": "vault", "type": "address"},
@@ -53,8 +52,18 @@ class ThorSwapConstants {
     ethWbtc,
     ethXrune,
     ethYfi,
-    gaiaAtom,
-    ltcLtc
+    // gaiaAtom,
+    ltcLtc,
+    solSol,
+    trx,
+    trxUsdc,
+    xrp,
+    bscBtcb,
+    bscBusd,
+    bscEth,
+    baseVVV,
+    // thorRuji,
+    // thorTcy,
   ].immutable;
 
   static const ETHSwapAsset avaxAvax = ETHSwapAsset(
@@ -84,8 +93,7 @@ class ThorSwapConstants {
   /// prove
   static final ETHSwapAsset avaxUsdc = ETHSwapAsset(
       symbol: "USDC",
-      providerIdentifier:
-          "AVAX.USDC-0XB97EF9EF8734C71904D8002F8B6BC66DD9C48A6E",
+      providerIdentifier: "AVAX.USDC-0XB97EF9EF8734C71904D8002F8B6BC66DD9C48A6E",
       decimal: 6,
       network: SwapConstants.avalanche,
       provider: SwapConstants.thorchainProvider,
@@ -98,8 +106,7 @@ class ThorSwapConstants {
   /// prove
   static final ETHSwapAsset avaxUsdt = ETHSwapAsset(
       symbol: "USDT",
-      providerIdentifier:
-          "AVAX.USDT-0X9702230A8EA53601F5CD2DC00FDBC13D4DF4A8C7",
+      providerIdentifier: "AVAX.USDT-0X9702230A8EA53601F5CD2DC00FDBC13D4DF4A8C7",
       decimal: 6,
       network: SwapConstants.avalanche,
       provider: SwapConstants.thorchainProvider,
@@ -112,8 +119,7 @@ class ThorSwapConstants {
   /// aprove
   static final ETHSwapAsset baseCbbtc = ETHSwapAsset(
       symbol: "CBBTC",
-      providerIdentifier:
-          "BASE.CBBTC-0XCBB7C0000AB88B473B1F5AFD9EF808440EED33BF",
+      providerIdentifier: "BASE.CBBTC-0XCBB7C0000AB88B473B1F5AFD9EF808440EED33BF",
       decimal: 8,
       network: SwapConstants.base,
       provider: SwapConstants.thorchainProvider,
@@ -136,8 +142,7 @@ class ThorSwapConstants {
   /// aprove
   static final ETHSwapAsset baseUsdc = ETHSwapAsset(
       symbol: "USDC",
-      providerIdentifier:
-          "BASE.USDC-0X833589FCD6EDB6E08F4C7C32D4F71B54BDA02913",
+      providerIdentifier: "BASE.USDC-0X833589FCD6EDB6E08F4C7C32D4F71B54BDA02913",
       decimal: 6,
       network: SwapConstants.base,
       provider: SwapConstants.thorchainProvider,
@@ -408,8 +413,7 @@ class ThorSwapConstants {
   /// approve
   static final ETHSwapAsset ethVthor = ETHSwapAsset(
       symbol: "VTHOR",
-      providerIdentifier:
-          "ETH.VTHOR-0X815C23ECA83261B6EC689B60CC4A58B54BC24D8D",
+      providerIdentifier: "ETH.VTHOR-0X815C23ECA83261B6EC689B60CC4A58B54BC24D8D",
       decimal: 18,
       network: SwapConstants.ethereum,
       provider: SwapConstants.thorchainProvider,
@@ -432,8 +436,7 @@ class ThorSwapConstants {
   /// approve
   static final ETHSwapAsset ethXrune = ETHSwapAsset(
       symbol: "XRUNE",
-      providerIdentifier:
-          "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
+      providerIdentifier: "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
       decimal: 18,
       network: SwapConstants.ethereum,
       provider: SwapConstants.thorchainProvider,
@@ -455,17 +458,16 @@ class ThorSwapConstants {
       coingeckoId: "yearn-finance",
       contractAddress: ETHAddress("0x0BC529C00C6401AEF6D220BE8C6EA1667F6AD93E"),
       fullName: "yearn.finance");
-  static const CosmosSwapAsset gaiaAtom = CosmosSwapAsset(
-      symbol: "ATOM",
-      providerIdentifier: "GAIA.ATOM",
-      decimal: 6,
-      network: SwapConstants.gaia,
-      denom: 'uatom',
-      provider: SwapConstants.thorchainProvider,
-      logoUrl:
-          "https://coin-images.coingecko.com/coins/images/1481/large/cosmos_hub.png?1696502525",
-      coingeckoId: "cosmos",
-      fullName: "Cosmos Hub");
+  // static const CosmosSwapAsset gaiaAtom = CosmosSwapAsset(
+  //     symbol: "ATOM",
+  //     providerIdentifier: "GAIA.ATOM",
+  //     network: SwapConstants.gaia,
+  //     baseDenom: 'uatom',
+  //     provider: SwapConstants.thorchainProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/1481/large/cosmos_hub.png?1696502525",
+  //     coingeckoId: "cosmos",
+  //     fullName: "Cosmos Hub");
   static const BitcoinSwapAsset ltcLtc = BitcoinSwapAsset(
       symbol: "LTC",
       providerIdentifier: "LTC.LTC",
@@ -476,4 +478,120 @@ class ThorSwapConstants {
           "https://coin-images.coingecko.com/coins/images/2/large/litecoin.png?1696501400",
       coingeckoId: "litecoin",
       fullName: "Litecoin");
+
+  //// new
+
+  static const SolanaSwapAsset solSol = SolanaSwapAsset(
+      symbol: "SOL",
+      providerIdentifier: "SOL.SOL",
+      decimal: 9,
+      network: SwapConstants.solana,
+      provider: SwapConstants.thorchainProvider,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756",
+      coingeckoId: "solana",
+      fullName: "Solana");
+
+  static const TronSwapAsset trx = TronSwapAsset(
+      symbol: "TRX",
+      providerIdentifier: "TRON.TRX",
+      decimal: 6,
+      network: SwapConstants.tron,
+      provider: SwapConstants.thorchainProvider,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png?1776048311",
+      coingeckoId: "tron",
+      fullName: "Trx");
+  static final TronSwapAsset trxUsdc = TronSwapAsset(
+      symbol: "USDT",
+      providerIdentifier: "TRON.USDT-TR7NHQJEKQXGTCI8Q8ZY4PL8OTSZGJLJ6T",
+      decimal: 6,
+      network: SwapConstants.tron,
+      provider: SwapConstants.thorchainProvider,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+      coingeckoId: "tether",
+      contractAddress: TronAddress("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"),
+      fullName: "USDT");
+
+  static const XRPSwapAsset xrp = XRPSwapAsset(
+      symbol: "XRP",
+      providerIdentifier: "XRP.XRP",
+      provider: SwapConstants.thorchainProvider,
+      decimal: 6,
+      network: SwapConstants.xrp,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442",
+      coingeckoId: "ripple",
+      fullName: "Ripple");
+
+  static final ETHSwapAsset bscBtcb = ETHSwapAsset(
+      symbol: "BTCB",
+      providerIdentifier: "BSC.BTCB-0X7130D2A12B9BCBFAE4F2634D864A1EE1CE3EAD9C",
+      decimal: 18,
+      network: SwapConstants.bsc,
+      provider: SwapConstants.thorchainProvider,
+      contractAddress: ETHAddress("0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c"),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+      coingeckoId: null,
+      fullName: "Binance-Peg BTCB Token (BTCB)");
+
+  static final ETHSwapAsset bscBusd = ETHSwapAsset(
+      symbol: "BUSD",
+      providerIdentifier: "BSC.BUSD-0XE9E7CEA3DEDCA5984780BAFC599BD69ADD087D56",
+      decimal: 18,
+      network: SwapConstants.bsc,
+      provider: SwapConstants.thorchainProvider,
+      contractAddress: ETHAddress("0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/31273/large/new_binance-peg-busd.png?1696530096",
+      coingeckoId: "binance-peg-busd",
+      fullName: "Binance-Peg BUSD Token (BUSD)");
+
+  static final ETHSwapAsset bscEth = ETHSwapAsset(
+      symbol: "ETH",
+      providerIdentifier: "BSC.ETH-0X2170ED0880AC9A755FD29B2688956BD959F933F8",
+      decimal: 18,
+      network: SwapConstants.bsc,
+      provider: SwapConstants.thorchainProvider,
+      contractAddress: ETHAddress("0x2170Ed0880ac9A755fd29B2688956BD959F933F8"),
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+      coingeckoId: "ethereum",
+      fullName: "Binance-Peg Ethereum Token (ETH)");
+
+  static final ETHSwapAsset baseVVV = ETHSwapAsset(
+      symbol: "VVV",
+      providerIdentifier: "BASE.VVV-0XACFE6019ED1A7DC6F7B508C02D1B04EC88CC21BF",
+      decimal: 18,
+      network: SwapConstants.base,
+      provider: SwapConstants.thorchainProvider,
+      logoUrl:
+          "https://coin-images.coingecko.com/coins/images/54023/large/VVV_Token_Transparent.png?1741856877",
+      coingeckoId: "venice-token",
+      contractAddress: ETHAddress("0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf"),
+      fullName: "Venice Token (VVV)");
+
+  // static const CosmosSwapAsset thorRuji = CosmosSwapAsset(
+  //     symbol: "RUJI",
+  //     providerIdentifier: "THOR.RUJI",
+  //     network: SwapConstants.thorchain,
+  //     baseDenom: 'x/ruji',
+  //     provider: SwapConstants.thorchainProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/55372/large/RUJI_180x180.png?1745666342",
+  //     coingeckoId: "rujira",
+  //     fullName: "Rujira");
+
+  // static const CosmosSwapAsset thorTcy = CosmosSwapAsset(
+  //     symbol: "TCY",
+  //     providerIdentifier: "THOR.TCY",
+  //     network: SwapConstants.thorchain,
+  //     baseDenom: 'tcy',
+  //     provider: SwapConstants.thorchainProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/55539/large/THORChain_TCY_Token.png?1782452361",
+  //     coingeckoId: "tcy",
+  //     fullName: "THORChain Yield");
 }

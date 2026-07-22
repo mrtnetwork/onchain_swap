@@ -24,9 +24,13 @@ class MayaSwapConstants {
     ethUsdc,
     ethUsdt,
     ethWsteth,
-    kujiKuji,
-    kujiUsk,
-    thorRune
+    // kujiKuji,
+    // kujiUsk,
+    // thorRune,
+    ada,
+    zcash,
+    // maya,
+    ethMoca
   ];
 
   static final ETHSwapAsset arbArb = ETHSwapAsset(
@@ -149,8 +153,7 @@ class MayaSwapConstants {
       fullName: "Arbitrum Bridged WBTC (Arbitrum One)");
   static final ETHSwapAsset arbWsteth = ETHSwapAsset(
       symbol: "WSTETH",
-      providerIdentifier:
-          "ARB.WSTETH-0X5979D7B546E38E414F7E9822514BE443A4800529",
+      providerIdentifier: "ARB.WSTETH-0X5979D7B546E38E414F7E9822514BE443A4800529",
       decimal: 18,
       network: SwapConstants.arbitrum,
       provider: SwapConstants.mayaProvider,
@@ -235,8 +238,7 @@ class MayaSwapConstants {
       fullName: "Tether");
   static final ETHSwapAsset ethWsteth = ETHSwapAsset(
       symbol: "WSTETH",
-      providerIdentifier:
-          "ETH.WSTETH-0X7F39C581F595B53C5CB19BD0B3F8DA6C935E2CA0",
+      providerIdentifier: "ETH.WSTETH-0X7F39C581F595B53C5CB19BD0B3F8DA6C935E2CA0",
       decimal: 18,
       network: SwapConstants.ethereum,
       provider: SwapConstants.mayaProvider,
@@ -245,38 +247,112 @@ class MayaSwapConstants {
       coingeckoId: "wrapped-steth",
       contractAddress: ETHAddress("0x7F39C581F595B53C5CB19BD0B3F8DA6C935E2CA0"),
       fullName: "Wrapped stETH");
-  static const CosmosSwapAsset kujiKuji = CosmosSwapAsset(
-      symbol: "KUJI",
-      providerIdentifier: "KUJI.KUJI",
+  // static const CosmosSwapAsset kujiKuji = CosmosSwapAsset(
+  //     symbol: "KUJI",
+  //     providerIdentifier: "KUJI.KUJI",
+  //     baseDenom: 'ukuji',
+  //     network: SwapConstants.kujira,
+  //     provider: SwapConstants.mayaProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/20685/large/kuji-200x200.png?1696520085",
+  //     coingeckoId: "kujira",
+  //     fullName: "Kujira");
+  // static const CosmosSwapAsset kujiUsk = CosmosSwapAsset(
+  //     symbol: "USK",
+  //     providerIdentifier: "KUJI.USK",
+  //     network: SwapConstants.kujira,
+  //     baseDenom:
+  //         "factory/kujira1qk00h5atutpsv900x202pxx42npjr9thg58dnqpa72f2p7m2luase444a7/uusk",
+  //     provider: SwapConstants.mayaProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/27274/large/usk.png?1696526326",
+  //     coingeckoId: "usk",
+  //     fullName: "USK");
+  // static const CosmosSwapAsset thorRune = CosmosSwapAsset(
+  //     symbol: "RUNE",
+  //     providerIdentifier: "THOR.RUNE",
+  //     network: SwapConstants.thorchain,
+  //     baseDenom: "rune",
+  //     provider: SwapConstants.mayaProvider,
+  //     logoUrl:
+  //         "https://coin-images.coingecko.com/coins/images/6595/large/Rune200x200.png?1696506946",
+  //     coingeckoId: "thorchain",
+  //     fullName: "THORChain");
+
+  static const AdaSwapAsset ada = AdaSwapAsset(
+      symbol: "ADA",
+      providerIdentifier: "ADA.ADA",
       decimal: 6,
-      denom: 'ukuji',
-      network: SwapConstants.kujira,
+      network: SwapConstants.ada,
       provider: SwapConstants.mayaProvider,
       logoUrl:
-          "https://coin-images.coingecko.com/coins/images/20685/large/kuji-200x200.png?1696520085",
-      coingeckoId: "kujira",
-      fullName: "Kujira");
-  static const CosmosSwapAsset kujiUsk = CosmosSwapAsset(
-      symbol: "USK",
-      providerIdentifier: "KUJI.USK",
-      decimal: 6,
-      network: SwapConstants.kujira,
-      denom:
-          "factory/kujira1qk00h5atutpsv900x202pxx42npjr9thg58dnqpa72f2p7m2luase444a7/uusk",
-      provider: SwapConstants.mayaProvider,
-      logoUrl:
-          "https://coin-images.coingecko.com/coins/images/27274/large/usk.png?1696526326",
-      coingeckoId: "usk",
-      fullName: "USK");
-  static const CosmosSwapAsset thorRune = CosmosSwapAsset(
-      symbol: "RUNE",
-      providerIdentifier: "THOR.RUNE",
+          "https://coin-images.coingecko.com/coins/images/975/large/cardano.png?1696502090",
+      coingeckoId: "cardano",
+      fullName: "Cardano");
+
+  static const ZcashSwapAsset zcash = ZcashSwapAsset(
+      symbol: "Zec",
+      providerIdentifier: "ZEC.ZEC",
       decimal: 8,
-      network: SwapConstants.thorchain,
-      denom: "rune",
+      network: SwapConstants.zcash,
       provider: SwapConstants.mayaProvider,
       logoUrl:
-          "https://coin-images.coingecko.com/coins/images/6595/large/Rune200x200.png?1696506946",
-      coingeckoId: "thorchain",
-      fullName: "THORChain");
+          "https://coin-images.coingecko.com/coins/images/486/large/circle-zcash-color.png?1696501740",
+      coingeckoId: "zcash",
+      fullName: "Zcash");
+
+  // static const CosmosSwapAsset maya = CosmosSwapAsset(
+  //     symbol: "MAYA",
+  //     providerIdentifier: "MAYA.MAYA",
+  //     network: SwapConstants.mayachain,
+  //     baseDenom: "maya",
+  //     provider: SwapConstants.mayaProvider,
+  //     logoUrl:
+  //         "https://raw.githubusercontent.com/cosmos/chain-registry/master/mayachain/images/maya.png",
+  //     fullName: "MAYA");
+
+  static final ETHSwapAsset ethMoca = ETHSwapAsset(
+      symbol: "MOCA",
+      providerIdentifier: "ETH.MOCA-0X53312F85BBA24C8CB99CFFC13BF82420157230D3",
+      decimal: 18,
+      network: SwapConstants.ethereum,
+      provider: SwapConstants.mayaProvider,
+      logoUrl: null,
+      contractAddress: ETHAddress("0x53312F85Bba24C8cb99CFFc13BF82420157230d3"),
+      fullName: "Moca");
 }
+
+// class MayaTestnetSwapConstants {
+//   static const AdaSwapAsset ada = AdaSwapAsset(
+//       symbol: "ADA",
+//       providerIdentifier: "ADA.ADA",
+//       decimal: 6,
+//       network: SwapConstants.adaTestnet,
+//       provider: SwapConstants.mayaProvider,
+//       logoUrl:
+//           "https://coin-images.coingecko.com/coins/images/975/large/cardano.png?1696502090",
+//       coingeckoId: "cardano",
+//       fullName: "Cardano");
+
+//   static const AdaSwapAsset zcash = AdaSwapAsset(
+//       symbol: "Zec",
+//       providerIdentifier: "ZEC.ZEC",
+//       decimal: 8,
+//       network: SwapConstants.zcashTestnet,
+//       provider: SwapConstants.mayaProvider,
+//       logoUrl:
+//           "https://coin-images.coingecko.com/coins/images/486/large/circle-zcash-color.png?1696501740",
+//       coingeckoId: "zcash",
+//       fullName: "Zcash");
+
+//   static const CosmosSwapAsset maya = CosmosSwapAsset(
+//       symbol: "MAYA",
+//       providerIdentifier: "MAYA.MAYA",
+//       decimal: 4,
+//       network: SwapConstants.mayaStagenet,
+//       denom: "maya",
+//       provider: SwapConstants.mayaProvider,
+//       logoUrl:
+//           "https://raw.githubusercontent.com/cosmos/chain-registry/master/mayachain/images/maya.png",
+//       fullName: "MAYA");
+// }
