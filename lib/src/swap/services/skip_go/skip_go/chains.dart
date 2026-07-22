@@ -1,4 +1,4 @@
-import 'package:on_chain_swap/on_chain_swap.dart';
+import 'package:on_chain_swap/src/exception/exception.dart';
 import 'package:on_chain_swap/src/providers/skip_go/models/types/types.dart';
 import 'package:on_chain_swap/src/swap/types/types.dart';
 
@@ -21,6 +21,5 @@ class SkipGoSwapAsset extends BaseSwapAsset {
   String? get logoUrl => asset.logoUri;
 
   @override
-  String get identifier =>
-      throw const DartOnChainSwapPluginException("Unsupported api.");
+  String get identifier => throw const DartOnChainSwapPluginException("Unsupported api.");
 }

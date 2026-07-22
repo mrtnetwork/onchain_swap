@@ -5,7 +5,6 @@ import 'package:blockchain_utils/utils/binary/utils.dart';
 import 'package:blockchain_utils/utils/string/string.dart';
 import 'package:on_chain_swap/on_chain_swap.dart';
 import 'package:on_chain_swap/src/providers/skip_go/constatns/constants.dart';
-import 'package:on_chain_swap/src/providers/types/types.dart';
 
 abstract class SwapKitRequest<RESULT, RESPONSE>
     extends BaseServiceRequest<RESULT, RESPONSE, SwapKitRequestDetails> {
@@ -91,20 +90,13 @@ class SwapKitRequestDetails extends OnChainSwapRequestDetails {
         headers: values
             .mapAt<CborStringValue, CborStringValue>(1)
             .map((k, v) => MapEntry(k.value, v.value)),
-        errorStatusCodes: values
-            .listAt<CborIntValue>(2)
-            .map((e) => e.value)
-            .toList()
-            .emptyAsNull,
-        successStatusCodes: values
-            .listAt<CborIntValue>(3)
-            .map((e) => e.value)
-            .toList()
-            .emptyAsNull,
+        errorStatusCodes:
+            values.listAt<CborIntValue>(2).map((e) => e.value).toList().emptyAsNull,
+        successStatusCodes:
+            values.listAt<CborIntValue>(3).map((e) => e.value).toList().emptyAsNull,
         path: values.rawValueAt(4),
         requestMethod: RequestMethod.fromValue(values.rawValueAt(5)),
-        responseEncoding:
-            ServiceReponseEncoding.fromValue(values.rawValueAt(6)),
+        responseEncoding: ServiceReponseEncoding.fromValue(values.rawValueAt(6)),
         bodyBytes: values.rawValueAt(7),
         bodyString: values.rawValueAt(8),
         requestID: values.rawValueAt(9));
@@ -153,8 +145,7 @@ class SwapKitRequestDetails extends OnChainSwapRequestDetails {
   List<CborObject?> get serializationItems => [
         api.value.toCbor(),
         CborMapValue.definite(
-          headers
-              .map((k, v) => MapEntry(CborStringValue(k), CborStringValue(v))),
+          headers.map((k, v) => MapEntry(CborStringValue(k), CborStringValue(v))),
         ),
         CborTagSerializable.listFromDynamic(
           errorStatusCodes?.map((e) => CborIntValue(e)).toList() ?? [],
